@@ -14,7 +14,17 @@
 * 第二步：运行服务端
 
 ```shell
+# 直接运行
 ./start.sh
+
+# 或者后台运行
+nohup bash ./start.sh > logs/app.log 2>&1 &
+
+# 查看进程
+ps aux | grep start.sh
+
+# 查看日志
+tail -f logs/app.log
 ```
 
 * 第三步：运行游戏 下载个客户端，cmd运行
