@@ -8,6 +8,12 @@ echo "
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
+# 删除旧日志（如果存在）
+LOG_FILE="logs/server.log"
+if [ -f "$LOG_FILE" ]; then
+    rm -f "$LOG_FILE"
+fi
+
 # 检测 Java 可执行文件
 # 优先使用系统 Java，如果系统没有则尝试使用项目自带的 JDK
 if command -v java >/dev/null 2>&1; then
