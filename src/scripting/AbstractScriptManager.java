@@ -26,8 +26,8 @@ public abstract class AbstractScriptManager {
     protected Invocable getInvocable(String path, final MapleClient c, final boolean npc) {
         InputStream fr = null;
         try {
-           String serverPath = System.getProperty("scripts_path");
-            path = serverPath +"scripts"+File.separator + path;
+            String serverPath = System.getProperty("scripts_path");
+            path = serverPath + "scripts" + File.separator + path;
             ScriptEngine engine = null;
             if (c != null) {
                 engine = c.getScriptEngine(path);
@@ -37,12 +37,24 @@ public abstract class AbstractScriptManager {
                 if (!scriptFile.exists()) {
                     return null;
                 }
-                engine = AbstractScriptManager.sem.getEngineByName("javascript");
+                // 默认使用 Nashorn，并开启 mozilla 兼容层，确保 importPackage/importClass 可用
+                engine = AbstractScriptManager.sem.getEngineByName("nashorn");
+                if (engine == null) {
+                    engine = AbstractScriptManager.sem.getEngineByName("javascript");
+                }
+                if (engine != null) {
+                    final String engineName = engine.getFactory().getEngineName();
+                    // System.out.println("[ScriptEngine] 当前脚本引擎: " + engineName);
+                    if (engineName != null && engineName.toLowerCase().contains("nashorn")) {
+                        engine.eval("load('nashorn:mozilla_compat.js');");
+                    }
+                }
                 if (c != null) {
                     c.setScriptEngine(path, engine);
                 }
                 fr = new FileInputStream(scriptFile);
-                final BufferedReader bf = new BufferedReader(new InputStreamReader(fr, EncodingDetect.getJavaEncode(scriptFile)));
+                final BufferedReader bf = new BufferedReader(
+                        new InputStreamReader(fr, EncodingDetect.getJavaEncode(scriptFile)));
                 engine.eval(bf);
             } else if (c != null && npc) {
                 NPCScriptManager.getInstance().dispose(c);
@@ -51,7 +63,8 @@ public abstract class AbstractScriptManager {
             return (Invocable) engine;
         } catch (Exception e) {
             System.err.println("Error executing script. Path: " + path + "\nException " + e);
-            FileoutputUtil.log(FileoutputUtil.ScriptEx_Log, "Error executing script. Path: " + path + "\nException " + e);
+            FileoutputUtil.log(FileoutputUtil.ScriptEx_Log,
+                    "Error executing script. Path: " + path + "\nException " + e);
             return null;
         } finally {
             try {
