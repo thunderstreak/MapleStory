@@ -169,16 +169,16 @@ public class Start {
         SkillFactory.getSkill(99999999);
         MobSkillFactory.getInstance();
         MapleFamilyBuff.getBuffEntry();
-        System.out.println("加载SpeedRunner");
+        System.out.println("加载最快通关记录");
         Runtime.getRuntime().addShutdownHook(new Thread(new Shutdown()));
         try {
             SpeedRunner.getInstance().loadSpeedRuns();
         } catch (SQLException e) {
-            System.out.println("SpeedRunner错误:" + e);
+            System.out.println("最快通关记录错误:" + e);
         }
         System.out.println("加载随机奖励系统");
         RandomRewards.getInstance();
-        System.out.println("加载0X问答系统");
+        System.out.println("加载OX问答系统");
         MapleOxQuizFactory.getInstance().initialize();
         System.out.println("加载嘉年华数据");
         MapleCarnivalFactory.getInstance();
