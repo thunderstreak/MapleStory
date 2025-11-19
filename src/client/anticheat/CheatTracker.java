@@ -1,6 +1,5 @@
 package client.anticheat;
 
-
 import client.MapleCharacter;
 import client.MapleCharacterUtil;
 import constants.GameConstants;
@@ -22,8 +21,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class CheatTracker
-{
+public class CheatTracker {
     private final ReentrantReadWriteLock lock;
     private final Lock rL;
     private final Lock wL;
@@ -54,7 +52,7 @@ public class CheatTracker
     private long lastASmegaTime;
     private long[] lastTime;
     private long lastSaveTime;
-    
+
     public CheatTracker(final MapleCharacter chr) {
         this.lock = new ReentrantReadWriteLock();
         this.rL = this.lock.readLock();
@@ -85,7 +83,7 @@ public class CheatTracker
         this.invalidationTask = Timer.CheatTimer.getInstance().register(new InvalidationTask(), 60000L);
         this.takingDamageSince = System.currentTimeMillis();
     }
-    
+
     public final void checkAttack(final int skillId, final int tickcount) {
         final short AtkDelay = GameConstants.getAttackDelay(skillId);
         if (tickcount - this.lastAttackTickCount < AtkDelay) {
@@ -103,7 +101,7 @@ public class CheatTracker
         this.chr.get().updateTick(tickcount);
         this.lastAttackTickCount = tickcount;
     }
-    
+
     public final void checkTakeDamage(final int damage) {
         ++this.numSequentialDamage;
         this.lastDamageTakenTime = System.currentTimeMillis();
@@ -120,12 +118,11 @@ public class CheatTracker
                 this.numZeroDamageTaken = 0;
                 this.registerOffense(CheatingOffense.回避率过高);
             }
-        }
-        else if (damage != -1) {
+        } else if (damage != -1) {
             this.numZeroDamageTaken = 0;
         }
     }
-    
+
     public final void checkSameDamage(final int dmg) {
         if (dmg > 2000 && this.lastDamage == dmg) {
             ++this.numSameDamage;
@@ -133,35 +130,37 @@ public class CheatTracker
                 this.numSameDamage = 0;
                 this.registerOffense(CheatingOffense.伤害相同, this.numSameDamage + " times: " + dmg);
             }
-        }
-        else {
+        } else {
             this.lastDamage = dmg;
             this.numSameDamage = 0;
         }
     }
-    
+
     public final void checkMoveMonster(final Point pos, final MapleCharacter chr) {
         if (pos.equals(this.lastMonsterMove)) {
             ++this.monsterMoveCount;
             if (this.monsterMoveCount > 50) {
                 this.registerOffense(CheatingOffense.吸怪);
                 this.monsterMoveCount = 0;
-                World.Broadcast.broadcastGMMessage(MaplePacketCreator.serverNotice(6, "[管理员信息] 开挂玩家[" + MapleCharacterUtil.makeMapleReadable(chr.getName()) + "] 地图ID[" + chr.getMapId() + "] 怀疑使用吸怪! ").getBytes());
-                final String note = "时间：" + FileoutputUtil.CurrentReadable_Time() + " || 玩家名字：" + chr.getName() + "|| 玩家地图：" + chr.getMapId() + "\r\n";
-                FileoutputUtil.packetLog("logs/吸怪检测/" + chr.getName() + ".log", note);
+                World.Broadcast.broadcastGMMessage(MaplePacketCreator
+                        .serverNotice(6, "[管理员信息] 开挂玩家[" + MapleCharacterUtil.makeMapleReadable(chr.getName())
+                                + "] 地图ID[" + chr.getMapId() + "] 怀疑使用吸怪! ")
+                        .getBytes());
+                final String note = "时间：" + FileoutputUtil.CurrentReadable_Time() + " || 玩家名字：" + chr.getName()
+                        + "|| 玩家地图：" + chr.getMapId() + "\r\n";
+                FileoutputUtil.packetLog("logs/mobVacDetection/" + chr.getName() + ".log", note);
             }
-        }
-        else {
+        } else {
             this.lastMonsterMove = pos;
             this.monsterMoveCount = 1;
         }
     }
-    
+
     public final void resetSummonAttack() {
         this.summonSummonTime = System.currentTimeMillis();
         this.numSequentialSummonAttack = 0;
     }
-    
+
     public final boolean checkSummonAttack() {
         ++this.numSequentialSummonAttack;
         if ((System.currentTimeMillis() - this.summonSummonTime) / 2001L < this.numSequentialSummonAttack) {
@@ -170,32 +169,32 @@ public class CheatTracker
         }
         return true;
     }
-    
+
     public final void checkDrop() {
         this.checkDrop(false);
     }
-    
+
     public final void checkDrop(final boolean dc) {
         if (System.currentTimeMillis() - this.lastDropTime < 1000L) {
             ++this.dropsPerSecond;
             if (this.dropsPerSecond >= (dc ? 32 : 16) && this.chr.get() != null) {
                 this.chr.get().getClient().setMonitored(true);
             }
-        }
-        else {
+        } else {
             this.dropsPerSecond = 0;
         }
         this.lastDropTime = System.currentTimeMillis();
     }
-    
+
     public boolean canAvatarSmega2() {
-        if (this.lastASmegaTime + 10000L > System.currentTimeMillis() && this.chr.get() != null && !this.chr.get().isGM()) {
+        if (this.lastASmegaTime + 10000L > System.currentTimeMillis() && this.chr.get() != null
+                && !this.chr.get().isGM()) {
             return false;
         }
         this.lastASmegaTime = System.currentTimeMillis();
         return true;
     }
-    
+
     public synchronized boolean GMSpam(final int limit, int type) {
         if (type < 0 || this.lastTime.length < type) {
             type = 1;
@@ -206,34 +205,32 @@ public class CheatTracker
         this.lastTime[type] = System.currentTimeMillis();
         return false;
     }
-    
+
     public final void checkMsg() {
         if (System.currentTimeMillis() - this.lastMsgTime < 1000L) {
             ++this.msgsPerSecond;
-        }
-        else {
+        } else {
             this.msgsPerSecond = 0;
         }
         this.lastMsgTime = System.currentTimeMillis();
     }
-    
+
     public final int getAttacksWithoutHit() {
         return this.attacksWithoutHit;
     }
-    
+
     public final void setAttacksWithoutHit(final boolean increase) {
         if (increase) {
             ++this.attacksWithoutHit;
-        }
-        else {
+        } else {
             this.attacksWithoutHit = 0;
         }
     }
-    
+
     public final void registerOffense(final CheatingOffense offense) {
         this.registerOffense(offense, null);
     }
-    
+
     public final void registerOffense(final CheatingOffense offense, final String param) {
         final MapleCharacter chrhardref = this.chr.get();
         if (chrhardref == null || !offense.isEnabled() || chrhardref.isClone() || chrhardref.isGM()) {
@@ -243,8 +240,7 @@ public class CheatTracker
         this.rL.lock();
         try {
             entry = this.offenses.get(offense);
-        }
-        finally {
+        } finally {
             this.rL.unlock();
         }
         if (entry != null && entry.isExpired()) {
@@ -262,7 +258,8 @@ public class CheatTracker
             final byte type = offense.getBanType();
             if (type != 1) {
                 if (type != 2) {
-                    if (type == 3) {}
+                    if (type == 3) {
+                    }
                 }
             }
             this.gm_message = 50;
@@ -271,8 +268,7 @@ public class CheatTracker
         this.wL.lock();
         try {
             this.offenses.put(offense, entry);
-        }
-        finally {
+        } finally {
             this.wL.unlock();
         }
         switch (offense) {
@@ -291,7 +287,8 @@ public class CheatTracker
                 final String show = offense.name();
                 --this.gm_message;
                 if (this.gm_message % 5 == 0) {
-                    final String msg = "[管理员信息] " + chrhardref.getName() + " 疑似 " + show + "地图ID [" + chrhardref.getMapId() + "]" + ((param == null) ? "" : (" - " + param));
+                    final String msg = "[管理员信息] " + chrhardref.getName() + " 疑似 " + show + "地图ID ["
+                            + chrhardref.getMapId() + "]" + ((param == null) ? "" : (" - " + param));
                     World.Broadcast.broadcastGMMessage(MaplePacketCreator.serverNotice(6, msg).getBytes());
                     FileoutputUtil.logToFile_chr(chrhardref, FileoutputUtil.hack_log, show);
                 }
@@ -304,52 +301,49 @@ public class CheatTracker
         }
         CheatingOffensePersister.getInstance().persistEntry(entry);
     }
-    
+
     public void updateTick(final int newTick) {
         if (newTick == this.lastTickCount) {
             ++this.tickSame;
-        }
-        else {
+        } else {
             this.tickSame = 0;
         }
         this.lastTickCount = newTick;
     }
-    
+
     public final void expireEntry(final CheatingOffenseEntry coe) {
         this.wL.lock();
         try {
             this.offenses.remove(coe.getOffense());
-        }
-        finally {
+        } finally {
             this.wL.unlock();
         }
     }
-    
+
     public final int getPoints() {
         int ret = 0;
         this.rL.lock();
         CheatingOffenseEntry[] offenses_copy;
         try {
             offenses_copy = this.offenses.values().toArray(new CheatingOffenseEntry[this.offenses.size()]);
-        }
-        finally {
+        } finally {
             this.rL.unlock();
         }
         for (final CheatingOffenseEntry entry : offenses_copy) {
             if (entry.isExpired()) {
                 this.expireEntry(entry);
-            }
-            else {
+            } else {
                 ret += entry.getPoints();
             }
         }
         return ret;
     }
-    
+
     public final Map<CheatingOffense, CheatingOffenseEntry> getOffenses() {
-        return Collections.unmodifiableMap((Map<? extends CheatingOffense, ? extends CheatingOffenseEntry>)this.offenses);
+        return Collections
+                .unmodifiableMap((Map<? extends CheatingOffense, ? extends CheatingOffenseEntry>) this.offenses);
     }
-    
+
     public final String getSummary() {
         final StringBuilder ret = new StringBuilder();
         final List<CheatingOffenseEntry> offenseList = new ArrayList<CheatingOffenseEntry>();
@@ -360,8 +354,7 @@ public class CheatTracker
                     offenseList.add(entry);
                 }
             }
-        }
-        finally {
+        } finally {
             this.rL.unlock();
         }
         Collections.sort(offenseList, new Comparator<CheatingOffenseEntry>() {
@@ -382,14 +375,14 @@ public class CheatTracker
         }
         return ret.toString();
     }
-    
+
     public final void dispose() {
         if (this.invalidationTask != null) {
             this.invalidationTask.cancel(false);
         }
         this.invalidationTask = null;
     }
-    
+
     public boolean canSaveDB() {
         if (this.lastSaveTime + 180000L > System.currentTimeMillis() && this.chr.get() != null) {
             return false;
@@ -397,25 +390,24 @@ public class CheatTracker
         this.lastSaveTime = System.currentTimeMillis();
         return true;
     }
-    
+
     public int getlastSaveTime() {
         if (this.lastSaveTime <= 0L) {
             this.lastSaveTime = System.currentTimeMillis();
         }
-        final int seconds = (int)((this.lastSaveTime + 180000L - System.currentTimeMillis()) / 1000L);
+        final int seconds = (int) ((this.lastSaveTime + 180000L - System.currentTimeMillis()) / 1000L);
         return seconds;
     }
-    
-    private final class InvalidationTask implements Runnable
-    {
+
+    private final class InvalidationTask implements Runnable {
         @Override
         public final void run() {
             CheatTracker.this.rL.lock();
             CheatingOffenseEntry[] offenses_copy;
             try {
-                offenses_copy = (CheatingOffenseEntry[])CheatTracker.this.offenses.values().toArray(new CheatingOffenseEntry[CheatTracker.this.offenses.size()]);
-            }
-            finally {
+                offenses_copy = (CheatingOffenseEntry[]) CheatTracker.this.offenses.values()
+                        .toArray(new CheatingOffenseEntry[CheatTracker.this.offenses.size()]);
+            } finally {
                 CheatTracker.this.rL.unlock();
             }
             for (final CheatingOffenseEntry offense : offenses_copy) {
