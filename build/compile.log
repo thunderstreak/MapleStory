@@ -1,0 +1,49 @@
+警告: [options] 未与 -source 1.7 一起设置引导类路径
+src/server/maps/MapleMap.java:13: 警告: Bool是内部专用 API, 可能会在未来发行版中删除
+import com.sun.org.apache.xpath.internal.operations.Bool;
+                                                   ^
+src/scripting/EventManager.java:56: 警告: 最后一个参数使用了不准确的变量类型的 varargs 方法的非 varargs 调用; 
+            this.iv.invokeFunction("cancelSchedule", null);
+                                                     ^
+  对于 varargs 调用, 应使用 Object
+  对于非 varargs 调用, 应使用 Object[], 这样也可以抑制此警告
+src/scripting/EventManager.java:69: 警告: 最后一个参数使用了不准确的变量类型的 varargs 方法的非 varargs 调用; 
+                    EventManager.this.iv.invokeFunction(methodName, null);
+                                                                    ^
+  对于 varargs 调用, 应使用 Object
+  对于非 varargs 调用, 应使用 Object[], 这样也可以抑制此警告
+src/scripting/EventManager.java:114: 警告: 最后一个参数使用了不准确的变量类型的 varargs 方法的非 varargs 调用; 
+                    EventManager.this.iv.invokeFunction(methodName, null);
+                                                                    ^
+  对于 varargs 调用, 应使用 Object
+  对于非 varargs 调用, 应使用 Object[], 这样也可以抑制此警告
+src/scripting/EventManager.java:186: 警告: 最后一个参数使用了不准确的变量类型的 varargs 方法的非 varargs 调用; 
+            this.iv.invokeFunction("setup", null);
+                                            ^
+  对于 varargs 调用, 应使用 Object
+  对于非 varargs 调用, 应使用 Object[], 这样也可以抑制此警告
+src/scripting/EventManager.java:218: 警告: 最后一个参数使用了不准确的变量类型的 varargs 方法的非 varargs 调用; 
+            final EventInstanceManager eim = (EventInstanceManager)this.iv.invokeFunction("setup", null);
+                                                                                                   ^
+  对于 varargs 调用, 应使用 Object
+  对于非 varargs 调用, 应使用 Object[], 这样也可以抑制此警告
+src/scripting/EventManager.java:243: 警告: 最后一个参数使用了不准确的变量类型的 varargs 方法的非 varargs 调用; 
+            final EventInstanceManager eim = (EventInstanceManager)this.iv.invokeFunction("setup", null);
+                                                                                                   ^
+  对于 varargs 调用, 应使用 Object
+  对于非 varargs 调用, 应使用 Object[], 这样也可以抑制此警告
+src/scripting/EventManager.java:272: 警告: 最后一个参数使用了不准确的变量类型的 varargs 方法的非 varargs 调用; 
+            final EventInstanceManager eim = (EventInstanceManager)this.iv.invokeFunction("setup", null);
+                                                                                                   ^
+  对于 varargs 调用, 应使用 Object
+  对于非 varargs 调用, 应使用 Object[], 这样也可以抑制此警告
+src/scripting/EventScriptManager.java:47: 警告: 最后一个参数使用了不准确的变量类型的 varargs 方法的非 varargs 调用; 
+                entry.iv.invokeFunction("init", null);
+                                                ^
+  对于 varargs 调用, 应使用 Object
+  对于非 varargs 调用, 应使用 Object[], 这样也可以抑制此警告
+注: src/handling/channel/handler/HiredMerchantHandler.java使用或覆盖了已过时的 API。
+注: 有关详细信息, 请使用 -Xlint:deprecation 重新编译。
+注: 某些输入文件使用了未经检查或不安全的操作。
+注: 有关详细信息, 请使用 -Xlint:unchecked 重新编译。
+10 个警告
