@@ -13,6 +13,7 @@ logs/
 
 # macOS metadata
 .DS_Store
+**/.DS_Store
 
 # 依赖库（如果需要从 Maven 下载，可以提交；如果手动管理，建议忽略）
 # lib/
