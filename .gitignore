@@ -2,3 +2,14 @@
 .dist/
 out/
 .idea/
+
+# 编译输出目录
+build/
+# bin/*.jar
+
+# 日志文件
+logs/
+*.log
+
+# 依赖库（如果需要从 Maven 下载，可以提交；如果手动管理，建议忽略）
+# lib/
