@@ -42,8 +42,7 @@ import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 import tools.packet.FamilyPacket;
 
-public class InterServerHandler
-{
+public class InterServerHandler {
     public static void EnterCS(final MapleClient c, final MapleCharacter chr) {
         if (c.getPlayer().getMap().getId() != 180000001) {
             if (!c.getChannelServer().WarpCSShop()) {
@@ -64,28 +63,26 @@ public class InterServerHandler
                     World.ChannelChange_Data(new CharacterTransfer(chr), chr.getId(), -10);
                     ch.removePlayer(chr);
                     c.updateLoginState(MapleClient.CHANGE_CHANNEL, c.getSessionIPAddress());
-                    c.getSession().write(MaplePacketCreator.getChannelChange(InetAddress.getByName(socket[0]), Integer.parseInt(CashShopServer.getIP().split(":")[1])));
+                    c.getSession().write(MaplePacketCreator.getChannelChange(InetAddress.getByName(socket[0]),
+                            Integer.parseInt(CashShopServer.getIP().split(":")[1])));
                     chr.saveToDB(false, false);
                     chr.getMap().removePlayer(chr);
                     c.getPlayer().expirationTask(true, false);
                     c.setPlayer(null);
                     c.setReceiving(false);
-                }
-                catch (UnknownHostException ex) {
+                } catch (UnknownHostException ex) {
                     Logger.getLogger(InterServerHandler.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            }
-            else {
+            } else {
                 NPCScriptManager.getInstance().start(c, 9900004, 9999);
                 c.getSession().write(MaplePacketCreator.enableActions());
             }
-        }
-        else {
+        } else {
             c.getPlayer().dropMessage(1, "你在小黑屋里，无法进行任何操作");
             c.getSession().write(MaplePacketCreator.enableActions());
         }
     }
-    
+
     public static void EnterMTS(final MapleClient c, final MapleCharacter chr) {
         if (c.getPlayer().getMap().getId() != 180000001) {
             if (!c.getChannelServer().WarpMTS()) {
@@ -106,17 +103,16 @@ public class InterServerHandler
                     World.ChannelChange_Data(new CharacterTransfer(chr), chr.getId(), -20);
                     ch.removePlayer(chr);
                     c.updateLoginState(MapleClient.CHANGE_CHANNEL, c.getSessionIPAddress());
-                    c.getSession().write(MaplePacketCreator.getChannelChange(InetAddress.getByName(socket[0]), Integer.parseInt(CashShopServer.getIP().split(":")[1])));
+                    c.getSession().write(MaplePacketCreator.getChannelChange(InetAddress.getByName(socket[0]),
+                            Integer.parseInt(CashShopServer.getIP().split(":")[1])));
                     chr.saveToDB(false, false);
                     chr.getMap().removePlayer(chr);
                     c.setPlayer(null);
                     c.setReceiving(false);
-                }
-                catch (UnknownHostException ex) {
+                } catch (UnknownHostException ex) {
                     Logger.getLogger(InterServerHandler.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            }
-            else {
+            } else {
                 NPCScriptManager.getInstance().dispose(c);
                 if (c.getPlayer().getTrade() != null) {
                     c.getPlayer().dropMessage(1, "交易中无法进行其他操作！");
@@ -126,19 +122,18 @@ public class InterServerHandler
                 if (c.getPlayer().getLevel() >= 1) {
                     NPCScriptManager.getInstance().start(c, 9900004);
                     c.getSession().write(MaplePacketCreator.enableActions());
-                }
-                else {
-                    c.getSession().write(MaplePacketCreator.getNPCTalk(9900004, (byte)0, "玩家你好.等级不足1级无法使用快捷功能.", "00 00", (byte)0));
+                } else {
+                    c.getSession().write(MaplePacketCreator.getNPCTalk(9900004, (byte) 0, "玩家你好.等级不足1级无法使用快捷功能.",
+                            "00 00", (byte) 0));
                     c.getSession().write(MaplePacketCreator.enableActions());
                 }
             }
-        }
-        else {
+        } else {
             c.getPlayer().dropMessage(1, "你在小黑屋里，无法进行任何操作");
             c.getSession().write(MaplePacketCreator.enableActions());
         }
     }
-    
+
     public static List<Integer> getSameAccountOtherCharID(final int charid) {
         try {
             int accountid = 0;
@@ -170,13 +165,12 @@ public class InterServerHandler
                 return IDs;
             }
             return null;
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(InterServerHandler.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
     }
-    
+
     public static void Loggedin(final int playerid, final MapleClient c) {
         final ChannelServer channelServer = c.getChannelServer();
         final List<Integer> IDs = getSameAccountOtherCharID(playerid);
@@ -190,8 +184,7 @@ public class InterServerHandler
         MapleCharacter player;
         if (transfer == null) {
             player = MapleCharacter.loadCharFromDB(playerid, c, true);
-        }
-        else {
+        } else {
             player = MapleCharacter.ReconstructChr(transfer, c, true);
             firstLoggedIn = false;
         }
@@ -202,7 +195,8 @@ public class InterServerHandler
         final int state = c.getLoginState();
         boolean allowLogin = false;
         String allowLoginTip = null;
-        if (state == MapleClient.LOGIN_SERVER_TRANSITION || state == MapleClient.CHANGE_CHANNEL || state == MapleClient.LOGIN_NOTLOGGEDIN) {
+        if (state == MapleClient.LOGIN_SERVER_TRANSITION || state == MapleClient.CHANGE_CHANNEL
+                || state == MapleClient.LOGIN_NOTLOGGEDIN) {
             final List<String> charNames = c.loadCharacterNames(c.getWorld());
             allowLogin = !World.isCharacterListConnected(charNames);
             if (!allowLogin) {
@@ -210,7 +204,8 @@ public class InterServerHandler
             }
         }
         if (!allowLogin) {
-            final String msg = "检测账号下已有角色登陆游戏 服务端断开这个连接 [角色ID: " + player.getId() + " 名字: " + player.getName() + " ]\r\n" + allowLoginTip;
+            final String msg = "检测账号下已有角色登陆游戏 服务端断开这个连接 [角色ID: " + player.getId() + " 名字: " + player.getName()
+                    + " ]\r\n" + allowLoginTip;
             System.out.print("自动断开连接2");
             c.setPlayer(null);
             c.getSession().close(true);
@@ -230,12 +225,15 @@ public class InterServerHandler
             player.giveCoolDowns(PlayerBuffStorage.getCooldownsFromStorage(player.getId()));
             player.giveSilentDebuff(PlayerBuffStorage.getDiseaseFromStorage(player.getId()));
             final Collection<Integer> buddyIds = player.getBuddylist().getBuddiesIds();
-            World.Buddy.loggedOn(player.getName(), player.getId(), c.getChannel(), buddyIds, player.getGMLevel(), player.isHidden());
+            World.Buddy.loggedOn(player.getName(), player.getId(), c.getChannel(), buddyIds, player.getGMLevel(),
+                    player.isHidden());
             if (player.getParty() != null) {
-                World.Party.updateParty(player.getParty().getId(), PartyOperation.LOG_ONOFF, new MaplePartyCharacter(player));
+                World.Party.updateParty(player.getParty().getId(), PartyOperation.LOG_ONOFF,
+                        new MaplePartyCharacter(player));
             }
             final CharacterIdChannelPair[] multiBuddyFind;
-            final CharacterIdChannelPair[] onlineBuddies = multiBuddyFind = World.Find.multiBuddyFind(player.getId(), buddyIds);
+            final CharacterIdChannelPair[] onlineBuddies = multiBuddyFind = World.Find.multiBuddyFind(player.getId(),
+                    buddyIds);
             for (final CharacterIdChannelPair onlineBuddy : multiBuddyFind) {
                 final BuddyEntry ble = player.getBuddylist().get(onlineBuddy.getCharacterId());
                 ble.setChannel(onlineBuddy.getChannel());
@@ -266,8 +264,7 @@ public class InterServerHandler
                 World.Family.setFamilyMemberOnline(player.getMFC(), true, c.getChannel());
             }
             c.getSession().write(FamilyPacket.getFamilyInfo(player));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             FileoutputUtil.outputFileError(FileoutputUtil.Login_Error, e);
         }
         c.getSession().write(FamilyPacket.getFamilyData());
@@ -278,8 +275,11 @@ public class InterServerHandler
         }
         final BuddyEntry pendingBuddyRequest = player.getBuddylist().pollPendingRequest();
         if (pendingBuddyRequest != null) {
-            player.getBuddylist().put(new BuddyEntry(pendingBuddyRequest.getName(), pendingBuddyRequest.getCharacterId(), "ETC", -1, false, pendingBuddyRequest.getLevel(), pendingBuddyRequest.getJob()));
-            c.sendPacket(MaplePacketCreator.requestBuddylistAdd(pendingBuddyRequest.getCharacterId(), pendingBuddyRequest.getName(), pendingBuddyRequest.getLevel(), pendingBuddyRequest.getJob()));
+            player.getBuddylist()
+                    .put(new BuddyEntry(pendingBuddyRequest.getName(), pendingBuddyRequest.getCharacterId(), "ETC", -1,
+                            false, pendingBuddyRequest.getLevel(), pendingBuddyRequest.getJob()));
+            c.sendPacket(MaplePacketCreator.requestBuddylistAdd(pendingBuddyRequest.getCharacterId(),
+                    pendingBuddyRequest.getName(), pendingBuddyRequest.getLevel(), pendingBuddyRequest.getJob()));
         }
         player.expirationTask();
         if (player.getJob() == 132) {
@@ -299,13 +299,21 @@ public class InterServerHandler
         if (firstLoggedIn) {
             if (player.getGMLevel() == 0) {
                 if (player.getGender() == 0) {
-                    World.Broadcast.broadcastSmega(MaplePacketCreator.serverNotice(11, c.getChannel(), "[登录公告] 【帅哥】" + c.getPlayer().getName() + " : " + new StringBuilder().append("进入游戏，大家热烈欢迎他吧！！！").toString()).getBytes());
+                    World.Broadcast
+                            .broadcastSmega(MaplePacketCreator
+                                    .serverNotice(11, c.getChannel(),
+                                            "[登录公告] 【帅哥】" + c.getPlayer().getName() + " : "
+                                                    + new StringBuilder().append("进入游戏，大家热烈欢迎他吧！！！").toString())
+                                    .getBytes());
+                } else {
+                    World.Broadcast
+                            .broadcastSmega(MaplePacketCreator
+                                    .serverNotice(11, c.getChannel(),
+                                            "[登录公告] 【美女】" + c.getPlayer().getName() + " : "
+                                                    + new StringBuilder().append("进入游戏，大家热烈欢迎她吧！！！").toString())
+                                    .getBytes());
                 }
-                else {
-                    World.Broadcast.broadcastSmega(MaplePacketCreator.serverNotice(11, c.getChannel(), "[登录公告] 【美女】" + c.getPlayer().getName() + " : " + new StringBuilder().append("进入游戏，大家热烈欢迎她吧！！！").toString()).getBytes());
-                }
-            }
-            else {
+            } else {
                 int p = 0;
                 for (final ChannelServer cserv : ChannelServer.getAllInstances()) {
                     for (final MapleCharacter chr : cserv.getPlayerStorage().getAllCharacters()) {
@@ -317,11 +325,15 @@ public class InterServerHandler
                 player.dropMessage(6, "[服务器信息]：尊敬的管理员，欢迎进入游戏。当前在线人数：" + p + "人");
             }
         }
-        if (player.haveItem(2022336)) {
-            player.dropMessage(5, "欢迎来到" + ServerProperties.getProperty("RoyMS.ServerName") + ",请按“I”键，打开背包，双击使用神秘箱子，领取新人礼包");
-        }
+        // 注释掉：检查并提示玩家使用神秘箱子领取新手礼包
+        // if (player.haveItem(2022336)) {
+        // player.dropMessage(5, "欢迎来到" +
+        // ServerProperties.getProperty("RoyMS.ServerName") +
+        // ",请按"I"键，打开背包，双击使用神秘箱子，领取新人礼包");
+        // }
         if (player.getLevel() == 1) {
-            player.dropMessage(1, "欢迎来到 " + c.getChannelServer().getServerName() + ", " + player.getName() + " ！\r\n使用 @help 可以查看您当前能使用的命令\r\n祝您玩的愉快！");
+            player.dropMessage(1, "欢迎来到 " + c.getChannelServer().getServerName() + ", " + player.getName()
+                    + " ！\r\n使用 @help 可以查看您当前能使用的命令\r\n祝您玩的愉快！");
             player.dropMessage(5, "使用 @help 可以查看您当前能使用的命令 祝您玩的愉快！");
         }
         if (c.getPlayer().hasEquipped(1122017)) {
@@ -331,23 +343,28 @@ public class InterServerHandler
             player.dropMessage(6, "[系统提示] 当前服务器处于双倍经验活动中，祝您玩的愉快！目前倍率：" + c.getChannelServer().getDoubleExp() + " 倍");
         }
         final int 阴森世界地图 = 551030200;
-        if (c.getPlayer().getHp() != 50 && (c.getPlayer().getBossLog("狮熊Boss") >= 1 || c.getPlayer().getBossLogChannel("狮熊Boss") > 0) && c.getPlayer().getMap().getId() != 阴森世界地图 && c.getPlayer().获取怪物数量(阴森世界地图) >= 1 && c.getPlayer().getBossLogChannel("狮熊Boss") == c.getChannel()) {
+        if (c.getPlayer().getHp() != 50
+                && (c.getPlayer().getBossLog("狮熊Boss") >= 1 || c.getPlayer().getBossLogChannel("狮熊Boss") > 0)
+                && c.getPlayer().getMap().getId() != 阴森世界地图 && c.getPlayer().获取怪物数量(阴森世界地图) >= 1
+                && c.getPlayer().getBossLogChannel("狮熊Boss") == c.getChannel()) {
             c.getPlayer().changeMap(阴森世界地图);
-        }
-        else {
+        } else {
             c.getPlayer().resetBossLog("狮熊Boss");
         }
         final int 树精地图 = 541020800;
-        if (c.getPlayer().getHp() != 50 && (c.getPlayer().getBossLog("树精Boss") >= 1 || c.getPlayer().getBossLogChannel("树精Boss") > 0) && c.getPlayer().getMap().getId() != 树精地图 && c.getPlayer().获取怪物数量(树精地图) >= 0 && c.getPlayer().getBossLogChannel("树精Boss") == c.getChannel()) {
+        if (c.getPlayer().getHp() != 50
+                && (c.getPlayer().getBossLog("树精Boss") >= 1 || c.getPlayer().getBossLogChannel("树精Boss") > 0)
+                && c.getPlayer().getMap().getId() != 树精地图 && c.getPlayer().获取怪物数量(树精地图) >= 0
+                && c.getPlayer().getBossLogChannel("树精Boss") == c.getChannel()) {
             c.getPlayer().changeMap(树精地图);
-        }
-        else {
+        } else {
             c.getPlayer().resetBossLog("树精Boss");
         }
         final int 普通黑龙地图阶段1 = 240060000;
         final int 普通黑龙地图阶段2 = 240060100;
         final int 普通黑龙地图阶段3 = 240060200;
-        if (c.getPlayer().getHp() != 50 && (c.getPlayer().getBossLog("普通黑龙") >= 1 || c.getPlayer().getBossLogChannel("普通黑龙") > 0)) {
+        if (c.getPlayer().getHp() != 50
+                && (c.getPlayer().getBossLog("普通黑龙") >= 1 || c.getPlayer().getBossLogChannel("普通黑龙") > 0)) {
             final int type = c.getPlayer().getBossLogType("普通黑龙");
             int mapID = 0;
             switch (type) {
@@ -369,16 +386,14 @@ public class InterServerHandler
                 if (type == 1) {
                     if (c.getPlayer().获取怪物数量(mapID) >= 1) {
                         preheadCheck = 2;
-                    }
-                    else {
+                    } else {
                         preheadCheck = 0;
                     }
                 }
                 if (type == 2) {
                     if (c.getPlayer().获取怪物数量(mapID) >= 1) {
                         preheadCheck = 4;
-                    }
-                    else {
+                    } else {
                         preheadCheck = 2;
                     }
                 }
@@ -392,27 +407,30 @@ public class InterServerHandler
                 em.setProperty("state", "" + type);
                 em.setProperty("preheadCheck", "" + preheadCheck);
                 c.getPlayer().changeMap(mapID);
-            }
-            else {
+            } else {
                 c.getPlayer().resetBossLog("普通黑龙");
             }
-        }
-        else {
+        } else {
             c.getPlayer().resetBossLog("普通黑龙");
         }
         final int 扎昆祭台地图 = 280030000;
-        if (c.getPlayer().getHp() != 50 && (c.getPlayer().getBossLog("普通扎昆") >= 1 || c.getPlayer().getBossLogChannel("普通扎昆") > 0) && c.getPlayer().getMap().getId() != 扎昆祭台地图 && c.getPlayer().获取怪物数量(扎昆祭台地图) >= 1 && c.getPlayer().getBossLogChannel("普通扎昆") == c.getChannel()) {
+        if (c.getPlayer().getHp() != 50
+                && (c.getPlayer().getBossLog("普通扎昆") >= 1 || c.getPlayer().getBossLogChannel("普通扎昆") > 0)
+                && c.getPlayer().getMap().getId() != 扎昆祭台地图 && c.getPlayer().获取怪物数量(扎昆祭台地图) >= 1
+                && c.getPlayer().getBossLogChannel("普通扎昆") == c.getChannel()) {
             c.getPlayer().changeMap(扎昆祭台地图);
-        }
-        else {
+        } else {
             c.getPlayer().resetBossLog("普通扎昆");
         }
         player.checkCopyItems();
-        System.out.println("login: "+DateUtil.getCurrentDateStr()+"[服务端-用户:][名字:" + c.getPlayer().getName() + "][  等级:" + c.getPlayer().getLevel() + "] 进入游戏.");
+        System.out.println("login: " + DateUtil.getCurrentDateStr() + "[服务端-用户:][名字:" + c.getPlayer().getName()
+                + "][  等级:" + c.getPlayer().getLevel() + "] 进入游戏.");
     }
-    
-    public static void ChangeChannel(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
-        if (c.getPlayer().getTrade() != null || !chr.isAlive() || chr.getEventInstance() != null || chr.getMap() == null || FieldLimitType.ChannelSwitch.check(chr.getMap().getFieldLimit())) {
+
+    public static void ChangeChannel(final SeekableLittleEndianAccessor slea, final MapleClient c,
+            final MapleCharacter chr) {
+        if (c.getPlayer().getTrade() != null || !chr.isAlive() || chr.getEventInstance() != null || chr.getMap() == null
+                || FieldLimitType.ChannelSwitch.check(chr.getMap().getFieldLimit())) {
             c.getSession().write(MaplePacketCreator.enableActions());
             return;
         }
