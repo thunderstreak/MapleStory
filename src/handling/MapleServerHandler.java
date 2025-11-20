@@ -96,27 +96,52 @@ public class MapleServerHandler extends IoHandlerAdapter implements MapleServerH
                     fw.flush();
                     fw.close();
                 } catch (IOException ex) {
-                    System.out.println("Error closing Packet Log.");
-                    System.out.println(ex);
+                    // 静默处理，不输出错误信息
                 }
             }
         }
         MapleServerHandler.logIPMap.clear();
-        try {
-            final Scanner sc = new Scanner(MapleServerHandler.loggedIPs);
-            while (sc.hasNextLine()) {
-                final String line = sc.nextLine().trim();
-                if (line.length() > 0) {
-                    final FileWriter fw2 = new FileWriter(new File("PacketLog_" + line + ".txt"), true);
-                    fw2.write("=== Creating Log ===");
-                    fw2.write(MapleServerHandler.nl);
-                    fw2.flush();
-                    MapleServerHandler.logIPMap.put(line, fw2);
+
+        // 确保目录存在
+        if (MapleServerHandler.loggedIPs.getParentFile() != null) {
+            MapleServerHandler.loggedIPs.getParentFile().mkdirs();
+        }
+
+        // 如果文件不存在，创建空文件
+        if (!MapleServerHandler.loggedIPs.exists()) {
+            try {
+                MapleServerHandler.loggedIPs.createNewFile();
+            } catch (IOException e) {
+                // 静默处理，不输出错误信息
+            }
+        }
+
+        // 如果文件存在且是文件，则读取IP列表
+        if (MapleServerHandler.loggedIPs.exists() && MapleServerHandler.loggedIPs.isFile()) {
+            Scanner sc = null;
+            try {
+                sc = new Scanner(MapleServerHandler.loggedIPs);
+                while (sc.hasNextLine()) {
+                    final String line = sc.nextLine().trim();
+                    if (line.length() > 0) {
+                        try {
+                            final FileWriter fw2 = new FileWriter(new File("PacketLog_" + line + ".txt"), true);
+                            fw2.write("=== Creating Log ===");
+                            fw2.write(MapleServerHandler.nl);
+                            fw2.flush();
+                            MapleServerHandler.logIPMap.put(line, fw2);
+                        } catch (IOException e) {
+                            // 静默处理，不输出错误信息
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                // 静默处理，不输出错误信息
+            } finally {
+                if (sc != null) {
+                    sc.close();
                 }
             }
-        } catch (IOException e) {
-            System.out.println("无法加载登录IP数据包。");
-            System.out.println(e);
         }
     }
 
