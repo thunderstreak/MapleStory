@@ -23,10 +23,9 @@ import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 import tools.data.output.MaplePacketLittleEndianWriter;
 
-public class NPCHandler
-{
+public class NPCHandler {
     public static final void NPCAnimation(final SeekableLittleEndianAccessor slea, final MapleClient c) {
-        final int length = (int)slea.available();
+        final int length = (int) slea.available();
         if (length < 4) {
             return;
         }
@@ -50,7 +49,8 @@ public class NPCHandler
             case 1012106:
             case 1032004:
             case 1052103:
-            case 1061100: {}
+            case 1061100: {
+            }
             default: {
                 if (!c.getPlayer().isMapObjectVisible(npc)) {
                     return;
@@ -60,8 +60,7 @@ public class NPCHandler
                 mplew.writeInt(oid);
                 if (length == 6) {
                     mplew.writeShort(slea.readShort());
-                }
-                else {
+                } else {
                     if (length <= 9) {
                         if (c.getPlayer().isAdmin()) {
                             c.getPlayer().dropMessage("NPC, Packet:" + slea.toString());
@@ -74,7 +73,7 @@ public class NPCHandler
             }
         }
     }
-    
+
     public static void NPCShop(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
         final byte bmode = slea.readByte();
         if (chr == null) {
@@ -97,7 +96,7 @@ public class NPCHandler
                 if (shop == null) {
                     return;
                 }
-                final byte slot = (byte)slea.readShort();
+                final byte slot = (byte) slea.readShort();
                 final int itemId2 = slea.readInt();
                 final short quantity2 = slea.readShort();
                 shop.sell(c, GameConstants.getInventoryType(itemId2), slot, quantity2);
@@ -108,7 +107,7 @@ public class NPCHandler
                 if (shop == null) {
                     return;
                 }
-                final byte slot = (byte)slea.readShort();
+                final byte slot = (byte) slea.readShort();
                 shop.recharge(c, slot);
                 break;
             }
@@ -118,7 +117,7 @@ public class NPCHandler
             }
         }
     }
-    
+
     public static void NPCTalk(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
         if (chr == null || chr.getMap() == null) {
             return;
@@ -141,15 +140,16 @@ public class NPCHandler
             return;
         }
         if (npc.hasShop()) {
-            c.getSession().write(MaplePacketCreator.confirmShopTransaction((byte)20));
+            c.getSession().write(MaplePacketCreator.confirmShopTransaction((byte) 20));
             chr.setConversation(1);
             npc.sendShop(c);
         } else {
             NPCScriptManager.getInstance().start(c, npc.getId());
         }
     }
-    
-    public static final void QuestAction(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
+
+    public static final void QuestAction(final SeekableLittleEndianAccessor slea, final MapleClient c,
+            final MapleCharacter chr) {
         final byte action = slea.readByte();
         short quest = slea.readShort();
         if (quest < 0) {
@@ -185,8 +185,7 @@ public class NPCHandler
                 chr.updateTick(slea.readInt());
                 if (slea.available() >= 4L) {
                     q.complete(chr, npc, slea.readInt());
-                }
-                else {
+                } else {
                     q.complete(chr, npc);
                 }
                 if (c.getPlayer().isAdmin()) {
@@ -226,7 +225,7 @@ public class NPCHandler
             }
         }
     }
-    
+
     public static void Storage(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
         final byte mode = slea.readByte();
         if (chr == null) {
@@ -239,27 +238,35 @@ public class NPCHandler
                 final byte type = slea.readByte();
                 final byte slot = storage.getSlot(MapleInventoryType.getByType(type), slea.readByte());
                 final IItem item = storage.takeOut(slot);
+                if (item == null) {
+                    System.out.println("[作弊] " + chr.getName() + " (等级 " + chr.getLevel() + ") 试图从仓库取出不存在的道具.");
+                    c.getSession().write(MaplePacketCreator.enableActions());
+                    break;
+                }
                 if (ii.isCash(item.getItemId())) {
+                    storage.store(item);
                     c.getSession().write(MaplePacketCreator.enableActions());
                     return;
                 }
-                if (item != null) {
-                    if (!MapleInventoryManipulator.checkSpace(c, item.getItemId(), item.getQuantity(), item.getOwner())) {
-                        storage.store(item);
-                        chr.dropMessage(1, "你的物品栏已经满了..");
-                    }
-                    else {
-                        MapleInventoryManipulator.addFromDrop(c, item, false);
-                    }
-                    storage.sendTakenOut(c, GameConstants.getInventoryType(item.getItemId()));
+                final int takeOutFee = 100;
+                if (chr.getMeso() < takeOutFee) {
+                    storage.store(item);
+                    chr.dropMessage(1, "你没有足够的金币.需要" + takeOutFee + "金币");
+                    c.getSession().write(MaplePacketCreator.enableActions());
                     break;
                 }
-                System.out.println("[作弊] " + chr.getName() + " (等级 " + chr.getLevel() + ") 试图从仓库取出不存在的道具.");
-                c.getSession().write(MaplePacketCreator.enableActions());
+                if (!MapleInventoryManipulator.checkSpace(c, item.getItemId(), item.getQuantity(), item.getOwner())) {
+                    storage.store(item);
+                    chr.dropMessage(1, "你的物品栏已经满了..");
+                } else {
+                    chr.gainMeso(-takeOutFee, false, true, false);
+                    MapleInventoryManipulator.addFromDrop(c, item, false);
+                    storage.sendTakenOut(c, GameConstants.getInventoryType(item.getItemId()));
+                }
                 break;
             }
             case 5: {
-                final byte slot2 = (byte)slea.readShort();
+                final byte slot2 = (byte) slea.readShort();
                 final int itemId = slea.readInt();
                 if (itemId >= 1112446 && itemId <= 1112495) {
                     c.getPlayer().dropMessage(1, "禁止存入仓库");
@@ -298,20 +305,19 @@ public class NPCHandler
                     c.getSession().write(MaplePacketCreator.enableActions());
                     return;
                 }
-                if (item2.getItemId() == itemId && (item2.getQuantity() >= quantity || GameConstants.is飞镖道具(itemId) || GameConstants.is子弹道具(itemId))) {
+                if (item2.getItemId() == itemId && (item2.getQuantity() >= quantity || GameConstants.is飞镖道具(itemId)
+                        || GameConstants.is子弹道具(itemId))) {
                     if (ii.isDropRestricted(item2.getItemId())) {
                         if (ItemFlag.KARMA_EQ.check(flag)) {
-                            item2.setFlag((byte)(flag - ItemFlag.KARMA_EQ.getValue()));
-                        }
-                        else if (ItemFlag.KARMA_USE.check(flag)) {
-                            item2.setFlag((byte)(flag - ItemFlag.KARMA_USE.getValue()));
-                        }
-                        else {
+                            item2.setFlag((byte) (flag - ItemFlag.KARMA_EQ.getValue()));
+                        } else if (ItemFlag.KARMA_USE.check(flag)) {
+                            item2.setFlag((byte) (flag - ItemFlag.KARMA_USE.getValue()));
+                        } else {
                             if (!ItemFlag.LOCK.check(flag)) {
                                 c.getSession().write(MaplePacketCreator.enableActions());
                                 return;
                             }
-                            item2.setFlag((byte)(flag - ItemFlag.LOCK.getValue()));
+                            item2.setFlag((byte) (flag - ItemFlag.LOCK.getValue()));
                         }
                     }
                     if (GameConstants.is飞镖道具(itemId) || GameConstants.is子弹道具(itemId)) {
@@ -324,7 +330,8 @@ public class NPCHandler
                     storage.sendStored(c, GameConstants.getInventoryType(itemId));
                     break;
                 }
-                AutobanManager.getInstance().addPoints(c, 1000, 0L, "试图存入到仓库的道具: " + itemId + " 数量: " + quantity + " 当前玩家用道具: " + item2.getItemId() + " 数量: " + item2.getQuantity());
+                AutobanManager.getInstance().addPoints(c, 1000, 0L, "试图存入到仓库的道具: " + itemId + " 数量: " + quantity
+                        + " 当前玩家用道具: " + item2.getItemId() + " 数量: " + item2.getQuantity());
             }
             case 6: {
                 c.getSession().write(MaplePacketCreator.enableActions());
@@ -340,8 +347,7 @@ public class NPCHandler
                         if (-meso > playerMesos) {
                             return;
                         }
-                    }
-                    else if (meso > 0 && playerMesos + meso < 0) {
+                    } else if (meso > 0 && playerMesos + meso < 0) {
                         meso = Integer.MAX_VALUE - playerMesos;
                         if (meso > storageMesos) {
                             return;
@@ -352,7 +358,9 @@ public class NPCHandler
                     storage.sendMeso(c);
                     break;
                 }
-                AutobanManager.getInstance().addPoints(c, 1000, 0L, "Trying to store or take out unavailable amount of mesos (" + meso + "/" + storage.getMeso() + "/" + c.getPlayer().getMeso() + ")");
+                AutobanManager.getInstance().addPoints(c, 1000, 0L,
+                        "Trying to store or take out unavailable amount of mesos (" + meso + "/" + storage.getMeso()
+                                + "/" + c.getPlayer().getMeso() + ")");
             }
             case 8: {
                 storage.close();
@@ -365,7 +373,7 @@ public class NPCHandler
             }
         }
     }
-    
+
     public static void NPCMoreTalk(final SeekableLittleEndianAccessor slea, final MapleClient c) {
         final MapleCharacter player = c.getPlayer();
         if (player == null) {
@@ -377,7 +385,7 @@ public class NPCHandler
         if (cm == null || c.getPlayer().getConversation() == 0 || cm.getLastMsg() != lastMsg) {
             return;
         }
-        cm.setLastMsg((byte)(-1));
+        cm.setLastMsg((byte) (-1));
         if (lastMsg == 2) {
             if (action != 0) {
                 cm.setGetText(slea.readMapleAsciiString());
@@ -395,17 +403,14 @@ public class NPCHandler
                         break;
                     }
                 }
-            }
-            else {
+            } else {
                 cm.dispose();
             }
-        }
-        else {
+        } else {
             int selection = -1;
             if (slea.available() >= 4L) {
                 selection = slea.readInt();
-            }
-            else if (slea.available() > 0L) {
+            } else if (slea.available() > 0L) {
                 selection = slea.readByte();
             }
             if (lastMsg == 4 && selection == -1) {
@@ -427,20 +432,19 @@ public class NPCHandler
                         break;
                     }
                 }
-            }
-            else {
+            } else {
                 cm.dispose();
             }
         }
     }
-    
+
     public static void UpdateQuest(final SeekableLittleEndianAccessor slea, final MapleClient c) {
         final MapleQuest quest = MapleQuest.getInstance(slea.readShort());
         if (quest != null) {
             c.getPlayer().updateQuest(c.getPlayer().getQuest(quest), true);
         }
     }
-    
+
     public static void RPSGame(final SeekableLittleEndianAccessor slea, final MapleClient c) {
         if (slea.available() == 0L || !c.getPlayer().getMap().containsNPC(9000019)) {
             if (c.getPlayer().getRPS() != null) {
@@ -459,26 +463,26 @@ public class NPCHandler
                     c.getPlayer().setRPS(new RockPaperScissors(c, mode));
                     break;
                 }
-                c.getSession().write(MaplePacketCreator.getRPSMode((byte)8, -1, -1, -1));
+                c.getSession().write(MaplePacketCreator.getRPSMode((byte) 8, -1, -1, -1));
                 break;
             }
             case 1: {
                 if (c.getPlayer().getRPS() == null || !c.getPlayer().getRPS().answer(c, slea.readByte())) {
-                    c.getSession().write(MaplePacketCreator.getRPSMode((byte)13, -1, -1, -1));
+                    c.getSession().write(MaplePacketCreator.getRPSMode((byte) 13, -1, -1, -1));
                     break;
                 }
                 break;
             }
             case 2: {
                 if (c.getPlayer().getRPS() == null || !c.getPlayer().getRPS().timeOut(c)) {
-                    c.getSession().write(MaplePacketCreator.getRPSMode((byte)13, -1, -1, -1));
+                    c.getSession().write(MaplePacketCreator.getRPSMode((byte) 13, -1, -1, -1));
                     break;
                 }
                 break;
             }
             case 3: {
                 if (c.getPlayer().getRPS() == null || !c.getPlayer().getRPS().nextRound(c)) {
-                    c.getSession().write(MaplePacketCreator.getRPSMode((byte)13, -1, -1, -1));
+                    c.getSession().write(MaplePacketCreator.getRPSMode((byte) 13, -1, -1, -1));
                     break;
                 }
                 break;
@@ -488,7 +492,7 @@ public class NPCHandler
                     c.getPlayer().getRPS().dispose(c);
                     break;
                 }
-                c.getSession().write(MaplePacketCreator.getRPSMode((byte)13, -1, -1, -1));
+                c.getSession().write(MaplePacketCreator.getRPSMode((byte) 13, -1, -1, -1));
                 break;
             }
         }

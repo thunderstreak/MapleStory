@@ -20,7 +20,8 @@ public enum ItemLoader {
     CASHSHOP_EXPLORER("csitems", "csequipment", 2, new String[] { "accountid" }),
     CASHSHOP_CYGNUS("csitems", "csequipment", 3, new String[] { "accountid" }),
     CASHSHOP_ARAN("csitems", "csequipment", 4, new String[] { "accountid" }),
-    HIRED_MERCHANT("hiredmerchitems", "hiredmerchequipment", 5, new String[] { "packageid", "accountid", "characterid" }),
+    HIRED_MERCHANT("hiredmerchitems", "hiredmerchequipment", 5,
+            new String[] { "packageid", "accountid", "characterid" }),
     DUEY("dueyitems", "dueyequipment", 6, new String[] { "packageid" }),
     CASHSHOP_EVAN("csitems", "csequipment", 7, new String[] { "accountid" }),
     MTS("mtsitems", "mtsequipment", 8, new String[] { "packageid" }),
@@ -47,10 +48,12 @@ public enum ItemLoader {
         return this.value;
     }
 
-    public Map<Integer, Pair<IItem, MapleInventoryType>> loadItems_hm(int packageid, int accountid) throws SQLException {
+    public Map<Integer, Pair<IItem, MapleInventoryType>> loadItems_hm(int packageid, int accountid)
+            throws SQLException {
         Map<Integer, Pair<IItem, MapleInventoryType>> items = new LinkedHashMap<>();
         StringBuilder query = new StringBuilder();
-        query.append("SELECT * FROM `hiredmerchitems` LEFT JOIN `hiredmerchequipment` USING(`inventoryitemid`) WHERE `type` = ? AND `accountid` = ? ");
+        query.append(
+                "SELECT * FROM `hiredmerchitems` LEFT JOIN `hiredmerchequipment` USING(`inventoryitemid`) WHERE `type` = ? AND `accountid` = ? ");
         PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement(query.toString());
         ps.setInt(1, this.value);
         ps.setInt(2, accountid);
@@ -58,8 +61,9 @@ public enum ItemLoader {
         while (rs.next()) {
             MapleInventoryType mit = MapleInventoryType.getByType(rs.getByte("inventorytype"));
             if (mit.equals(MapleInventoryType.EQUIP) || mit.equals(MapleInventoryType.EQUIPPED)) {
-                Equip equip = new Equip(rs.getInt("itemid"), rs.getShort("position"), rs.getInt("uniqueid"), rs.getByte("flag"));
-                equip.setQuantity((short)1);
+                Equip equip = new Equip(rs.getInt("itemid"), rs.getShort("position"), rs.getInt("uniqueid"),
+                        rs.getByte("flag"));
+                equip.setQuantity((short) 1);
                 equip.setOwner(rs.getString("owner"));
                 equip.setExpiration(rs.getLong("expiredate"));
                 equip.setUpgradeSlots(rs.getByte("upgradeslots"));
@@ -101,7 +105,8 @@ public enum ItemLoader {
                 items.put(Integer.valueOf(rs.getInt("inventoryitemid")), new Pair(equip.copy(), mit));
                 continue;
             }
-            Item item = new Item(rs.getInt("itemid"), rs.getShort("position"), rs.getShort("quantity"), rs.getByte("flag"));
+            Item item = new Item(rs.getInt("itemid"), rs.getShort("position"), rs.getShort("quantity"),
+                    rs.getByte("flag"));
             item.setUniqueId(rs.getInt("uniqueid"));
             item.setOwner(rs.getString("owner"));
             item.setExpiration(rs.getLong("expiredate"));
@@ -130,6 +135,14 @@ public enum ItemLoader {
         Map<Integer, Pair<IItem, MapleInventoryType>> items = new LinkedHashMap<>();
         if (lulz.size() != this.arg.size())
             return items;
+        // 对于STORAGE类型，验证accountid必须大于0
+        if (this == STORAGE && lulz.size() > 0) {
+            int accountId = ((Integer) lulz.get(0)).intValue();
+            if (accountId <= 0) {
+                System.err.println("[仓库错误] 无效的账号ID: " + accountId);
+                return items;
+            }
+        }
         StringBuilder query = new StringBuilder();
         query.append("SELECT * FROM `");
         query.append(this.table);
@@ -141,6 +154,10 @@ public enum ItemLoader {
             query.append(g);
             query.append("` = ?");
         }
+        // 对于STORAGE类型，额外确保accountid不为NULL且大于0
+        if (this == STORAGE) {
+            query.append(" AND `accountid` IS NOT NULL AND `accountid` > 0");
+        }
         if (login) {
             query.append(" AND `inventorytype` = ");
             query.append(MapleInventoryType.EQUIPPED.getType());
@@ -148,14 +165,15 @@ public enum ItemLoader {
         PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement(query.toString());
         ps.setInt(1, this.value);
         for (int i = 0; i < lulz.size(); i++)
-            ps.setInt(i + 2, ((Integer)lulz.get(i)).intValue());
+            ps.setInt(i + 2, ((Integer) lulz.get(i)).intValue());
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
             MapleInventoryType mit = MapleInventoryType.getByType(rs.getByte("inventorytype"));
             if (mit.equals(MapleInventoryType.EQUIP) || mit.equals(MapleInventoryType.EQUIPPED)) {
-                Equip equip = new Equip(rs.getInt("itemid"), rs.getShort("position"), rs.getInt("uniqueid"), rs.getByte("flag"));
+                Equip equip = new Equip(rs.getInt("itemid"), rs.getShort("position"), rs.getInt("uniqueid"),
+                        rs.getByte("flag"));
                 if (!login) {
-                    equip.setQuantity((short)1);
+                    equip.setQuantity((short) 1);
                     equip.setOwner(rs.getString("owner"));
                     equip.setExpiration(rs.getLong("expiredate"));
                     equip.setUpgradeSlots(rs.getByte("upgradeslots"));
@@ -190,7 +208,8 @@ public enum ItemLoader {
                     equip.setEquipOnlyId(rs.getInt("equipOnlyId"));
                     if (equip.getUniqueId() > -1 &&
                             GameConstants.isEffectRing(rs.getInt("itemid"))) {
-                        MapleRing ring = MapleRing.loadFromDb(equip.getUniqueId(), mit.equals(MapleInventoryType.EQUIPPED));
+                        MapleRing ring = MapleRing.loadFromDb(equip.getUniqueId(),
+                                mit.equals(MapleInventoryType.EQUIPPED));
                         if (ring != null)
                             equip.setRing(ring);
                     }
@@ -198,7 +217,8 @@ public enum ItemLoader {
                 items.put(Integer.valueOf(rs.getInt("inventoryitemid")), new Pair(equip.copy(), mit));
                 continue;
             }
-            Item item = new Item(rs.getInt("itemid"), rs.getShort("position"), rs.getShort("quantity"), rs.getByte("flag"));
+            Item item = new Item(rs.getInt("itemid"), rs.getShort("position"), rs.getShort("quantity"),
+                    rs.getByte("flag"));
             item.setUniqueId(rs.getInt("uniqueid"));
             item.setOwner(rs.getString("owner"));
             item.setExpiration(rs.getLong("expiredate"));
@@ -227,7 +247,8 @@ public enum ItemLoader {
         saveItems(items, con, id);
     }
 
-    public void saveItems(List<Pair<IItem, MapleInventoryType>> items, Connection con, Integer... id) throws SQLException {
+    public void saveItems(List<Pair<IItem, MapleInventoryType>> items, Connection con, Integer... id)
+            throws SQLException {
         List<Integer> lulz = Arrays.asList(id);
         if (lulz.size() != this.arg.size())
             return;
@@ -249,7 +270,7 @@ public enum ItemLoader {
         PreparedStatement ps = con.prepareStatement(querySelectNeedDelete.toString());
         ps.setInt(1, this.value);
         for (int i = 0; i < lulz.size(); i++)
-            ps.setInt(i + 2, ((Integer)lulz.get(i)).intValue());
+            ps.setInt(i + 2, ((Integer) lulz.get(i)).intValue());
         ResultSet rs = ps.executeQuery();
         List<Integer> equipOnlyIds = new ArrayList<>();
         Map<Integer, Integer> checkItems = new HashMap<>();
@@ -258,14 +279,15 @@ public enum ItemLoader {
             int equipOnlyId = rs.getInt("equipOnlyId");
             if (equipOnlyId > 0)
                 if (checkItems.containsKey(Integer.valueOf(equipOnlyId))) {
-                    if (((Integer)checkItems.get(Integer.valueOf(equipOnlyId))).intValue() == itemId)
+                    if (((Integer) checkItems.get(Integer.valueOf(equipOnlyId))).intValue() == itemId)
                         equipOnlyIds.add(Integer.valueOf(equipOnlyId));
                 } else {
                     checkItems.put(Integer.valueOf(equipOnlyId), Integer.valueOf(itemId));
                 }
             boolean find = false;
             for (Pair<IItem, MapleInventoryType> item : items) {
-                if (((IItem)item.getLeft()).getEquipOnlyId() == equipOnlyId && ((IItem)item.getLeft()).getItemId() == itemId) {
+                if (((IItem) item.getLeft()).getEquipOnlyId() == equipOnlyId
+                        && ((IItem) item.getLeft()).getItemId() == itemId) {
                     find = true;
                     break;
                 }
@@ -274,7 +296,8 @@ public enum ItemLoader {
                 StringBuilder queryDelete = new StringBuilder();
                 queryDelete.append("DELETE FROM `");
                 queryDelete.append(this.table);
-                queryDelete.append("` WHERE `type` = ? AND `itemId` = " + itemId + " AND `equipOnlyId` = " + equipOnlyId + " AND (`");
+                queryDelete.append("` WHERE `type` = ? AND `itemId` = " + itemId + " AND `equipOnlyId` = " + equipOnlyId
+                        + " AND (`");
                 queryDelete.append(this.arg.get(0));
                 queryDelete.append("` = ?");
                 if (this.arg.size() > 1)
@@ -288,7 +311,7 @@ public enum ItemLoader {
                 try {
                     ps2.setInt(1, this.value);
                     for (int j = 0; j < lulz.size(); j++)
-                        ps2.setInt(j + 2, ((Integer)lulz.get(j)).intValue());
+                        ps2.setInt(j + 2, ((Integer) lulz.get(j)).intValue());
                     ps2.executeUpdate();
                 } catch (SQLException ex) {
                     System.err.println("Delete Item Error: " + itemId + " equipOnlyId : " + equipOnlyId + " " + ex);
@@ -315,19 +338,20 @@ public enum ItemLoader {
         querySelectNeedInsert.append(") LIMIT 1");
         ps = con.prepareStatement(querySelectNeedInsert.toString());
         for (Pair<IItem, MapleInventoryType> item : items) {
-            int itemId = ((IItem)item.getLeft()).getItemId();
-            int equipOnlyId = ((IItem)item.getLeft()).getEquipOnlyId();
+            int itemId = ((IItem) item.getLeft()).getItemId();
+            int equipOnlyId = ((IItem) item.getLeft()).getEquipOnlyId();
             ps.setInt(1, this.value);
             ps.setInt(2, itemId);
             ps.setInt(3, equipOnlyId);
             for (int j = 0; j < lulz.size(); j++)
-                ps.setInt(j + 4, ((Integer)lulz.get(j)).intValue());
+                ps.setInt(j + 4, ((Integer) lulz.get(j)).intValue());
             rs = ps.executeQuery();
             if (rs.next()) {
                 StringBuilder queryItemUpdate = new StringBuilder("UPDATE `");
                 queryItemUpdate.append(this.table);
                 queryItemUpdate.append("` SET ");
-                queryItemUpdate.append("`itemid` = ?, `inventorytype` = ?, `position` = ?, `quantity` = ?, `owner` = ?, `GM_Log` = ?, `uniqueid` = ?, `expiredate` = ?, `flag` = ?, `type` = ?, `sender` = ?  WHERE `equipOnlyId` = ? and (`");
+                queryItemUpdate.append(
+                        "`itemid` = ?, `inventorytype` = ?, `position` = ?, `quantity` = ?, `owner` = ?, `GM_Log` = ?, `uniqueid` = ?, `expiredate` = ?, `flag` = ?, `type` = ?, `sender` = ?  WHERE `equipOnlyId` = ? and (`");
                 queryItemUpdate.append(this.arg.get(0));
                 queryItemUpdate.append("` = ?");
                 if (this.arg.size() > 1)
@@ -339,8 +363,8 @@ public enum ItemLoader {
                 queryItemUpdate.append(")");
                 PreparedStatement ps2 = con.prepareStatement(queryItemUpdate.toString());
                 try {
-                    IItem itemUpdate = (IItem)item.getLeft();
-                    MapleInventoryType mit = (MapleInventoryType)item.getRight();
+                    IItem itemUpdate = (IItem) item.getLeft();
+                    MapleInventoryType mit = (MapleInventoryType) item.getRight();
                     try {
                         ps2.setInt(1, itemUpdate.getItemId());
                         ps2.setInt(2, mit.getType());
@@ -351,19 +375,21 @@ public enum ItemLoader {
                         ps2.setInt(7, itemUpdate.getUniqueId());
                         ps2.setLong(8, itemUpdate.getExpiration());
                         ps2.setByte(9, itemUpdate.getFlag());
-                        ps2.setByte(10, (byte)this.value);
+                        ps2.setByte(10, (byte) this.value);
                         ps2.setString(11, itemUpdate.getGiftFrom());
                         ps2.setInt(12, itemUpdate.getEquipOnlyId());
                         for (int k = 0; k < lulz.size(); k++)
-                            ps2.setInt(13 + k, ((Integer)lulz.get(k)).intValue());
+                            ps2.setInt(13 + k, ((Integer) lulz.get(k)).intValue());
                         ps2.executeUpdate();
                         ps2.close();
                     } catch (SQLException ex) {
-                        System.err.println("GMLOG : " + itemUpdate.getGMLog() + "1 Table_equip : " + this.table + " " + ex);
+                        System.err.println(
+                                "GMLOG : " + itemUpdate.getGMLog() + "1 Table_equip : " + this.table + " " + ex);
                     }
                     if (mit.equals(MapleInventoryType.EQUIP) || mit.equals(MapleInventoryType.EQUIPPED)) {
-                        PreparedStatement pse = con.prepareStatement("UPDATE `" + this.table_equip + "` SET `upgradeslots` = ?, `level` = ?, `str` = ?, `dex` = ?, `int` = ?, `luk` = ?, `hp` = ?, `mp` = ?, `watk` = ?, `matk` = ?, `wdef` = ?, `mdef` = ?, `acc` = ?, `avoid` = ?, `hands` = ?, `speed` = ?, `jump` = ?, `ViciousHammer` = ?, `itemEXP` = ?, `durability` = ?, `enhance` = ?, `potential1` = ?, `potential2` = ?, `potential3` = ?, `hpR` = ?, `mpR` = ?, `itemlevel` = ? WHERE `equipOnlyId` = ?");
-                        IEquip equip = (IEquip)itemUpdate;
+                        PreparedStatement pse = con.prepareStatement("UPDATE `" + this.table_equip
+                                + "` SET `upgradeslots` = ?, `level` = ?, `str` = ?, `dex` = ?, `int` = ?, `luk` = ?, `hp` = ?, `mp` = ?, `watk` = ?, `matk` = ?, `wdef` = ?, `mdef` = ?, `acc` = ?, `avoid` = ?, `hands` = ?, `speed` = ?, `jump` = ?, `ViciousHammer` = ?, `itemEXP` = ?, `durability` = ?, `enhance` = ?, `potential1` = ?, `potential2` = ?, `potential3` = ?, `hpR` = ?, `mpR` = ?, `itemlevel` = ? WHERE `equipOnlyId` = ?");
+                        IEquip equip = (IEquip) itemUpdate;
                         pse.setInt(1, equip.getUpgradeSlots());
                         pse.setInt(2, equip.getLevel());
                         pse.setInt(3, equip.getStr());
@@ -395,7 +421,7 @@ public enum ItemLoader {
                         pse.executeUpdate();
                         pse.close();
                     }
-                } catch (RuntimeException|SQLException ex) {
+                } catch (RuntimeException | SQLException ex) {
                     System.err.println("2 table_equip: " + this.table_equip + " " + ex);
                 }
             } else {
@@ -406,17 +432,18 @@ public enum ItemLoader {
                     queryItemInsert.append(g);
                     queryItemInsert.append(", ");
                 }
-                queryItemInsert.append("itemid, inventorytype, position, quantity, owner, GM_Log, uniqueid, expiredate, flag, `type`, sender, `equipOnlyId` ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ");
+                queryItemInsert.append(
+                        "itemid, inventorytype, position, quantity, owner, GM_Log, uniqueid, expiredate, flag, `type`, sender, `equipOnlyId` ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ");
                 for (String g : this.arg)
                     queryItemInsert.append(", ?");
                 queryItemInsert.append(")");
                 PreparedStatement ps3 = con.prepareStatement(queryItemInsert.toString());
-                IItem itemTmp = (IItem)item.getLeft();
-                MapleInventoryType mit = (MapleInventoryType)item.getRight();
+                IItem itemTmp = (IItem) item.getLeft();
+                MapleInventoryType mit = (MapleInventoryType) item.getRight();
                 try {
                     int k = 1;
                     for (k = 0; k < lulz.size(); k++)
-                        ps3.setInt(k + 1, ((Integer)lulz.get(k)).intValue());
+                        ps3.setInt(k + 1, ((Integer) lulz.get(k)).intValue());
                     ps3.setInt(k + 1, itemTmp.getItemId());
                     ps3.setInt(k + 2, mit.getType());
                     ps3.setInt(k + 3, itemTmp.getPosition());
@@ -426,7 +453,7 @@ public enum ItemLoader {
                     ps3.setInt(k + 7, itemTmp.getUniqueId());
                     ps3.setLong(k + 8, itemTmp.getExpiration());
                     ps3.setByte(k + 9, itemTmp.getFlag());
-                    ps3.setByte(k + 10, (byte)this.value);
+                    ps3.setByte(k + 10, (byte) this.value);
                     ps3.setString(k + 11, itemTmp.getGiftFrom());
                     ps3.setInt(k + 12, itemTmp.getEquipOnlyId());
                     ps3.executeUpdate();
@@ -457,9 +484,10 @@ public enum ItemLoader {
                         if (onlyID == 0)
                             throw new RuntimeException("Inserting item failed.");
                         try {
-                            PreparedStatement pse = con.prepareStatement("INSERT INTO " + this.table_equip + " VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                            PreparedStatement pse = con.prepareStatement("INSERT INTO " + this.table_equip
+                                    + " VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                             pse.setInt(1, newIndex);
-                            IEquip equip = (IEquip)itemTmp;
+                            IEquip equip = (IEquip) itemTmp;
                             pse.setInt(2, equip.getUpgradeSlots());
                             pse.setInt(3, equip.getLevel());
                             pse.setInt(4, equip.getStr());
@@ -492,12 +520,14 @@ public enum ItemLoader {
                             pse.close();
                         } catch (SQLException ex) {
                             ex.printStackTrace();
-                            System.err.println("INSERT NEW E ERROR : " + itemTmp.getItemId() + " EquipOnlyId : " + itemTmp.getEquipOnlyId() + " " + ex);
+                            System.err.println("INSERT NEW E ERROR : " + itemTmp.getItemId() + " EquipOnlyId : "
+                                    + itemTmp.getEquipOnlyId() + " " + ex);
                         }
                     }
                 } catch (SQLException ex) {
                     ex.printStackTrace();
-                    System.err.println("INSERT NEW ITEM ERROR : " + itemTmp.getItemId() + " EquipOnlyId : " + itemTmp.getEquipOnlyId() + " " + ex);
+                    System.err.println("INSERT NEW ITEM ERROR : " + itemTmp.getItemId() + " EquipOnlyId : "
+                            + itemTmp.getEquipOnlyId() + " " + ex);
                 }
             }
             rs.close();
