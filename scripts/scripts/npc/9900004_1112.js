@@ -57,7 +57,7 @@ function action(mode, type, selection) {
             if (cm.getPlayer().getqiandao() >= 3 && cm.获取签到奖励领取状态() == 0) {//获取玩家签到状态
 				cm.设置签到奖励领取状态(+1);
                 cm.gainItem(4001126, 150);//枫叶*150
-				cm.gainMeso(10000000);//1000W金币
+				cm.gainMeso(2000000);//200W金币
 				cm.gainDY(3000);//抵用卷3000
                 cm.sendOk("恭喜领取签到奖励成功！");
                 cm.即时存档();
@@ -71,7 +71,7 @@ function action(mode, type, selection) {
             if (cm.getPlayer().getqiandao() >= 5 && cm.获取签到奖励领取状态() == 1) {//获取玩家签到状态
 				cm.设置签到奖励领取状态(+1);
                 cm.gainItem(4001126, 300);//枫叶*300
-				cm.gainMeso(20000000);//2000W金币
+				cm.gainMeso(3000000);//300W金币
 				cm.gainDY(5000);//抵用卷5000
                 cm.sendOk("恭喜领取签到奖励成功！");
                 cm.即时存档();
@@ -85,7 +85,7 @@ function action(mode, type, selection) {
             if (cm.getPlayer().getqiandao() >= 7 && cm.获取签到奖励领取状态() == 2) {//获取玩家签到状态
 				cm.设置签到奖励领取状态(+1);
                 cm.gainItem(4001126, 300);//枫叶*300
-				cm.gainMeso(25000000);//2500W金币
+				cm.gainMeso(4000000);//400W金币
 				cm.gainDY(8000);//抵用卷8000
                 cm.sendOk("恭喜领取签到奖励成功！");
                 cm.即时存档();
@@ -99,7 +99,7 @@ function action(mode, type, selection) {
             if (cm.getPlayer().getqiandao() >= 10 && cm.获取签到奖励领取状态() == 3) {//获取玩家签到状态
 				cm.设置签到奖励领取状态(+1);
                 cm.gainItem(4001126, 500);//枫叶*500
-				cm.gainMeso(40000000);//4000W金币
+				cm.gainMeso(5000000);//500W金币
 				cm.gainDY(15000);//抵用卷15000
                 cm.sendOk("恭喜领取签到奖励成功！");
                 cm.即时存档();
@@ -113,7 +113,7 @@ function action(mode, type, selection) {
             if (cm.getPlayer().getqiandao() >= 15 && cm.获取签到奖励领取状态() == 4) {//获取玩家签到状态
 				cm.设置签到奖励领取状态(+1);
                 cm.gainItem(4001126, 700);//枫叶*700
-				cm.gainMeso(60000000);//6000W金币
+				cm.gainMeso(6000000);//600W金币
 				cm.gainDY(20000);//抵用卷20000
                 cm.sendOk("恭喜领取签到奖励成功！");
                 cm.即时存档();
@@ -127,7 +127,7 @@ function action(mode, type, selection) {
             if (cm.getPlayer().getqiandao() >= 20 && cm.获取签到奖励领取状态() == 5) {//获取玩家签到状态
 				cm.设置签到奖励领取状态(+1);
                 cm.gainItem(4001126, 1000);//枫叶*1000
-				cm.gainMeso(80000000);//8000W金币
+				cm.gainMeso(7000000);//700W金币
 				cm.gainDY(25000);//抵用卷25000
                 cm.sendOk("恭喜领取签到奖励成功！");
                 cm.即时存档();
@@ -144,7 +144,7 @@ function action(mode, type, selection) {
                 cm.gainItem(4001126, 1000);//枫叶*1000
 				cm.gainItem(4000463, 5);//5个抽奖币
 				cm.gainDY(30000);//抵用卷30000
-				cm.gainMeso(100000000);//给予1E游戏币
+				cm.gainMeso(10000000);//给予1000W游戏币
                 cm.sendOk("恭喜领取签到奖励成功！");
                 cm.即时存档();
                 cm.喇叭(1, "[每日签到]：" + cm.getPlayer().getName() + "，已成功领取连续签到30天的奖励！当前总签到天数为：" + cm.getPlayer().getqiandao() + "天.");
@@ -160,7 +160,7 @@ function action(mode, type, selection) {
 				cm.gainItem(4001126, 1000);//枫叶*1000
 				cm.gainItem(4000463, 5);//5个抽奖币
 				cm.gainDY(30000);//抵用卷1500
-				cm.gainMeso(100000000);//给予1E游戏币
+				cm.gainMeso(10000000);//给予1000W游戏币
                 cm.sendOk("恭喜领取签到奖励成功！");
                 //cm.setqiandao(0);//这一句是让玩家，签到三十天后，重置他的签到状态=0天，这样下个月，就可以从第一天开始累计了！！但是要是一个月31天的话，我就呵呵了
                 //这句不要也行，源码里面我写了三十天自动清0

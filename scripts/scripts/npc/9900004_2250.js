@@ -333,14 +333,14 @@ cm.dispose();
              
 					{
 				    MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-					cm.gainMeso(5000000);
+					cm.gainMeso(500000);
                     cm.sendOk("#r#e装备回收成功,送你了一笔冒险币!#k");
                     cm.dispose();
 						
 					}
 					else  if(item.getWatk()<60 && item.getMatk() <60  && item.getStr()>20  && item.getInt()>20   && item.getLuk()>20 && item.getDex()>20)
 					{    MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-					cm.gainMeso(10000000);
+					cm.gainMeso(1000000);
                     cm.sendOk("#r#e装备回收成功,送你了一笔冒险币!#k");
                     cm.dispose();
 						
@@ -362,7 +362,7 @@ cm.dispose();
 					{
 						 
                     MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-					cm.gainMeso(1000000);
+					cm.gainMeso(100000);
                     cm.sendOk("#r#e装备回收成功,送你了一笔冒险币!#k");
                     cm.dispose();
 						
@@ -371,7 +371,7 @@ cm.dispose();
 					{
 						 
                     MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-					cm.gainMeso(2000000);
+					cm.gainMeso(200000);
                     cm.sendOk("#r#e装备回收成功,送你了一笔冒险币!#k");
                     cm.dispose();
 						
@@ -380,7 +380,7 @@ cm.dispose();
 					{
 						 
                     MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-					cm.gainMeso(5000000);
+					cm.gainMeso(500000);
                     cm.sendOk("#r#e装备回收成功,送你了一笔冒险币!#k");
                     cm.dispose();
 						
@@ -389,7 +389,7 @@ cm.dispose();
 					{
 						 
                     MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-					cm.gainMeso(7000000);
+					cm.gainMeso(700000);
                     cm.sendOk("#r#e装备回收成功,送你了一笔冒险币!#k");
                     cm.dispose();
 						
@@ -398,7 +398,7 @@ cm.dispose();
 					{
 						 
                     MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-					cm.gainMeso(10000000);
+					cm.gainMeso(1000000);
                     cm.sendOk("#r#e装备回收成功,送你了一笔冒险币!#k");
                     cm.dispose();
 						
@@ -406,7 +406,7 @@ cm.dispose();
 					{
 						 
                     MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-					cm.gainMeso(15000000);
+					cm.gainMeso(1500000);
                     cm.sendOk("#r#e装备回收成功,送你了一笔冒险币!#k");
                     cm.dispose();
 						
@@ -415,7 +415,7 @@ cm.dispose();
 					{
 						 
                     MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-					cm.gainMeso(20000000);
+					cm.gainMeso(2000000);
                     cm.sendOk("#r#e装备回收成功,送你了一笔冒险币!#k");
                     cm.dispose();
 						
@@ -424,7 +424,7 @@ cm.dispose();
 					{
 						 
                     MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-					cm.gainMeso(25000000);
+					cm.gainMeso(2500000);
                     cm.sendOk("#r#e装备回收成功,送你了一笔冒险币!#k");
                     cm.dispose();
 						
@@ -433,7 +433,7 @@ cm.dispose();
 					{
 						 
                     MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-					cm.gainMeso(30000000);
+					cm.gainMeso(3000000);
                     cm.sendOk("#r#e装备回收成功,送你了一笔冒险币!#k");
                     cm.dispose();
 						
@@ -442,7 +442,7 @@ cm.dispose();
 					{
 						 
                     MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-					cm.gainMeso(35000000);
+					cm.gainMeso(3500000);
                     cm.sendOk("#r#e装备回收成功,送你了一笔冒险币!#k");
                     cm.dispose();
 						
@@ -451,7 +451,7 @@ cm.dispose();
 					{
 						 
                     MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-					cm.gainMeso(40000000);
+					cm.gainMeso(4000000);
                     cm.sendOk("#r#e装备回收成功,送你了一笔冒险币!#k");
                     cm.dispose();
 						
@@ -460,7 +460,7 @@ cm.dispose();
 					{
 						 
                     MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-					cm.gainMeso(4500000);
+					cm.gainMeso(450000);
                     cm.sendOk("#r#e装备回收成功,送你了一笔冒险币!#k");
                     cm.dispose();
 						
@@ -469,7 +469,7 @@ cm.dispose();
 					{
 						 
                     MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-					cm.gainMeso(50000000);
+					cm.gainMeso(5000000);
                     cm.sendOk("#r#e装备回收成功,送你了一笔冒险币!#k");
                     cm.dispose();
 						
@@ -478,7 +478,7 @@ cm.dispose();
 					{
 						 
                     MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-					cm.gainMeso(50000000);
+					cm.gainMeso(5000000);
                     cm.sendOk("#r#e装备回收成功,送你了一笔冒险币!#k");
                     cm.dispose();
 						
@@ -488,7 +488,7 @@ cm.dispose();
 					else {
 				
                     MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-					cm.gainMeso(50000000);
+					cm.gainMeso(5000000);
                     cm.sendOk("#r#e装备回收成功,送你了一笔冒险币!#k");
                     cm.dispose();
 					}

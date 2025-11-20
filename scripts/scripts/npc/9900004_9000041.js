@@ -177,8 +177,8 @@ function action(mode, type, selection) {
 			case 10: 
             if (cm.getPlayer().getNX() >= 20000) {
                 cm.gainNX(-20000);
-				cm.gainMeso(20000000);
-				cm.sendOk("恭喜你，你获得了2000W游戏币! .");
+				cm.gainMeso(2000000);
+				cm.sendOk("恭喜你，你获得了200W游戏币! .");
 			        cm.worldMessage(6,"【兑换系统】["+cm.getName()+"]兑换游戏币成功！");
 				cm.dispose();
             }else{
@@ -189,8 +189,8 @@ function action(mode, type, selection) {
 			case 15: 
             if (cm.getPlayer().getNX() >= 100000) {
                 cm.gainNX(-100000);
-				cm.gainMeso(100000000);
-				cm.sendOk("恭喜你，你获得了1E游戏币! .");
+				cm.gainMeso(10000000);
+				cm.sendOk("恭喜你，你获得了1游戏币! .");
 			        cm.worldMessage(6,"【兑换系统】["+cm.getName()+"]兑换游戏币成功！");
 				cm.dispose();
             }else{

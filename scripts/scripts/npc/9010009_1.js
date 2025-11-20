@@ -29,16 +29,16 @@ function action(mode, type, selection) {
 
             var textz = "\r\n#e欢迎来到#b冒险岛跑环#k.每人每天跑一次获取相对应的奖励，建议新人每日都做。#l\r\n\r\n";
 
-            textz += "#L100##e#d第一轮#v4000019#100个#b(金币300万+#v2022468#X10).\r\n\r\n"//3
-            textz += "#L101##e#d第二轮#v4000005#100个#b(金币600万+#v2022468#X10).\r\n\r\n"//3
-            textz += "#L102##e#d第三轮#v4000007#100个#b(金币900万+#v2022468#X10).\r\n\r\n"//3
-            textz += "#L103##e#d第四轮#v4000142#100个#b(金币1500万+#v2022468#X10).\r\n\r\n"//3
-            textz += "#L104##e#d第五轮#v4000160#100个#b(金币2000万+#v2022468#X10).\r\n\r\n"//3
-            textz += "#L105##e#d第六轮#v4000180#100个#b(金币3000万+#v2022468#X10+#v2340000#X5).\r\n\r\n"//3
-            textz += "#L106##e#d第七轮#v4000274#100个#b(金币4000万+#v2022468#X10+#v4000464#X5).\r\n\r\n"//3
-            textz += "#L107##e#d第八轮#v4000407#30个#b(金币5000万+#v2022468#X30+#v2614015#X5).\r\n\r\n"//3
-            textz += "#L108##e#d第九轮#v4000402#30个#b(金币1E万+#v2022468#X40+#v2614015#X5).\r\n\r\n"//3
-            textz += "#L109##e#d第十轮#v4000406#30个#b(金币2E#v2022468#X50#v2614015#X10#v4000464#X5.\r\n\r\n"//3
+            textz += "#L100##e#d第一轮#v4000019#100个#b(金币30万+#v2022468#X10).\r\n\r\n"//3
+            textz += "#L101##e#d第二轮#v4000005#100个#b(金币60万+#v2022468#X10).\r\n\r\n"//3
+            textz += "#L102##e#d第三轮#v4000007#100个#b(金币90万+#v2022468#X10).\r\n\r\n"//3
+            textz += "#L103##e#d第四轮#v4000142#100个#b(金币150万+#v2022468#X10).\r\n\r\n"//3
+            textz += "#L104##e#d第五轮#v4000160#100个#b(金币200万+#v2022468#X10).\r\n\r\n"//3
+            textz += "#L105##e#d第六轮#v4000180#100个#b(金币300万+#v2022468#X10+#v2340000#X5).\r\n\r\n"//3
+            textz += "#L106##e#d第七轮#v4000274#100个#b(金币400万+#v2022468#X10+#v4000464#X5).\r\n\r\n"//3
+            textz += "#L107##e#d第八轮#v4000407#30个#b(金币500万+#v2022468#X30+#v2614015#X5).\r\n\r\n"//3
+            textz += "#L108##e#d第九轮#v4000402#30个#b(金币800万+#v2022468#X40+#v2614015#X5).\r\n\r\n"//3
+            textz += "#L109##e#d第十轮#v4000406#30个#b(金币1500万+#v2022468#X50#v2614015#X10#v4000464#X5.\r\n\r\n"//3
 
             //textz += "#d#L5#收集#v4000161##b#z4000161##r 100 #d个可兑换#r#v4032226#10只\r\n";
 
@@ -63,7 +63,7 @@ function action(mode, type, selection) {
 
                     cm.gainItem(4000019, -100);
 					cm.gainItem(2022468, 10);
-                    cm.gainMeso(+3000000);//
+                    cm.gainMeso(+300000);// 30W
                     cm.gainExp(+50000);//给经验
                     cm.worldMessage(6, "【跑商每日任务】[" + cm.getName() + "]成功完成了第一环，获取了大量奖励!");
                     cm.sendOk("跑商第一轮完成!\r\n\r\n然后你去进行下一环.");
@@ -79,7 +79,7 @@ function action(mode, type, selection) {
 
                     cm.gainItem(4000005, -100);
 					cm.gainItem(2022468, 10);
-                    cm.gainMeso(+6000000);//读取变量
+                    cm.gainMeso(+600000);// 60W
                     cm.gainExp(+100000);
                     cm.worldMessage(6, "【跑商每日任务】[" + cm.getName() + "]成功完成了第二环，获取了大量奖励!");
                     cm.sendOk("跑商第二轮完成!\r\n\r\n你已经完成过了然后了第二轮，继续进行下一环吧.");
@@ -95,7 +95,7 @@ function action(mode, type, selection) {
 
                     cm.gainItem(4000007, -100);
 					cm.gainItem(2022468, 10);
-                    cm.gainMeso(+9000000);//读取变量
+                    cm.gainMeso(+900000);// 90W
                     cm.gainExp(+200000);
                     cm.worldMessage(6, "【跑商每日任务】[" + cm.getName() + "]成功完成了第三环，获取了大量奖励!");
                     cm.sendOk("跑商第三轮完成!\r\n\r\n你已经完成过了然后了第三轮，继续进行下一环吧.");
@@ -113,7 +113,7 @@ function action(mode, type, selection) {
 
                     cm.gainItem(4000083, -100);
 					cm.gainItem(2022468, 10);
-                    cm.gainMeso(+15000000);//读取变量
+                    cm.gainMeso(+1500000);// 150W
                     cm.gainExp(+300000);
                     cm.worldMessage(6, "【跑商每日任务】[" + cm.getName() + "]成功完成了第四环，获取了大量奖励!");
                     cm.sendOk("跑商第四轮完成!\r\n\r\n你已经完成过了然后了第四轮，继续进行下一环吧.");
@@ -130,7 +130,7 @@ function action(mode, type, selection) {
 
                     cm.gainItem(4000160, -100);
 					cm.gainItem(2022468, 10);
-                    cm.gainMeso(+20000000);//读取变量
+                    cm.gainMeso(+2000000);// 200W
                     cm.gainExp(+400000);
                     cm.worldMessage(6, "【跑商每日任务】[" + cm.getName() + "]成功完成了第五环，获取了大量奖励!");
                     cm.sendOk("跑商第五轮完成!\r\n\r\n你已经完成过了然后了第五轮，继续进行下一环吧.");
@@ -148,7 +148,7 @@ function action(mode, type, selection) {
                     cm.gainItem(4000180, -100);
 					cm.gainItem(2022468, 10);
 					cm.gainItem(2340000, 5);
-                    cm.gainMeso(+30000000);//读取变量
+                    cm.gainMeso(+3000000);// 300W
                     cm.gainExp(+500000);
                     cm.worldMessage(6, "【跑商每日任务】[" + cm.getName() + "]成功完成了第六环，获取了大量奖励!");
                     cm.sendOk("跑商第六轮完成!\r\n\r\n你已经完成过了然后了第六轮，继续进行下一环吧.");
@@ -166,7 +166,7 @@ function action(mode, type, selection) {
                     cm.gainItem(4000274, -100);
 					cm.gainItem(2022468, 10);
 					cm.gainItem(4000464, 5);
-                    cm.gainMeso(+40000000);//读取变量
+                    cm.gainMeso(+4000000);// 400W
                     cm.gainExp(+600000);
                     cm.worldMessage(6, "【跑商每日任务】[" + cm.getName() + "]成功完成了第七环，获取了大量奖励!");
                     cm.sendOk("跑商第七轮完成!\r\n\r\n你已经完成过了然后了第七轮，继续进行下一环吧.");
@@ -184,7 +184,7 @@ function action(mode, type, selection) {
                     cm.gainItem(4000407, -30);
                   cm.gainItem(2022468, 30);
 				  cm.gainItem(2614015, 5);
-                    cm.gainMeso(+50000000);//读取变量
+                    cm.gainMeso(+5000000);// 500W
                     cm.gainExp(+700000);
                     cm.worldMessage(6, "【跑商每日任务】[" + cm.getName() + "]成功完成了第八环，获取了大量奖励!");
                     cm.sendOk("跑商第八轮完成!\r\n\r\n你已经完成过了然后了第八轮，继续进行下一环吧.");
@@ -202,7 +202,7 @@ function action(mode, type, selection) {
                     cm.gainItem(4000402, -30);
                   cm.gainItem(2022468, 40);
 				  cm.gainItem(2614015, 5);
-                    cm.gainMeso(+100000000);//读取变量
+                    cm.gainMeso(+8000000);// 800W
                     cm.gainExp(+8000000);
                     cm.worldMessage(6, "【跑商每日任务】[" + cm.getName() + "]成功完成了第九环，获取了大量奖励!");
                     cm.gainvip(+1);
@@ -222,7 +222,7 @@ function action(mode, type, selection) {
 					cm.gainItem(2022468, 50);
 					cm.gainItem(2614015, 10);
 					cm.gainItem(4000464, 5);
-                    cm.gainMeso(+200000000);//读取变量
+                    cm.gainMeso(+15000000);// 1500W
                     cm.gainExp(+1000000);
 					cm.spawnMonster(9300340,1);
                     cm.worldMessage(6, "【跑商每日任务】[" + cm.getName() + "]成功完成了第十环，获取了大量奖励!蛋糕怪物出现了！");
