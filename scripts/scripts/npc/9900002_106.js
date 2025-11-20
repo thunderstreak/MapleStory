@@ -53,7 +53,7 @@ function action(mode, type, selection) {
                        cm.openNpc(9900002,105);	
 	                } 
 	                else  { 
-                         cm.sendOk("未知错误，请联系�߱�;7144700");
+                         cm.sendOk("未知错误，请联系�߱�;7144700");
 	                     cm.dispose(); 
 	                } 
 

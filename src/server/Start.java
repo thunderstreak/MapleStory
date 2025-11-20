@@ -37,8 +37,7 @@ import server.quest.MapleQuest;
 import tools.FileoutputUtil;
 import tools.StringUtil;
 
-public class Start
-{
+public class Start {
     public static boolean Check;
     private static RoyMS CashGui;
     public static Start instance;
@@ -61,7 +60,7 @@ public class Start
         OtherSettings.getInstance();
         Start.instance.run();
     }
-    
+
     public void run() throws InterruptedException {
         final long start = System.currentTimeMillis();
         checkSingleInstance();
@@ -72,20 +71,24 @@ public class Start
             System.out.println("加载 自动注册完成 :::");
         }
         try {
-            try (final PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE accounts SET loggedin = 0")) {
+            try (final PreparedStatement ps = DatabaseConnection.getConnection()
+                    .prepareStatement("UPDATE accounts SET loggedin = 0")) {
                 ps.executeUpdate();
             }
-            try (final PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE accounts SET lastGainHM = 0")) {
+            try (final PreparedStatement ps = DatabaseConnection.getConnection()
+                    .prepareStatement("UPDATE accounts SET lastGainHM = 0")) {
                 ps.executeUpdate();
             }
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             throw new RuntimeException("[数据库异常] 请检查数据库链接。目前无法连接到MySQL数据库.");
         }
         System.out.println("服务端 开始启动...版本号：079");
-        System.out.println("当前操作系统: " + System.getProperty("sun.desktop"));
+        System.out.println("当前操作系统: " + System.getProperty("os.name") + " " + System.getProperty("os.version") + " ("
+                + System.getProperty("os.arch") + ")");
+        // System.out.println("当前操作系统: " + System.getProperty("sun.desktop"));
         System.out.println("服务器地址: " + ServerProperties.getProperty("RoyMS.IP") + ":" + LoginServer.PORT);
-        System.out.println("游戏版本: " + ServerConstants.MAPLE_TYPE + " v." + ServerConstants.MAPLE_VERSION + "." + ServerConstants.MAPLE_PATCH);
+        System.out.println("游戏版本: " + ServerConstants.MAPLE_TYPE + " v." + ServerConstants.MAPLE_VERSION + "."
+                + ServerConstants.MAPLE_PATCH);
         System.out.println("主服务器: 蓝蜗牛");
         World.init();
         runThread();
@@ -104,7 +107,10 @@ public class Start
         memoryRecical(10);
         MapleServerHandler.registerMBean();
         LoginServer.setOn();
-        System.out.println("\r\n经验倍率：" + Integer.parseInt(ServerProperties.getProperty("RoyMS.Exp")) + "  物品倍率：" + Integer.parseInt(ServerProperties.getProperty("RoyMS.Drop")) + "  金币倍率：" + Integer.parseInt(ServerProperties.getProperty("RoyMS.Meso")) + "  BOSS爆率：" + Integer.parseInt(ServerProperties.getProperty("RoyMS.BDrop")));
+        System.out.println("\r\n经验倍率：" + Integer.parseInt(ServerProperties.getProperty("RoyMS.Exp")) + "  物品倍率："
+                + Integer.parseInt(ServerProperties.getProperty("RoyMS.Drop")) + "  金币倍率："
+                + Integer.parseInt(ServerProperties.getProperty("RoyMS.Meso")) + "  BOSS爆率："
+                + Integer.parseInt(ServerProperties.getProperty("RoyMS.BDrop")));
         if (Boolean.parseBoolean(ServerProperties.getProperty("RoyMS.检测复制装备", "false"))) {
             checkCopyItemFromSql();
         }
@@ -116,14 +122,14 @@ public class Start
         final long seconds = now / 1000L;
         final long ms = now % 1000L;
         System.out.println("加载完成, 耗时: " + seconds + "秒" + ms + "毫秒\r\n");
-//        CashGui();
-        Boolean loadGui = Boolean.valueOf(ServerProperties.getProperty("RoyMS.loadGui","false"));
-        if(loadGui){
+        // CashGui();
+        Boolean loadGui = Boolean.valueOf(ServerProperties.getProperty("RoyMS.loadGui", "false"));
+        if (loadGui) {
             System.out.println("加载GUI工具");
             CashGui();
         }
     }
-    
+
     public static void runThread() {
         System.out.print("\r\n正在加载线程");
         Timer.WorldTimer.getInstance().start();
@@ -140,7 +146,7 @@ public class Start
         Timer.PGTimer.getInstance().start();
         System.out.println("完成!\r\n");
     }
-    
+
     public static void loadData() {
         System.out.println("载入数据(因为数据量大可能比较久而且内存消耗会飙升)");
         System.out.println("加载等级经验数据");
@@ -163,17 +169,16 @@ public class Start
         SkillFactory.getSkill(99999999);
         MobSkillFactory.getInstance();
         MapleFamilyBuff.getBuffEntry();
-        System.out.println("加载SpeedRunner");
+        System.out.println("加载最快通关记录");
         Runtime.getRuntime().addShutdownHook(new Thread(new Shutdown()));
         try {
             SpeedRunner.getInstance().loadSpeedRuns();
-        }
-        catch (SQLException e) {
-            System.out.println("SpeedRunner错误:" + e);
+        } catch (SQLException e) {
+            System.out.println("最快通关记录错误:" + e);
         }
         System.out.println("加载随机奖励系统");
         RandomRewards.getInstance();
-        System.out.println("加载0X问答系统");
+        System.out.println("加载OX问答系统");
         MapleOxQuizFactory.getInstance().initialize();
         System.out.println("加载嘉年华数据");
         MapleCarnivalFactory.getInstance();
@@ -182,7 +187,7 @@ public class Start
         CashItemFactory.getInstance().initialize();
         MapleMapFactory.loadCustomLife();
     }
-    
+
     public static void 自动存档(final int time) {
         System.out.println("服务端启用自动存档." + time + "分钟自动执行数据存档.");
         Timer.WorldTimer.getInstance().register(new Runnable() {
@@ -199,13 +204,13 @@ public class Start
                             chr.saveToDB(false, false);
                         }
                     }
+                } catch (Exception ex) {
                 }
-                catch (Exception ex) {}
             }
         }, 60000 * time);
     }
 
-    //在线时间
+    // 在线时间
     public static void onlineTime(final int time) {
         System.out.println("服务端启用在线时间统计." + time + "分钟记录一次在线时间.");
         Timer.WorldTimer.getInstance().register(new Runnable() {
@@ -246,24 +251,23 @@ public class Start
                             chr.resetGamePointsPD();
                         }
                     }
+                } catch (Exception ex) {
                 }
-                catch (Exception ex) {}
             }
         }, 60000 * time);
     }
-    
+
     protected static void checkSingleInstance() {
         try {
             Start.srvSocket = new ServerSocket(srvPort);
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             if (ex.getMessage().indexOf("Address already in use: JVM_Bind") >= 0) {
                 System.out.println("在一台主机上同时只能启动一个进程(Only one instance allowed)。");
             }
             System.exit(0);
         }
     }
-    
+
     protected static void checkCopyItemFromSql() {
         System.out.println("服务端启用 防复制系统，发现复制装备.进行删除处理功能");
         final List<Integer> equipOnlyIds = new ArrayList<Integer>();
@@ -281,8 +285,7 @@ public class Start
                             continue;
                         }
                         equipOnlyIds.add(equipOnlyId);
-                    }
-                    else {
+                    } else {
                         checkItems.put(equipOnlyId, itemId);
                     }
                 }
@@ -298,12 +301,11 @@ public class Start
                 System.out.println("发现复制装备 该装备的唯一ID: " + i + " 已进行删除处理..");
                 FileoutputUtil.log("装备复制.txt", "发现复制装备 该装备的唯一ID: " + i + " 已进行删除处理..");
             }
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             System.out.println("[EXCEPTION] 清理复制装备出现错误." + ex);
         }
     }
-    
+
     public void startServer() throws InterruptedException {
         final long start = System.currentTimeMillis();
         checkSingleInstance();
@@ -316,16 +318,17 @@ public class Start
         if (Boolean.parseBoolean(ServerProperties.getProperty("RoyMS.AutoRegister"))) {
             System.out.println("加载 自动注册完成 :::");
         }
-        try (final PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE accounts SET loggedin = 0")) {
+        try (final PreparedStatement ps = DatabaseConnection.getConnection()
+                .prepareStatement("UPDATE accounts SET loggedin = 0")) {
             ps.executeUpdate();
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             throw new RuntimeException("[数据库异常] 请检查数据库链接。目前无法连接到MySQL数据库.");
         }
         System.out.println("服务端 开始启动...");
         System.out.println("当前操作系统: " + System.getProperty("sun.desktop"));
         System.out.println("服务器地址: " + ServerProperties.getProperty("RoyMS.IP") + ":" + LoginServer.PORT);
-        System.out.println("游戏版本: " + ServerConstants.MAPLE_TYPE + " v." + ServerConstants.MAPLE_VERSION + "." + ServerConstants.MAPLE_PATCH);
+        System.out.println("游戏版本: " + ServerConstants.MAPLE_TYPE + " v." + ServerConstants.MAPLE_VERSION + "."
+                + ServerConstants.MAPLE_PATCH);
         World.init();
         runThread();
         loadData();
@@ -343,7 +346,10 @@ public class Start
         memoryRecical(360);
         MapleServerHandler.registerMBean();
         LoginServer.setOn();
-        System.out.println("\r\n经验倍率：" + Integer.parseInt(ServerProperties.getProperty("RoyMS.Exp")) + "  物品倍率：" + Integer.parseInt(ServerProperties.getProperty("RoyMS.Drop")) + "  金币倍率：" + Integer.parseInt(ServerProperties.getProperty("RoyMS.Meso")) + "  BOSS爆率：" + Integer.parseInt(ServerProperties.getProperty("RoyMS.BDrop")));
+        System.out.println("\r\n经验倍率：" + Integer.parseInt(ServerProperties.getProperty("RoyMS.Exp")) + "  物品倍率："
+                + Integer.parseInt(ServerProperties.getProperty("RoyMS.Drop")) + "  金币倍率："
+                + Integer.parseInt(ServerProperties.getProperty("RoyMS.Meso")) + "  BOSS爆率："
+                + Integer.parseInt(ServerProperties.getProperty("RoyMS.BDrop")));
         if (Boolean.parseBoolean(ServerProperties.getProperty("RoyMS.检测复制装备", "false"))) {
             checkCopyItemFromSql();
         }
@@ -357,7 +363,7 @@ public class Start
         System.out.println("加载完成, 耗时: " + seconds + "秒" + ms + "毫秒\r\n");
         System.out.println("服务端开启完毕，可以登入游戏了！");
     }
-    
+
     public static void CashGui() {
         if (Start.CashGui != null) {
             Start.CashGui.dispose();
@@ -365,7 +371,7 @@ public class Start
         (Start.CashGui = new RoyMS()).setVisible(true);
     }
 
-    //在线统计
+    // 在线统计
     public static void onlineStatistics(final int time) {
         System.out.println("服务端启用在线统计." + time + "分钟统计一次在线的人数信息.");
         Timer.WorldTimer.getInstance().register(new Runnable() {
@@ -392,12 +398,13 @@ public class Start
             }
         }, 60000 * time);
     }
-    
+
     public static void printSection(String s) {
-        for (s = "-[ " + s + " ]"; s.getBytes().length < 79; s = "=" + s) {}
+        for (s = "-[ " + s + " ]"; s.getBytes().length < 79; s = "=" + s) {
+        }
         System.out.println(s);
     }
-    
+
     public static void startCheck() {
         System.out.println("服务端启用检测.30秒检测一次角色是否与登录器断开连接.");
         Timer.WorldTimer.getInstance().register(new Runnable() {
@@ -414,7 +421,7 @@ public class Start
         }, 30000L);
     }
 
-    //内存回收
+    // 内存回收
     public static void memoryRecical(final int time) {
         Timer.WorldTimer.getInstance().register(new Runnable() {
             @Override
@@ -423,16 +430,15 @@ public class Start
             }
         }, 60000 * time);
     }
-    
+
     static {
         Start.Check = true;
         Start.instance = new Start();
         Start.maxUsers = 0;
         Start.srvSocket = null;
     }
-    
-    public static class Shutdown implements Runnable
-    {
+
+    public static class Shutdown implements Runnable {
         @Override
         public void run() {
             new Thread(ShutdownServer.getInstance()).start();
