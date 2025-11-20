@@ -27,24 +27,24 @@ Harry (On Orbis flight from Leafre) 2082002
 var status = 0;
 
 function start() {
-	action(1, 0, 0);
+  action(1, 0, 0);
 }
 
 function action(mode, type, selection) {
-	if (status == 0) {
-		cm.sendYesNo("你真的想下飞机?");
-		status++;
-	} else {
-		if ((status == 1 && type == 1 && selection == -1 && mode == 0) || mode == -1) {
-			cm.dispose();
-		} else {
-			if (status == 1) {
-					cm.sendNext ("那么好的，下次再见，一路小心.");
-					status++;
-			} else if (status == 2) {
-					cm.warp(240000110, 0);// back to Leafre
-					cm.dispose();
-			}
-		}
-	}
+  if (status == 0) {
+    cm.sendYesNo('你真的想下飞机?');
+    status++;
+  } else {
+    if ((status == 1 && type == 1 && selection == -1 && mode == 0) || mode == -1) {
+      cm.dispose();
+    } else {
+      if (status == 1) {
+        cm.sendNext('那么好的，下次再见，一路小心.');
+        status++;
+      } else if (status == 2) {
+        cm.warp(240000110, 0); // back to Leafre
+        cm.dispose();
+      }
+    }
+  }
 }

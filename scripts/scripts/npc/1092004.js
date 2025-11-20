@@ -3,9 +3,9 @@ Calico - Nautilus' Port
 */
 
 function start() {
-    cm.sendOk("Zzzz..");
+  cm.sendOk('Zzzz..');
 }
 
 function action(mode, type, selection) {
-    cm.dispose();
+  cm.dispose();
 }

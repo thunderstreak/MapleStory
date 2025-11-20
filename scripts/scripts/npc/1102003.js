@@ -4,7 +4,7 @@
 	Description: 		Welcoming
 */
 
-function start(){
-	cm.sendOk("欢迎来到骑士之殿。");
-	cm.dispose();
+function start() {
+  cm.sendOk('欢迎来到骑士之殿。');
+  cm.dispose();
 }

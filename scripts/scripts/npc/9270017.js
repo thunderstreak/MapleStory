@@ -22,20 +22,19 @@
 var status = 0;
 
 function start() {
-    cm.sendYesNo("这架飞机将在起飞不久，请问你现在离开？您将有再次购买飞机票到这里来.");
+  cm.sendYesNo('这架飞机将在起飞不久，请问你现在离开？您将有再次购买飞机票到这里来.');
 }
 
 function action(mode, type, selection) {
-    if (mode != 1) {
-        if (mode == 0)
-         cm.sendOk("请再坚持一秒钟，与平面将起飞。谢谢你的耐心。");
-        cm.dispose();
-        return;
-    }
-    status++;
-    if (status == 1) {
-		cm.warp(103000000, 0); //回堕落城市
-        cm.dispose();
-    }
-	cm.dispose();
+  if (mode != 1) {
+    if (mode == 0) cm.sendOk('请再坚持一秒钟，与平面将起飞。谢谢你的耐心。');
+    cm.dispose();
+    return;
+  }
+  status++;
+  if (status == 1) {
+    cm.warp(103000000, 0); //回堕落城市
+    cm.dispose();
+  }
+  cm.dispose();
 }

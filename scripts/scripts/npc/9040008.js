@@ -1,6 +1,6 @@
 /* Guild Rank Board */
 
 function start() {
-    cm.displayGuildRanks();
-    cm.dispose();
+  cm.displayGuildRanks();
+  cm.dispose();
 }
