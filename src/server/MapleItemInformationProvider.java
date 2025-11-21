@@ -326,12 +326,14 @@ public class MapleItemInformationProvider {
                 if (smEntry == null) {
                     if (GameConstants.getInventoryType(itemId) == MapleInventoryType.EQUIP) {
                         ret = 1;
+                    } else if (GameConstants.getInventoryType(itemId) == MapleInventoryType.USE) { // 消耗物品最大堆叠1000
+                        ret = 1000;
+                    } else if (GameConstants.getInventoryType(itemId) == MapleInventoryType.ETC) { // 其他物品最大堆叠1000
+                        ret = 1000;
                     } else {
                         ret = 100;
                     }
-                    // else if (GameConstants.getInventoryType(itemId) == MapleInventoryType.USE) {
-                    // ret = 1000;
-                    // }
+
                 } else {
                     ret = (short) MapleDataTool.getInt(smEntry);
                 }

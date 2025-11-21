@@ -1,13 +1,13 @@
 package client.inventory;
 
 public enum MapleInventoryType {
-    UNDEFINED(0),
-    EQUIP(1),
-    USE(2),
-    SETUP(3),
-    ETC(4),
-    CASH(5),
-    EQUIPPED(-1);
+    UNDEFINED(0), // 未定义
+    EQUIP(1), // 装备
+    USE(2), // 消耗
+    SETUP(3), // 设置
+    ETC(4), // 其他
+    CASH(5), // 现金
+    EQUIPPED(-1); // 已装备
 
     byte type;
 
