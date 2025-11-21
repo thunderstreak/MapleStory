@@ -296,7 +296,7 @@ function action(mode, type, selection) {
           var ii = MapleItemInformationProvider.getInstance();
           if (item.getWatk() < 20 && item.getMatk() < 20 && item.getStr() > 10 && item.getInt() > 9 && item.getLuk() > 9 && item.getDex() > 9) {
             MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-            cm.gainMeso(500000);
+            cm.gainMeso(500000); //50W游戏币
             cm.sendOk('#r#e装备回收成功,送你了一笔冒险币!#k');
             cm.dispose();
           } else if (item.getWatk() < 60 && item.getMatk() < 60 && item.getStr() > 20 && item.getInt() > 20 && item.getLuk() > 20 && item.getDex() > 20) {
@@ -312,77 +312,77 @@ function action(mode, type, selection) {
             cm.dispose();
           } else if (item.getWatk() < 110 && item.getMatk() < 110) {
             MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-            cm.gainMeso(100000);
+            cm.gainMeso(100000); //10W游戏币
             cm.sendOk('#r#e装备回收成功,送你了一笔冒险币!#k');
             cm.dispose();
           } else if (item.getWatk() < 115 && item.getMatk() < 115) {
             MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-            cm.gainMeso(200000);
+            cm.gainMeso(200000); //20W游戏币
             cm.sendOk('#r#e装备回收成功,送你了一笔冒险币!#k');
             cm.dispose();
           } else if (item.getWatk() < 120 && item.getMatk() < 120) {
             MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-            cm.gainMeso(500000);
+            cm.gainMeso(500000); //50W游戏币
             cm.sendOk('#r#e装备回收成功,送你了一笔冒险币!#k');
             cm.dispose();
           } else if (item.getWatk() < 130 && item.getMatk() < 130) {
             MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-            cm.gainMeso(700000);
+            cm.gainMeso(700000); //70W游戏币
             cm.sendOk('#r#e装备回收成功,送你了一笔冒险币!#k');
             cm.dispose();
           } else if (item.getWatk() < 140 && item.getMatk() < 140) {
             MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-            cm.gainMeso(1000000);
+            cm.gainMeso(1000000); //100W游戏币
             cm.sendOk('#r#e装备回收成功,送你了一笔冒险币!#k');
             cm.dispose();
           } else if (item.getWatk() < 150 && item.getMatk() < 150) {
             MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-            cm.gainMeso(1500000);
+            cm.gainMeso(1500000); //150W游戏币
             cm.sendOk('#r#e装备回收成功,送你了一笔冒险币!#k');
             cm.dispose();
           } else if (item.getWatk() < 160 && item.getMatk() < 160) {
             MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-            cm.gainMeso(2000000);
+            cm.gainMeso(2000000); //200W游戏币
             cm.sendOk('#r#e装备回收成功,送你了一笔冒险币!#k');
             cm.dispose();
           } else if (item.getWatk() < 170 && item.getMatk() < 170) {
             MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-            cm.gainMeso(2500000);
+            cm.gainMeso(2500000); //250W游戏币
             cm.sendOk('#r#e装备回收成功,送你了一笔冒险币!#k');
             cm.dispose();
           } else if (item.getWatk() < 180 && item.getMatk() < 180) {
             MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-            cm.gainMeso(3000000);
+            cm.gainMeso(3000000); //300W游戏币
             cm.sendOk('#r#e装备回收成功,送你了一笔冒险币!#k');
             cm.dispose();
           } else if (item.getWatk() < 190 && item.getMatk() < 190) {
             MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-            cm.gainMeso(3500000);
+            cm.gainMeso(3500000); //350W游戏币
             cm.sendOk('#r#e装备回收成功,送你了一笔冒险币!#k');
             cm.dispose();
           } else if (item.getWatk() < 200 && item.getMatk() < 200) {
             MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-            cm.gainMeso(4000000);
+            cm.gainMeso(4000000); //400W游戏币
             cm.sendOk('#r#e装备回收成功,送你了一笔冒险币!#k');
             cm.dispose();
           } else if (item.getWatk() < 210 && item.getMatk() < 210) {
             MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-            cm.gainMeso(450000);
+            cm.gainMeso(450000); //45W游戏币
             cm.sendOk('#r#e装备回收成功,送你了一笔冒险币!#k');
             cm.dispose();
           } else if (item.getWatk() < 218 && item.getMatk() < 218) {
             MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-            cm.gainMeso(5000000);
+            cm.gainMeso(5000000); //500W游戏币
             cm.sendOk('#r#e装备回收成功,送你了一笔冒险币!#k');
             cm.dispose();
           } else if (item.getWatk() < 225 && item.getMatk() < 225) {
             MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-            cm.gainMeso(5000000);
+            cm.gainMeso(5000000); //500W游戏币
             cm.sendOk('#r#e装备回收成功,送你了一笔冒险币!#k');
             cm.dispose();
           } else {
             MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.EQUIP, 1, 1, true);
-            cm.gainMeso(5000000);
+            cm.gainMeso(5000000); //500W游戏币
             cm.sendOk('#r#e装备回收成功,送你了一笔冒险币!#k');
             cm.dispose();
           }

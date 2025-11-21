@@ -142,7 +142,7 @@ function action(mode, type, selection) {
       cm.gainItem(2010006, 1); //树妖邮票一张
       cm.gainDY(3600); //抵用券500
       //cm.gainNX(5000)//
-      cm.gainMeso(+5000000); //500W
+      cm.gainMeso(+3000000); //300W
       cm.gainGamePointsPD(1);
       cm.sendOk('领取奖励成功！');
       cm.worldMessage(6, '玩家：[' + cm.getName() + ']领取了360分钟在线奖励！金币1000W+抵押卷3600+蜂蜜1个');
@@ -152,7 +152,7 @@ function action(mode, type, selection) {
       cm.gainItem(2002031, 2); //
       cm.gainItem(2000019, 80);
       cm.gainNX(5000); //抵用券500
-      cm.gainMeso(+10000000); //1000W
+      cm.gainMeso(+5000000); //500W
       //cm.gainNX(5000)//
       //	cm.gainMeso(+3600000);
       cm.gainGamePointsPD(1);

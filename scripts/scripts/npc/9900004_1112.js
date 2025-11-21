@@ -159,7 +159,7 @@ function action(mode, type, selection) {
         cm.gainItem(4001126, 1000); //枫叶*1000
         cm.gainItem(4000463, 5); //5个抽奖币
         cm.gainDY(30000); //抵用卷30000
-        cm.gainMeso(10000000); //给予1000W游戏币
+        cm.gainMeso(8000000); //给予800W游戏币
         cm.sendOk('恭喜领取签到奖励成功！');
         cm.即时存档();
         cm.喇叭(1, '[每日签到]：' + cm.getPlayer().getName() + '，已成功领取连续签到30天的奖励！当前总签到天数为：' + cm.getPlayer().getqiandao() + '天.');
@@ -177,7 +177,7 @@ function action(mode, type, selection) {
         cm.gainItem(4001126, 1000); //枫叶*1000
         cm.gainItem(4000463, 5); //5个抽奖币
         cm.gainDY(30000); //抵用卷1500
-        cm.gainMeso(10000000); //给予1000W游戏币
+        cm.gainMeso(9000000); //给予900W游戏币
         cm.sendOk('恭喜领取签到奖励成功！');
         //cm.setqiandao(0);//这一句是让玩家，签到三十天后，重置他的签到状态=0天，这样下个月，就可以从第一天开始累计了！！但是要是一个月31天的话，我就呵呵了
         //这句不要也行，源码里面我写了三十天自动清0

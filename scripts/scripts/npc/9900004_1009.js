@@ -168,7 +168,7 @@ function action(mode, type, selection) {
         cm.setmoneyb(-188);
         cm.gainjf(+188);
         // cm.gainItem(5211060,1,720);
-        cm.gainMeso(+100000000);
+        cm.gainMeso(+5000000); //500W游戏币
         cm.gainNX(+100000);
         cm.gainItem(2049116, 30);
         cm.gainItem(2340000, 30);

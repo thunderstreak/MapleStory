@@ -85,7 +85,7 @@ function action(mode, type, selection) {
         cm.getPlayer().gainqiandao(1);
         cm.sendOk('恭喜签到成功！');
         //cm.gainDY(3000)
-        cm.gainMeso(100000000);
+        cm.gainMeso(50000000); //5000W游戏币
         cm.gainItem(4000463, 4);
         cm.gainItem(4000487, 2);
         cm.gainItem(2340000, 6); //祝福2022468

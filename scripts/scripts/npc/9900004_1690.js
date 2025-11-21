@@ -41,7 +41,7 @@ function action(mode, type, selection) {
     } else if (selection == 30) {
       if (cm.haveItem(2022002, 5)) {
         cm.gainItem(2022002, -5);
-        cm.gainMeso(+50000000);
+        cm.gainMeso(+5000000); //5000W游戏币
         cm.sendOk('恭喜你，兑换成功! .');
         cm.dispose();
       } else {
@@ -50,7 +50,7 @@ function action(mode, type, selection) {
       }
     } else if (selection == 31) {
       if (cm.haveItem(4310149, 1)) {
-        cm.gainMeso(+100000000);
+        cm.gainMeso(+10000000); //1000W游戏币
         cm.gainItem(4310149, -1);
         cm.sendOk('恭喜你，你获得了 1E金币! .');
 

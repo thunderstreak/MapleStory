@@ -50,7 +50,7 @@ function action(mode, type, selection) {
         if (cm.haveItem(4000000, 50) && cm.haveItem(4000016, 50) && cm.haveItem(4000019, 50) && cm.getBossLog('PlayQuest110') < 1) {
           cm.setBossLog('PlayQuest110');
           cm.gainExp(+200000);
-          cm.gainMeso(+1000000);
+          cm.gainMeso(+1000000); //100W游戏币
           cm.gainDY(+1000);
           cm.gainItem(4000000, -50);
           cm.gainItem(4000016, -50);
@@ -63,7 +63,7 @@ function action(mode, type, selection) {
         if (cm.haveItem(4000173, 120) && cm.getBossLog('PlayQuest111') < 1) {
           cm.setBossLog('PlayQuest111');
           cm.gainExp(+200000);
-          //	cm.gainMeso(+1000000);
+          //	cm.gainMeso(+1000000); //100W游戏币
           cm.gainNX(+1000);
           //cm.gainItem(4000000,-50);
           //cm.gainItem(4000016,-50);
@@ -75,7 +75,7 @@ function action(mode, type, selection) {
       } else if (selection == 2) {
         if (cm.haveItem(4000121, 120) && cm.getBossLog('PlayQuest112') < 1) {
           cm.setBossLog('PlayQuest112');
-          cm.gainMeso(+2000000);
+          cm.gainMeso(+2000000); //200W游戏币
           //	cm.gainMeso(+1000000);
           cm.gainNX(+1000);
           //cm.gainItem(4000000,-50);
@@ -89,7 +89,7 @@ function action(mode, type, selection) {
         if (cm.haveItem(4031227, 1) && cm.getBossLog('PlayQuest113') < 1) {
           cm.setBossLog('PlayQuest113');
           cm.gainExp(+100000);
-          //	cm.gainMeso(+1000000);
+          //	cm.gainMeso(+1000000); //100W游戏币
           cm.gainDY(+1000);
           cm.gainItem(4000313, 30);
           //cm.gainItem(4000016,-50);
@@ -108,7 +108,7 @@ function action(mode, type, selection) {
           cm.gainItem(4001030, -1);
           cm.gainItem(4251202, 1);
           cm.gainItem(2022279, 5);
-          cm.gainMeso(30000000);
+          cm.gainMeso(3000000); //300W游戏币
           //cm.gainItem(4000019,-50);
           cm.sendOk('恭喜，任务完成！');
           cm.dispose();
