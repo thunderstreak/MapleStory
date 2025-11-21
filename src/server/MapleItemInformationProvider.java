@@ -326,11 +326,12 @@ public class MapleItemInformationProvider {
                 if (smEntry == null) {
                     if (GameConstants.getInventoryType(itemId) == MapleInventoryType.EQUIP) {
                         ret = 1;
-                    } else if (GameConstants.getInventoryType(itemId) == MapleInventoryType.USE) {
-                        ret = 1000;
                     } else {
                         ret = 100;
                     }
+                    // else if (GameConstants.getInventoryType(itemId) == MapleInventoryType.USE) {
+                    // ret = 1000;
+                    // }
                 } else {
                     ret = (short) MapleDataTool.getInt(smEntry);
                 }
