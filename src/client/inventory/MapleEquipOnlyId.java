@@ -29,7 +29,8 @@ public class MapleEquipOnlyId {
     public int initOnlyId() {
         int ret = 0;
         try {
-            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT MAX(equipOnlyId) FROM inventoryitems WHERE equipOnlyId > 0");
+            PreparedStatement ps = DatabaseConnection.getConnection()
+                    .prepareStatement("SELECT MAX(equipOnlyId) FROM inventoryitems WHERE equipOnlyId > 0");
             ResultSet rs = ps.executeQuery();
             if (rs.next())
                 ret = rs.getInt(1) + 1;

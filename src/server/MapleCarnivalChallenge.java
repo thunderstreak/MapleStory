@@ -4,12 +4,10 @@ import client.MapleCharacter;
 import handling.world.MaplePartyCharacter;
 import java.lang.ref.WeakReference;
 
-
-public class MapleCarnivalChallenge
-{
+public class MapleCarnivalChallenge {
     WeakReference<MapleCharacter> challenger;
     String challengeinfo;
-    
+
     public static String getJobNameById(final int job) {
         switch (job) {
             case 0: {
@@ -221,7 +219,7 @@ public class MapleCarnivalChallenge
             }
         }
     }
-    
+
     public static String getJobBasicNameById(final int job) {
         switch (job) {
             case 0: {
@@ -433,7 +431,7 @@ public class MapleCarnivalChallenge
             }
         }
     }
-    
+
     public MapleCarnivalChallenge(final MapleCharacter challenger) {
         this.challengeinfo = "";
         this.challenger = new WeakReference<MapleCharacter>(challenger);
@@ -441,16 +439,17 @@ public class MapleCarnivalChallenge
         for (final MaplePartyCharacter pc : challenger.getParty().getMembers()) {
             final MapleCharacter c = challenger.getMap().getCharacterById(pc.getId());
             if (c != null) {
-                this.challengeinfo = this.challengeinfo + "名称：" + c.getName() + " / 等級" + c.getLevel() + " / 职业：" + getJobNameById(c.getJob()) + "\r\n";
+                this.challengeinfo = this.challengeinfo + "名称：" + c.getName() + " / 等級" + c.getLevel() + " / 职业："
+                        + getJobNameById(c.getJob()) + "\r\n";
             }
         }
         this.challengeinfo += "#k";
     }
-    
+
     public MapleCharacter getChallenger() {
         return this.challenger.get();
     }
-    
+
     public String getChallengeInfo() {
         return this.challengeinfo;
     }

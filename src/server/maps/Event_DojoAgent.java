@@ -9,13 +9,12 @@ import server.Timer;
 import server.life.MapleLifeFactory;
 import tools.MaplePacketCreator;
 
-public class Event_DojoAgent
-{
+public class Event_DojoAgent {
     private static final int baseAgentMapId = 970030000;
     private static final Point point1;
     private static final Point point2;
     private static final Point point3;
-    
+
     public static boolean warpStartAgent(final MapleCharacter c, final boolean party) {
         final int stage = 1;
         final int mapid = 970030000 + stage * 100;
@@ -31,7 +30,7 @@ public class Event_DojoAgent
         }
         return false;
     }
-    
+
     public static boolean warpNextMap_Agent(final MapleCharacter c, final boolean fromResting) {
         final int currentmap = c.getMapId();
         final int thisStage = (currentmap - 970030000) / 100;
@@ -61,7 +60,7 @@ public class Event_DojoAgent
         }
         return false;
     }
-    
+
     public static boolean warpStartDojo(final MapleCharacter c, final boolean party) {
         int stage = 1;
         if (party || stage <= -1 || stage > 38) {
@@ -96,15 +95,14 @@ public class Event_DojoAgent
                         chr.changeMap(map2, map2.getPortal(0));
                     }
                 }
-            }
-            else {
+            } else {
                 c.changeMap(map2, map2.getPortal(0));
             }
             spawnMonster(map2, stage);
         }
         return canenter;
     }
-    
+
     public static boolean warpNextMap(final MapleCharacter c, final boolean fromResting) {
         try {
             final MapleMap currentmap = c.getMap();
@@ -123,8 +121,7 @@ public class Event_DojoAgent
                             chr.getClient().getSession().write(MaplePacketCreator.Mulung_Pts(point, chr.getDojo()));
                         }
                     }
-                }
-                else {
+                } else {
                     final int point2 = (points + 1) * 3;
                     c.setDojo(c.getDojo() + point2);
                     c.getClient().getSession().write(MaplePacketCreator.Mulung_Pts(point2, c.getDojo()));
@@ -139,8 +136,7 @@ public class Event_DojoAgent
                             chr2.changeMap(map, map.getPortal(1));
                         }
                     }
-                }
-                else {
+                } else {
                     c.changeMap(map, map.getPortal(1));
                 }
                 return true;
@@ -155,8 +151,7 @@ public class Event_DojoAgent
                             chr2.changeMap(map, map.getPortal(0));
                         }
                     }
-                }
-                else {
+                } else {
                     c.changeMap(map, map.getPortal(0));
                 }
                 spawnMonster(map, thisStage + 1);
@@ -174,28 +169,26 @@ public class Event_DojoAgent
                                 chr3.changeMap(mapz, mapz.getPortal(0));
                             }
                         }
-                    }
-                    else {
+                    } else {
                         c.changeMap(mapz, mapz.getPortal(0));
                     }
                     spawnMonster(mapz, thisStage + 1);
                     return true;
                 }
             }
-        }
-        catch (Exception rm) {
+        } catch (Exception rm) {
             rm.printStackTrace();
         }
         return false;
     }
-    
+
     private static void clearMap(final MapleMap map, final boolean check) {
         if (check && map.getCharactersSize() != 0) {
             return;
         }
         map.resetFully();
     }
-    
+
     private static int getDojoPoints(final int stage) {
         switch (stage) {
             case 1:
@@ -356,11 +349,14 @@ public class Event_DojoAgent
             final int rand = Randomizer.nextInt(3);
             Timer.MapTimer.getInstance().schedule(new Runnable() {
                 public void run() {
-                    map.spawnMonsterWithEffect(MapleLifeFactory.getMonster(mobid), 15, (rand == 0) ? Event_DojoAgent.point1 : ((rand == 1) ? Event_DojoAgent.point2 : Event_DojoAgent.point3));
+                    map.spawnMonsterWithEffect(MapleLifeFactory.getMonster(mobid), 15,
+                            (rand == 0) ? Event_DojoAgent.point1
+                                    : ((rand == 1) ? Event_DojoAgent.point2 : Event_DojoAgent.point3));
                 }
-            },3000L);
+            }, 3000L);
         }
     }
+
     static {
         point1 = new Point(140, 0);
         point2 = new Point(-193, 0);

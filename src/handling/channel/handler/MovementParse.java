@@ -16,9 +16,9 @@ import server.movement.RelativeLifeMovement;
 import server.movement.TeleportMovement;
 import tools.data.input.SeekableLittleEndianAccessor;
 
-public class MovementParse
-{
-    public static final List<LifeMovementFragment> parseMovement(final SeekableLittleEndianAccessor lea, final int kind) {
+public class MovementParse {
+    public static final List<LifeMovementFragment> parseMovement(final SeekableLittleEndianAccessor lea,
+            final int kind) {
         final List<LifeMovementFragment> res = new ArrayList<LifeMovementFragment>();
         final byte numCommands = lea.readByte();
         String 类型 = "";
@@ -70,7 +70,8 @@ public class MovementParse
                     final short unk2 = lea.readShort();
                     final byte newstate2 = lea.readByte();
                     final short duration2 = lea.readShort();
-                    final AbsoluteLifeMovement alm = new AbsoluteLifeMovement(command, new Point(xpos, ypos), duration2, newstate2);
+                    final AbsoluteLifeMovement alm = new AbsoluteLifeMovement(command, new Point(xpos, ypos), duration2,
+                            newstate2);
                     alm.setUnk(unk2);
                     alm.setPixelsPerSecond(new Point(xwobble, ywobble));
                     res.add(alm);
@@ -91,7 +92,8 @@ public class MovementParse
                     final short ymod = lea.readShort();
                     final byte newstate3 = lea.readByte();
                     final short duration3 = lea.readShort();
-                    final RelativeLifeMovement rlm = new RelativeLifeMovement(command, new Point(xmod, ymod), duration3, newstate3);
+                    final RelativeLifeMovement rlm = new RelativeLifeMovement(command, new Point(xmod, ymod), duration3,
+                            newstate3);
                     res.add(rlm);
                     break;
                 }
@@ -135,7 +137,8 @@ public class MovementParse
                     final short fh2 = lea.readShort();
                     final byte newstate5 = lea.readByte();
                     final short duration5 = lea.readShort();
-                    final JumpDownMovement jdm = new JumpDownMovement(command, new Point(xpos, ypos), duration5, newstate5);
+                    final JumpDownMovement jdm = new JumpDownMovement(command, new Point(xpos, ypos), duration5,
+                            newstate5);
                     jdm.setUnk(unk2);
                     jdm.setPixelsPerSecond(new Point(xwobble, ywobble));
                     jdm.setFH(fh2);
@@ -151,7 +154,8 @@ public class MovementParse
                     break;
                 }
                 default: {
-                    System.out.println("Kind movement: " + 类型 + ", Remaining : " + (numCommands - res.size()) + " New type of movement ID : " + command + ", packet : " + lea.toString(true));
+                    System.out.println("Kind movement: " + 类型 + ", Remaining : " + (numCommands - res.size())
+                            + " New type of movement ID : " + command + ", packet : " + lea.toString(true));
                     return null;
                 }
             }
@@ -162,8 +166,9 @@ public class MovementParse
         }
         return res;
     }
-    
-    public static final void updatePosition(final List<LifeMovementFragment> movement, final AnimatedMapleMapObject target, final int yoffset) {
+
+    public static final void updatePosition(final List<LifeMovementFragment> movement,
+            final AnimatedMapleMapObject target, final int yoffset) {
         for (final LifeMovementFragment move : movement) {
             if (move instanceof LifeMovement) {
                 if (move instanceof AbsoluteLifeMovement) {
@@ -172,7 +177,7 @@ public class MovementParse
                     position2.y += yoffset;
                     target.setPosition(position);
                 }
-                target.setStance(((LifeMovement)move).getNewstate());
+                target.setStance(((LifeMovement) move).getNewstate());
             }
         }
     }

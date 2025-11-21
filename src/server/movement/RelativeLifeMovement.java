@@ -3,12 +3,11 @@ package server.movement;
 import java.awt.Point;
 import tools.data.output.LittleEndianWriter;
 
-public class RelativeLifeMovement extends AbstractLifeMovement
-{
+public class RelativeLifeMovement extends AbstractLifeMovement {
     public RelativeLifeMovement(final int type, final Point position, final int duration, final int newstate) {
         super(type, position, duration, newstate);
     }
-    
+
     @Override
     public void serialize(final LittleEndianWriter lew) {
         lew.write(this.getType());

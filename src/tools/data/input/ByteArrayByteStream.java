@@ -1,47 +1,45 @@
 package tools.data.input;
 
-
 import java.io.IOException;
 import tools.HexTool;
 
-public class ByteArrayByteStream implements SeekableInputStreamBytestream
-{
+public class ByteArrayByteStream implements SeekableInputStreamBytestream {
     private int pos;
     private long bytesRead;
     private final byte[] arr;
-    
+
     public ByteArrayByteStream(final byte[] arr) {
         this.pos = 0;
         this.bytesRead = 0L;
         this.arr = arr;
     }
-    
+
     @Override
     public long getPosition() {
         return this.pos;
     }
-    
+
     @Override
     public void seek(final long offset) throws IOException {
-        this.pos = (int)offset;
+        this.pos = (int) offset;
     }
-    
+
     @Override
     public long getBytesRead() {
         return this.bytesRead;
     }
-    
+
     @Override
     public int readByte() {
         ++this.bytesRead;
         return this.arr[this.pos++] & 0xFF;
     }
-    
+
     @Override
     public String toString() {
         return this.toString(false);
     }
-    
+
     @Override
     public String toString(final boolean b) {
         String nows = "";
@@ -55,7 +53,7 @@ public class ByteArrayByteStream implements SeekableInputStreamBytestream
         }
         return "Data: " + nows;
     }
-    
+
     @Override
     public long available() {
         return this.arr.length - this.pos;

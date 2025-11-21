@@ -2,8 +2,7 @@ package KinMS.PvP;
 
 import java.awt.*;
 
-public class PvpAttackInfo
-{
+public class PvpAttackInfo {
     public int skillId;
     public int critRate;
     public int ignoreDef;

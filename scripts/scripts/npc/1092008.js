@@ -4,7 +4,7 @@
 	Description: 		Unknown
 */
 
-function start(){
-	cm.sendOk("在世界上什么，你说什么？");
-	cm.dispose();
-	}
+function start() {
+  cm.sendOk('在世界上什么，你说什么？');
+  cm.dispose();
+}

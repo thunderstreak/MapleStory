@@ -3,8 +3,7 @@ package client;
 import server.Randomizer;
 import tools.data.output.MaplePacketLittleEndianWriter;
 
-public class PlayerRandomStream
-{
+public class PlayerRandomStream {
     private transient long seed1;
     private transient long seed2;
     private transient long seed3;
@@ -17,12 +16,12 @@ public class PlayerRandomStream
     private transient long seed1___;
     private transient long seed2___;
     private transient long seed3___;
-    
+
     public PlayerRandomStream() {
         final int v4 = 5;
         this.CRand32__Seed(Randomizer.nextLong(), 1170746341 * v4 - 755606699, 1170746341 * v4 - 755606699);
     }
-    
+
     public void CRand32__Seed(final long s1, final long s2, final long s3) {
         this.seed1 = (s1 | 0x100000L);
         this.seed2 = (s2 | 0x1000L);
@@ -34,7 +33,7 @@ public class PlayerRandomStream
         this.seed2__ = (s2 | 0x1000L);
         this.seed3__ = (s3 | 0x10L);
     }
-    
+
     public long CRand32__Random() {
         final long v4 = this.seed1;
         final long v5 = this.seed2;
@@ -48,7 +47,7 @@ public class PlayerRandomStream
         this.seed2_ = (v9 & 0xFFFFFFFFL);
         return (v8 ^ v9 ^ v10) & 0xFFFFFFFFL;
     }
-    
+
     public long CRand32__Random_Character() {
         final long v4 = this.seed1_;
         final long v5 = this.seed2_;
@@ -62,7 +61,7 @@ public class PlayerRandomStream
         this.seed2_ = (v9 & 0xFFFFFFFFL);
         return (v8 ^ v9 ^ v10) & 0xFFFFFFFFL;
     }
-    
+
     public long CRand32__Random_CheckDamageMiss() {
         final long v4 = this.seed1__;
         final long v5 = this.seed2__;
@@ -76,7 +75,7 @@ public class PlayerRandomStream
         this.seed2_ = (v9 & 0xFFFFFFFFL);
         return (v8 ^ v9 ^ v10) & 0xFFFFFFFFL;
     }
-    
+
     public long CRand32__Random_ForMonster() {
         final long v4 = this.seed1___;
         final long v5 = this.seed2___;
@@ -90,14 +89,14 @@ public class PlayerRandomStream
         this.seed2_ = (v9 & 0xFFFFFFFFL);
         return (v8 ^ v9 ^ v10) & 0xFFFFFFFFL;
     }
-    
+
     public void connectData(final MaplePacketLittleEndianWriter mplew) {
         final long v5 = this.CRand32__Random();
         final long s2 = this.CRand32__Random();
         final long v6 = this.CRand32__Random();
         this.CRand32__Seed(v5, s2, v6);
-        mplew.writeInt((int)v5);
-        mplew.writeInt((int)s2);
-        mplew.writeInt((int)v6);
+        mplew.writeInt((int) v5);
+        mplew.writeInt((int) s2);
+        mplew.writeInt((int) v6);
     }
 }

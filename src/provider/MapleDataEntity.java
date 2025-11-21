@@ -1,8 +1,7 @@
 package provider;
 
-public interface MapleDataEntity
-{
+public interface MapleDataEntity {
     String getName();
-    
+
     MapleDataEntity getParent();
 }

@@ -19,15 +19,15 @@ import tools.data.input.ByteArrayByteStream;
 import tools.data.input.ByteInputStream;
 import tools.data.input.GenericLittleEndianAccessor;
 
-public class MaplePacketEncoder implements ProtocolEncoder
-{
+public class MaplePacketEncoder implements ProtocolEncoder {
     private static final Logger log;
-    
-    public void encode(final IoSession session, final Object message, final ProtocolEncoderOutput out) throws Exception {
-        final MapleClient client = (MapleClient)session.getAttribute(MapleClient.CLIENT_KEY);
+
+    public void encode(final IoSession session, final Object message, final ProtocolEncoderOutput out)
+            throws Exception {
+        final MapleClient client = (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
         if (client != null) {
             final MapleAESOFB send_crypto = client.getSendCrypto();
-            final byte[] inputInitialPacket = ((MaplePacket)message).getBytes();
+            final byte[] inputInitialPacket = ((MaplePacket) message).getBytes();
             if (ServerConstants.封包显示) {
                 final int packetLen = inputInitialPacket.length;
                 final int pHeader = this.readFirstShort(inputInitialPacket);
@@ -55,15 +55,27 @@ public class MaplePacketEncoder implements ProtocolEncoder
                     }
                 }
                 final String Recv = "服务端发送 " + op + " [" + pHeaderStr + "] (" + packetLen + ")\r\n";
+                // 只记录可能导致错误的封包：UNKNOWN封包或异常大小的封包
+                boolean isErrorPacket = op.equals("UNKNOWN") || packetLen > 50000 || packetLen < 2;
                 if (packetLen <= 50000) {
-                    final String RecvTo = Recv + HexTool.toString(inputInitialPacket) + "\r\n" + HexTool.toStringFromAscii(inputInitialPacket);
+                    final String RecvTo = Recv + HexTool.toString(inputInitialPacket) + "\r\n"
+                            + HexTool.toStringFromAscii(inputInitialPacket);
                     if (show) {
-                        FileoutputUtil.packetLog("logs/服务端封包.log", RecvTo);
+                        if (ServerConstants.EnablePacketLog && isErrorPacket) {
+                            FileoutputUtil.packetLog("logs/服务端封包.log", RecvTo);
+                        }
                         System.out.println(RecvTo);
                     }
-                }
-                else {
-                    MaplePacketEncoder.log.info(HexTool.toString(new byte[] { inputInitialPacket[0], inputInitialPacket[1] }) + " ...");
+                } else {
+                    // 异常大小的封包，记录到日志
+                    if (ServerConstants.EnablePacketLog) {
+                        final String RecvTo = Recv
+                                + HexTool.toString(new byte[] { inputInitialPacket[0], inputInitialPacket[1] })
+                                + " ... (封包过大: " + packetLen + " 字节)";
+                        FileoutputUtil.packetLog("logs/服务端封包.log", RecvTo);
+                    }
+                    MaplePacketEncoder.log.info(
+                            HexTool.toString(new byte[] { inputInitialPacket[0], inputInitialPacket[1] }) + " ...");
                 }
             }
             final byte[] unencrypted = new byte[inputInitialPacket.length];
@@ -76,21 +88,19 @@ public class MaplePacketEncoder implements ProtocolEncoder
                 MapleCustomEncryption.encryptData(unencrypted);
                 send_crypto.crypt(unencrypted);
                 System.arraycopy(header, 0, ret, 0, 4);
-            }
-            finally {
+            } finally {
                 mutex.unlock();
             }
             System.arraycopy(unencrypted, 0, ret, 4, unencrypted.length);
             out.write(IoBuffer.wrap(ret));
-        }
-        else {
-            out.write(IoBuffer.wrap(((MaplePacket)message).getBytes()));
+        } else {
+            out.write(IoBuffer.wrap(((MaplePacket) message).getBytes()));
         }
     }
-    
+
     public void dispose(final IoSession session) throws Exception {
     }
-    
+
     private String lookupRecv(final int val) {
         for (final SendPacketOpcode op : SendPacketOpcode.values()) {
             if (op.getValue() == val) {
@@ -99,11 +109,11 @@ public class MaplePacketEncoder implements ProtocolEncoder
         }
         return "UNKNOWN";
     }
-    
+
     private int readFirstShort(final byte[] arr) {
         return new GenericLittleEndianAccessor(new ByteArrayByteStream(arr)).readShort();
     }
-    
+
     static {
         log = LoggerFactory.getLogger(MaplePacketEncoder.class);
     }

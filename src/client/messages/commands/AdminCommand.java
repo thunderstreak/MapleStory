@@ -1,6 +1,5 @@
 package client.messages.commands;
 
-
 import client.ISkill;
 import client.LoginCrypto;
 import client.MapleCharacter;
@@ -121,8 +120,6 @@ public class AdminCommand {
     public static class 给所有人点卷 extends CashEveryone {
     }
 
-
-
     public static class 刷新地图 extends ReloadMap {
     }
 
@@ -199,14 +196,16 @@ public class AdminCommand {
             String reason = null;
             try {
                 final Connection con = DatabaseConnection.getConnection();
-                PreparedStatement ps = (PreparedStatement) con.prepareStatement("select accountid from characters where name = ?");
+                PreparedStatement ps = (PreparedStatement) con
+                        .prepareStatement("select accountid from characters where name = ?");
                 ps.setString(1, name);
                 try (final ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
                         acid = rs.getInt("accountid");
                     }
                 }
-                ps = (PreparedStatement) con.prepareStatement("select banned, banreason, macs, Sessionip from accounts where id = ?");
+                ps = (PreparedStatement) con
+                        .prepareStatement("select banned, banreason, macs, Sessionip from accounts where id = ?");
                 ps.setInt(1, acid);
                 try (final ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
@@ -229,7 +228,8 @@ public class AdminCommand {
             if (c.isBannedMac(mac)) {
                 MACbanned = true;
             }
-            c.getPlayer().dropMessage("玩家[" + name + "] 帐号ID[" + acid + "]是否被封锁: " + (ACbanned ? "是" : "否") + (Systemban ? "(系统自动封锁)" : "") + ", 原因: " + reason);
+            c.getPlayer().dropMessage("玩家[" + name + "] 帐号ID[" + acid + "]是否被封锁: " + (ACbanned ? "是" : "否")
+                    + (Systemban ? "(系统自动封锁)" : "") + ", 原因: " + reason);
             c.getPlayer().dropMessage("IP: " + ip + " 是否在封锁IP名单: " + (IPbanned ? "是" : "否"));
             c.getPlayer().dropMessage("MAC: " + mac + " 是否在封锁MAC名单: " + (MACbanned ? "是" : "否"));
             return 1;
@@ -321,8 +321,10 @@ public class AdminCommand {
                         message.append("[冒险岛公告] 服务器将在 ");
                         message.append(ShutdownTime.this.minutesLeft);
                         message.append("分钟后关闭. 请尽速关闭精灵商人 并下线.");
-                        World.Broadcast.broadcastMessage(MaplePacketCreator.serverNotice(6, message.toString()).getBytes());
-                        World.Broadcast.broadcastMessage(MaplePacketCreator.serverMessage(message.toString()).getBytes());
+                        World.Broadcast
+                                .broadcastMessage(MaplePacketCreator.serverNotice(6, message.toString()).getBytes());
+                        World.Broadcast
+                                .broadcastMessage(MaplePacketCreator.serverMessage(message.toString()).getBytes());
                         for (final ChannelServer cs : ChannelServer.getAllInstances()) {
                             cs.setServerMessage("服务器将于 " + ShutdownTime.this.minutesLeft + " 分钟后开启");
                         }
@@ -555,7 +557,6 @@ public class AdminCommand {
         }
     }
 
-
     public static class HealMap extends CommandExecute {
         public int execute(MapleClient c, String[] splitted) {
             MapleCharacter player = c.getPlayer();
@@ -639,7 +640,8 @@ public class AdminCommand {
         @Override
         public int execute(final MapleClient c, final String[] splitted) {
             c.getPlayer().setRemainingAp((short) CommandProcessorUtil.getOptionalIntArg(splitted, 1, 1));
-            c.getPlayer().updateSingleStat(MapleStat.AVAILABLEAP, CommandProcessorUtil.getOptionalIntArg(splitted, 1, 1));
+            c.getPlayer().updateSingleStat(MapleStat.AVAILABLEAP,
+                    CommandProcessorUtil.getOptionalIntArg(splitted, 1, 1));
             return 1;
         }
 
@@ -722,7 +724,6 @@ public class AdminCommand {
         }
     }
 
-
     public static class GainMaplePoint extends CommandExecute {
         @Override
         public int execute(final MapleClient c, final String[] splitted) {
@@ -740,7 +741,8 @@ public class AdminCommand {
                 return 0;
             }
             player.modifyCSPoints(2, amount, true);
-            final String msg = "[GM 密语] GM " + c.getPlayer().getName() + " 给了 " + player.getName() + " 枫叶点数 " + amount + "点";
+            final String msg = "[GM 密语] GM " + c.getPlayer().getName() + " 给了 " + player.getName() + " 枫叶点数 " + amount
+                    + "点";
             World.Broadcast.broadcastGMMessage(MaplePacketCreator.serverNotice(6, msg).getBytes());
             return 1;
         }
@@ -964,7 +966,8 @@ public class AdminCommand {
             if (GameConstants.isPet(itemId)) {
                 final MaplePet pet = MaplePet.createPet(itemId, MapleInventoryIdentifier.getInstance());
                 if (pet != null) {
-                    MapleInventoryManipulator.addById(c, itemId, (short) 1, c.getPlayer().getName(), pet, 90L, (byte) 0);
+                    MapleInventoryManipulator.addById(c, itemId, (short) 1, c.getPlayer().getName(), pet, 90L,
+                            (byte) 0);
                 }
             } else if (!ii.itemExists(itemId)) {
                 c.getPlayer().dropMessage(5, itemId + " - 物品不存在");
@@ -1011,7 +1014,6 @@ public class AdminCommand {
         }
     }
 
-
     public static class Letter extends CommandExecute {
         public int execute(MapleClient c, String[] splitted) {
             int start, nstart;
@@ -1052,14 +1054,16 @@ public class AdminCommand {
                 if (integer.intValue() < 200) {
                     int val = start + integer.intValue() - 65;
                     client.inventory.Item item = new client.inventory.Item(val, (byte) 0, (short) 1);
-                    c.getPlayer().getMap().spawnItemDrop((MapleMapObject) c.getPlayer(), c.getPlayer(), (IItem) item, new Point(dStart, (c.getPlayer().getPosition()).y), false, false);
+                    c.getPlayer().getMap().spawnItemDrop((MapleMapObject) c.getPlayer(), c.getPlayer(), (IItem) item,
+                            new Point(dStart, (c.getPlayer().getPosition()).y), false, false);
                     dStart += w;
                     continue;
                 }
                 if (integer.intValue() >= 200 && integer.intValue() <= 300) {
                     int val = nstart + integer.intValue() - 48 - 200;
                     client.inventory.Item item = new client.inventory.Item(val, (byte) 0, (short) 1);
-                    c.getPlayer().getMap().spawnItemDrop(c.getPlayer(), c.getPlayer(), item, new Point(dStart, (c.getPlayer().getPosition()).y), false, false);
+                    c.getPlayer().getMap().spawnItemDrop(c.getPlayer(), c.getPlayer(), item,
+                            new Point(dStart, (c.getPlayer().getPosition()).y), false, false);
                     dStart += w;
                 }
             }
@@ -1089,9 +1093,9 @@ public class AdminCommand {
                 if (fff == null) {
                     c.getPlayer().dropMessage(6, "玩家必须在线");
                 } else {
-                    int[] ringID = {MapleInventoryIdentifier.getInstance(), MapleInventoryIdentifier.getInstance()};
+                    int[] ringID = { MapleInventoryIdentifier.getInstance(), MapleInventoryIdentifier.getInstance() };
                     try {
-                        MapleCharacter[] chrz = {fff, c.getPlayer()};
+                        MapleCharacter[] chrz = { fff, c.getPlayer() };
                         for (int i = 0; i < chrz.length; i++) {
                             Equip eq = (Equip) MapleItemInformationProvider.getInstance().getEquipById(itemId);
                             if (eq == null) {
@@ -1119,7 +1123,8 @@ public class AdminCommand {
     public static class ItemCheck extends CommandExecute {
         @Override
         public int execute(final MapleClient c, final String[] splitted) {
-            if (splitted.length < 3 || splitted[1] == null || splitted[1].equals("") || splitted[2] == null || splitted[2].equals("")) {
+            if (splitted.length < 3 || splitted[1] == null || splitted[1].equals("") || splitted[2] == null
+                    || splitted[2].equals("")) {
                 return 0;
             }
             final int item = Integer.parseInt(splitted[2]);
@@ -1149,7 +1154,9 @@ public class AdminCommand {
         public int execute(final MapleClient c, final String[] splitted) {
             for (final MapleMapObject mmo : c.getPlayer().getMap().getAllMonstersThreadsafe()) {
                 final MapleMonster monster = (MapleMonster) mmo;
-                c.getPlayer().getMap().broadcastMessage(MobPacket.moveMonster(false, -1, 0, 0, 0, 0, monster.getObjectId(), monster.getPosition(), c.getPlayer().getPosition(), c.getPlayer().getLastRes()));
+                c.getPlayer().getMap()
+                        .broadcastMessage(MobPacket.moveMonster(false, -1, 0, 0, 0, 0, monster.getObjectId(),
+                                monster.getPosition(), c.getPlayer().getPosition(), c.getPlayer().getLastRes()));
                 monster.setPosition(c.getPlayer().getPosition());
             }
             return 1;
@@ -1203,7 +1210,8 @@ public class AdminCommand {
             if (c.getChannelServer().getEvent() == c.getPlayer().getMapId()) {
                 MapleEvent.setEvent(c.getChannelServer(), false);
                 c.getPlayer().dropMessage(5, "已经关闭活动入口，可以使用 !活动开始 來启动。");
-                World.Broadcast.broadcastMessage(MaplePacketCreator.serverNotice(6, "頻道:" + c.getChannel() + "活动目前已经关闭大门口。").getBytes());
+                World.Broadcast.broadcastMessage(
+                        MaplePacketCreator.serverNotice(6, "頻道:" + c.getChannel() + "活动目前已经关闭大门口。").getBytes());
                 c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.getClock(60));
                 活动开始.ts = Timer.EventTimer.getInstance().register(new Runnable() {
                     @Override
@@ -1239,7 +1247,8 @@ public class AdminCommand {
             if (c.getChannelServer().getEvent() == c.getPlayer().getMapId()) {
                 MapleEvent.setEvent(c.getChannelServer(), false);
                 c.getPlayer().dropMessage(5, "已经关闭活动入口，可以使用 !活动开始 來启动。");
-                World.Broadcast.broadcastMessage(MaplePacketCreator.serverNotice(6, "頻道:" + c.getChannel() + "活动目前已经关闭大门口。").getBytes());
+                World.Broadcast.broadcastMessage(
+                        MaplePacketCreator.serverNotice(6, "頻道:" + c.getChannel() + "活动目前已经关闭大门口。").getBytes());
                 c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.getClock(60));
                 Timer.EventTimer.getInstance().register(new Runnable() {
                     @Override
@@ -1287,8 +1296,6 @@ public class AdminCommand {
             return new StringBuilder().append("!选择活动 - 选择活动").toString();
         }
     }
-
-
 
     public static class RemoveItem extends CommandExecute {
         @Override
@@ -1345,7 +1352,16 @@ public class AdminCommand {
                 victim = c.getChannelServer().getPlayerStorage().getCharacterByName(splitted[1]);
             }
             try {
-                World.Broadcast.broadcastSmega(MaplePacketCreator.serverNotice(3, (victim == null) ? c.getChannel() : victim.getClient().getChannel(), (victim == null) ? splitted[1] : (victim.getName() + " : " + StringUtil.joinStringFrom(splitted, 2)), true).getBytes());
+                World.Broadcast
+                        .broadcastSmega(
+                                MaplePacketCreator
+                                        .serverNotice(3,
+                                                (victim == null) ? c.getChannel() : victim.getClient().getChannel(),
+                                                (victim == null) ? splitted[1]
+                                                        : (victim.getName() + " : "
+                                                                + StringUtil.joinStringFrom(splitted, 2)),
+                                                true)
+                                        .getBytes());
             } catch (Exception e) {
                 return 0;
             }
@@ -1371,7 +1387,8 @@ public class AdminCommand {
                 c.getPlayer().dropMessage(5, "找不到 '" + splitted[1]);
                 return 0;
             }
-            victim.getMap().broadcastMessage(MaplePacketCreator.getChatText(victim.getId(), StringUtil.joinStringFrom(splitted, 2), victim.isGM(), 0));
+            victim.getMap().broadcastMessage(MaplePacketCreator.getChatText(victim.getId(),
+                    StringUtil.joinStringFrom(splitted, 2), victim.isGM(), 0));
             return 1;
         }
 
@@ -1385,7 +1402,8 @@ public class AdminCommand {
         public int execute(final MapleClient c, final String[] splitted) {
             for (final MapleCharacter victim : c.getPlayer().getMap().getCharactersThreadsafe()) {
                 if (victim.getId() != c.getPlayer().getId()) {
-                    victim.getMap().broadcastMessage(MaplePacketCreator.getChatText(victim.getId(), StringUtil.joinStringFrom(splitted, 1), victim.isGM(), 0));
+                    victim.getMap().broadcastMessage(MaplePacketCreator.getChatText(victim.getId(),
+                            StringUtil.joinStringFrom(splitted, 1), victim.isGM(), 0));
                 }
             }
             return 1;
@@ -1401,7 +1419,8 @@ public class AdminCommand {
         public int execute(final MapleClient c, final String[] splitted) {
             for (final MapleCharacter victim : c.getChannelServer().getPlayerStorage().getAllCharacters()) {
                 if (victim.getId() != c.getPlayer().getId()) {
-                    victim.getMap().broadcastMessage(MaplePacketCreator.getChatText(victim.getId(), StringUtil.joinStringFrom(splitted, 1), victim.isGM(), 0));
+                    victim.getMap().broadcastMessage(MaplePacketCreator.getChatText(victim.getId(),
+                            StringUtil.joinStringFrom(splitted, 1), victim.isGM(), 0));
                 }
             }
             return 1;
@@ -1418,7 +1437,8 @@ public class AdminCommand {
             for (final ChannelServer cserv : ChannelServer.getAllInstances()) {
                 for (final MapleCharacter victim : cserv.getPlayerStorage().getAllCharacters()) {
                     if (victim.getId() != c.getPlayer().getId()) {
-                        victim.getMap().broadcastMessage(MaplePacketCreator.getChatText(victim.getId(), StringUtil.joinStringFrom(splitted, 1), victim.isGM(), 0));
+                        victim.getMap().broadcastMessage(MaplePacketCreator.getChatText(victim.getId(),
+                                StringUtil.joinStringFrom(splitted, 1), victim.isGM(), 0));
                     }
                 }
             }
@@ -1480,15 +1500,19 @@ public class AdminCommand {
                 } else {
                     victim.setChair(0);
                     victim.getClient().sendPacket(MaplePacketCreator.cancelChair(-1));
-                    victim.getMap().broadcastMessage(victim, MaplePacketCreator.showChair(c.getPlayer().getId(), 0), false);
-                    victim.giveDebuff(dis, MobSkillFactory.getMobSkill(type, CommandProcessorUtil.getOptionalIntArg(splitted, 3, 1)));
+                    victim.getMap().broadcastMessage(victim, MaplePacketCreator.showChair(c.getPlayer().getId(), 0),
+                            false);
+                    victim.giveDebuff(dis,
+                            MobSkillFactory.getMobSkill(type, CommandProcessorUtil.getOptionalIntArg(splitted, 3, 1)));
                 }
             } else {
                 for (MapleCharacter victim : c.getPlayer().getMap().getCharactersThreadsafe()) {
                     victim.setChair(0);
                     victim.getClient().sendPacket(MaplePacketCreator.cancelChair(-1));
-                    victim.getMap().broadcastMessage(victim, MaplePacketCreator.showChair(c.getPlayer().getId(), 0), false);
-                    victim.giveDebuff(dis, MobSkillFactory.getMobSkill(type, CommandProcessorUtil.getOptionalIntArg(splitted, 2, 1)));
+                    victim.getMap().broadcastMessage(victim, MaplePacketCreator.showChair(c.getPlayer().getId(), 0),
+                            false);
+                    victim.giveDebuff(dis,
+                            MobSkillFactory.getMobSkill(type, CommandProcessorUtil.getOptionalIntArg(splitted, 2, 1)));
                 }
             }
             return 1;
@@ -1535,7 +1559,8 @@ public class AdminCommand {
                 c.getPlayer().dropMessage(5, "找不到 '" + name);
             } else {
                 victim.gainMeso(gain, true);
-                final String msg = "[GM 密语] GM " + c.getPlayer().getName() + " 给了 " + victim.getName() + " 金币 " + gain + "点";
+                final String msg = "[GM 密语] GM " + c.getPlayer().getName() + " 给了 " + victim.getName() + " 金币 " + gain
+                        + "点";
                 World.Broadcast.broadcastGMMessage(MaplePacketCreator.serverNotice(6, msg).getBytes());
             }
             return 1;
@@ -1811,7 +1836,8 @@ public class AdminCommand {
             if (splitted.length < 2) {
                 return 0;
             }
-            MapleQuest.getInstance(Integer.parseInt(splitted[1])).complete(c.getPlayer(), Integer.parseInt(splitted[2]), Integer.parseInt(splitted[3]));
+            MapleQuest.getInstance(Integer.parseInt(splitted[1])).complete(c.getPlayer(), Integer.parseInt(splitted[2]),
+                    Integer.parseInt(splitted[3]));
             return 1;
         }
 
@@ -1826,7 +1852,8 @@ public class AdminCommand {
             if (splitted.length < 2) {
                 return 0;
             }
-            MapleQuest.getInstance(Integer.parseInt(splitted[1])).forceStart(c.getPlayer(), Integer.parseInt(splitted[2]), (splitted.length >= 4) ? splitted[3] : null);
+            MapleQuest.getInstance(Integer.parseInt(splitted[1])).forceStart(c.getPlayer(),
+                    Integer.parseInt(splitted[2]), (splitted.length >= 4) ? splitted[3] : null);
             return 1;
         }
 
@@ -1841,7 +1868,8 @@ public class AdminCommand {
             if (splitted.length < 2) {
                 return 0;
             }
-            MapleQuest.getInstance(Integer.parseInt(splitted[1])).forceComplete(c.getPlayer(), Integer.parseInt(splitted[2]));
+            MapleQuest.getInstance(Integer.parseInt(splitted[1])).forceComplete(c.getPlayer(),
+                    Integer.parseInt(splitted[2]));
             return 1;
         }
 
@@ -1853,7 +1881,9 @@ public class AdminCommand {
     public static class FStartOther extends CommandExecute {
         @Override
         public int execute(final MapleClient c, final String[] splitted) {
-            MapleQuest.getInstance(Integer.parseInt(splitted[2])).forceStart(c.getChannelServer().getPlayerStorage().getCharacterByName(splitted[1]), Integer.parseInt(splitted[3]), (splitted.length >= 4) ? splitted[4] : null);
+            MapleQuest.getInstance(Integer.parseInt(splitted[2])).forceStart(
+                    c.getChannelServer().getPlayerStorage().getCharacterByName(splitted[1]),
+                    Integer.parseInt(splitted[3]), (splitted.length >= 4) ? splitted[4] : null);
             return 1;
         }
 
@@ -1865,7 +1895,9 @@ public class AdminCommand {
     public static class FCompleteOther extends CommandExecute {
         @Override
         public int execute(final MapleClient c, final String[] splitted) {
-            MapleQuest.getInstance(Integer.parseInt(splitted[2])).forceComplete(c.getChannelServer().getPlayerStorage().getCharacterByName(splitted[1]), Integer.parseInt(splitted[3]));
+            MapleQuest.getInstance(Integer.parseInt(splitted[2])).forceComplete(
+                    c.getChannelServer().getPlayerStorage().getCharacterByName(splitted[1]),
+                    Integer.parseInt(splitted[3]));
             return 1;
         }
 
@@ -1878,7 +1910,8 @@ public class AdminCommand {
         @Override
         public int execute(final MapleClient c, final String[] splitted) {
             final MaplePortal portal = c.getPlayer().getMap().findClosestSpawnpoint(c.getPlayer().getPosition());
-            c.getPlayer().dropMessage(6, portal.getName() + " id: " + portal.getId() + " script: " + portal.getScriptName());
+            c.getPlayer().dropMessage(6,
+                    portal.getName() + " id: " + portal.getId() + " script: " + portal.getScriptName());
             return 1;
         }
 
@@ -2049,7 +2082,8 @@ public class AdminCommand {
                 return 0;
             }
             final MapleMap map = c.getPlayer().getMap();
-            final List<MapleMapObject> reactors = map.getMapObjectsInRange(c.getPlayer().getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.REACTOR));
+            final List<MapleMapObject> reactors = map.getMapObjectsInRange(c.getPlayer().getPosition(),
+                    Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.REACTOR));
             if (splitted[1].equals("all")) {
                 for (final MapleMapObject reactorL : reactors) {
                     final MapleReactor reactor2l = (MapleReactor) reactorL;
@@ -2108,7 +2142,6 @@ public class AdminCommand {
             return new StringBuilder().append("!removedrops - 移除地上的物品").toString();
         }
     }
-
 
     public static class DropRate extends CommandExecute {
         @Override
@@ -2246,7 +2279,8 @@ public class AdminCommand {
                 }
                 c.getPlayer().dropMessage(6, sb.substring(0, sb.length() - 2));
             } else {
-                c.getPlayer().dropMessage(6, "Invalid command 指令規則 - Use !goto <location>. For a list of locations, use !goto locations.");
+                c.getPlayer().dropMessage(6,
+                        "Invalid command 指令規則 - Use !goto <location>. For a list of locations, use !goto locations.");
             }
             return 1;
         }
@@ -2338,8 +2372,10 @@ public class AdminCommand {
                     drop = splitted[3].equalsIgnoreCase("true");
                 }
             }
-            final List<MapleMapObject> monsters = map.getMapObjectsInRange(c.getPlayer().getPosition(), range, Arrays.asList(MapleMapObjectType.MONSTER));
-            for (final MapleMapObject monstermo : map.getMapObjectsInRange(c.getPlayer().getPosition(), range, Arrays.asList(MapleMapObjectType.MONSTER))) {
+            final List<MapleMapObject> monsters = map.getMapObjectsInRange(c.getPlayer().getPosition(), range,
+                    Arrays.asList(MapleMapObjectType.MONSTER));
+            for (final MapleMapObject monstermo : map.getMapObjectsInRange(c.getPlayer().getPosition(), range,
+                    Arrays.asList(MapleMapObjectType.MONSTER))) {
                 final MapleMonster mob = (MapleMonster) monstermo;
                 map.killMonster(mob, c.getPlayer(), drop, false, (byte) 1);
                 mob.giveExpToCharacter(c.getPlayer(), mob.getExp(), false, 0, (byte) 0, (byte) 0, (byte) 0, 0);
@@ -2373,7 +2409,8 @@ public class AdminCommand {
             }
             final MapleMap map = c.getPlayer().getMap();
             final double range = Double.POSITIVE_INFINITY;
-            for (final MapleMapObject monstermo : map.getMapObjectsInRange(c.getPlayer().getPosition(), range, Arrays.asList(MapleMapObjectType.MONSTER))) {
+            for (final MapleMapObject monstermo : map.getMapObjectsInRange(c.getPlayer().getPosition(), range,
+                    Arrays.asList(MapleMapObjectType.MONSTER))) {
                 final MapleMonster mob = (MapleMonster) monstermo;
                 if (mob.getId() == Integer.parseInt(splitted[1])) {
                     mob.damage(c.getPlayer(), mob.getHp(), false);
@@ -2472,7 +2509,8 @@ public class AdminCommand {
         public int execute(final MapleClient c, final String[] splitted) {
             for (final MapleMapObject reactor1l : c.getPlayer().getMap().getAllNPCsThreadsafe()) {
                 final MapleNPC reactor2l = (MapleNPC) reactor1l;
-                c.getPlayer().dropMessage(5, "NPC: oID: " + reactor2l.getObjectId() + " npcID: " + reactor2l.getId() + " Position: " + reactor2l.getPosition().toString() + " Name: " + reactor2l.getName());
+                c.getPlayer().dropMessage(5, "NPC: oID: " + reactor2l.getObjectId() + " npcID: " + reactor2l.getId()
+                        + " Position: " + reactor2l.getPosition().toString() + " Name: " + reactor2l.getName());
             }
             return 1;
         }
@@ -2487,7 +2525,10 @@ public class AdminCommand {
         public int execute(final MapleClient c, final String[] splitted) {
             for (final MapleMapObject reactor1l : c.getPlayer().getMap().getAllReactorsThreadsafe()) {
                 final MapleReactor reactor2l = (MapleReactor) reactor1l;
-                c.getPlayer().dropMessage(5, "Reactor: oID: " + reactor2l.getObjectId() + " reactorID: " + reactor2l.getReactorId() + " Position: " + reactor2l.getPosition().toString() + " State: " + reactor2l.getState() + " Name: " + reactor2l.getName());
+                c.getPlayer().dropMessage(5,
+                        "Reactor: oID: " + reactor2l.getObjectId() + " reactorID: " + reactor2l.getReactorId()
+                                + " Position: " + reactor2l.getPosition().toString() + " State: " + reactor2l.getState()
+                                + " Name: " + reactor2l.getName());
             }
             return 1;
         }
@@ -2501,7 +2542,10 @@ public class AdminCommand {
         @Override
         public int execute(final MapleClient c, final String[] splitted) {
             for (final MaplePortal portal : c.getPlayer().getMap().getPortals()) {
-                c.getPlayer().dropMessage(5, "Portal: ID: " + portal.getId() + " script: " + portal.getScriptName() + " name: " + portal.getName() + " pos: " + portal.getPosition().x + "," + portal.getPosition().y + " target: " + portal.getTargetMapId() + " / " + portal.getTarget());
+                c.getPlayer().dropMessage(5,
+                        "Portal: ID: " + portal.getId() + " script: " + portal.getScriptName() + " name: "
+                                + portal.getName() + " pos: " + portal.getPosition().x + "," + portal.getPosition().y
+                                + " target: " + portal.getTargetMapId() + " / " + portal.getTarget());
             }
             return 1;
         }
@@ -2556,11 +2600,13 @@ public class AdminCommand {
             try {
                 c.getPlayer().dropMessage(6, "Making playerNPC...");
                 final MapleClient cs = new MapleClient(null, null, (IoSession) new MockIOSession());
-                final MapleCharacter chhr = MapleCharacter.loadCharFromDB(MapleCharacterUtil.getIdByName(splitted[1]), cs, false);
+                final MapleCharacter chhr = MapleCharacter.loadCharFromDB(MapleCharacterUtil.getIdByName(splitted[1]),
+                        cs, false);
                 if (chhr == null) {
                     c.getPlayer().dropMessage(6, splitted[1] + " does not exist");
                 } else {
-                    final PlayerNPC npc = new PlayerNPC(chhr, Integer.parseInt(splitted[2]), c.getPlayer().getMap(), c.getPlayer());
+                    final PlayerNPC npc = new PlayerNPC(chhr, Integer.parseInt(splitted[2]), c.getPlayer().getMap(),
+                            c.getPlayer());
                     npc.addToServer();
                     c.getPlayer().dropMessage(6, "Done");
                 }
@@ -2602,7 +2648,8 @@ public class AdminCommand {
         @Override
         public int execute(final MapleClient c, final String[] splitted) {
             final Point pos = c.getPlayer().getPosition();
-            c.getPlayer().dropMessage(6, "X: " + pos.x + " | Y: " + pos.y + " | RX0: " + (pos.x + 50) + " | RX1: " + (pos.x - 50) + " | FH: " + c.getPlayer().getFH() + "| CY:" + pos.y);
+            c.getPlayer().dropMessage(6, "X: " + pos.x + " | Y: " + pos.y + " | RX0: " + (pos.x + 50) + " | RX1: "
+                    + (pos.x - 50) + " | FH: " + c.getPlayer().getFH() + "| CY:" + pos.y);
             return 1;
         }
 
@@ -2686,8 +2733,10 @@ public class AdminCommand {
                 npc.setFh(fh);
                 npc.setCustom(true);
                 try {
-                    final com.mysql.jdbc.Connection con = (com.mysql.jdbc.Connection) DatabaseConnection.getConnection();
-                    try (final PreparedStatement ps = (PreparedStatement) con.prepareStatement("INSERT INTO wz_customlife (dataid, f, hide, fh, cy, rx0, rx1, type, x, y, mid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+                    final com.mysql.jdbc.Connection con = (com.mysql.jdbc.Connection) DatabaseConnection
+                            .getConnection();
+                    try (final PreparedStatement ps = (PreparedStatement) con.prepareStatement(
+                            "INSERT INTO wz_customlife (dataid, f, hide, fh, cy, rx0, rx1, type, x, y, mid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
                         ps.setInt(1, npcId);
                         ps.setInt(2, 0);
                         ps.setInt(3, 0);
@@ -2706,9 +2755,11 @@ public class AdminCommand {
                 }
                 for (final ChannelServer cserv : ChannelServer.getAllInstances()) {
                     cserv.getMapFactory().getMap(c.getPlayer().getMapId()).addMapObject(npc);
-                    cserv.getMapFactory().getMap(c.getPlayer().getMapId()).broadcastMessage(MaplePacketCreator.spawnNPC(npc, true));
+                    cserv.getMapFactory().getMap(c.getPlayer().getMapId())
+                            .broadcastMessage(MaplePacketCreator.spawnNPC(npc, true));
                 }
-                c.getPlayer().dropMessage(6, "Please do not reload this map or else the NPC will disappear till the next restart.");
+                c.getPlayer().dropMessage(6,
+                        "Please do not reload this map or else the NPC will disappear till the next restart.");
             } else {
                 c.getPlayer().dropMessage(6, "查无此 Npc ");
             }
@@ -2765,7 +2816,8 @@ public class AdminCommand {
             if (newhp < 1L) {
                 newhp = 1L;
             }
-            final OverrideMonsterStats overrideStats = new OverrideMonsterStats(newhp, onemob.getMobMaxMp(), newexp, false);
+            final OverrideMonsterStats overrideStats = new OverrideMonsterStats(newhp, onemob.getMobMaxMp(), newexp,
+                    false);
             for (int i = 0; i < num; ++i) {
                 final MapleMonster mob = MapleLifeFactory.getMonster(mid);
                 mob.setHp(newhp);
@@ -2786,7 +2838,8 @@ public class AdminCommand {
             if (splitted.length < 2) {
                 return 0;
             }
-            c.getPlayer().getMap().broadcastMessage(MaplePacketCreator.getClock(CommandProcessorUtil.getOptionalIntArg(splitted, 1, 60)));
+            c.getPlayer().getMap().broadcastMessage(
+                    MaplePacketCreator.getClock(CommandProcessorUtil.getOptionalIntArg(splitted, 1, 60)));
             return 1;
         }
 
@@ -2821,7 +2874,8 @@ public class AdminCommand {
             if (splitted.length != 2) {
                 return 0;
             }
-            final MapleMap target = c.getChannelServer().getEventSM().getEventManager("lolcastle").getInstance("lolcastle" + splitted[1]).getMapFactory().getMap(990000300, false, false);
+            final MapleMap target = c.getChannelServer().getEventSM().getEventManager("lolcastle")
+                    .getInstance("lolcastle" + splitted[1]).getMapFactory().getMap(990000300, false, false);
             c.getPlayer().changeMap(target, target.getPortal(0));
             return 1;
         }
@@ -2927,13 +2981,13 @@ public class AdminCommand {
             }
             final boolean custMap = splitted.length >= 2;
             final int mapid = custMap ? Integer.parseInt(splitted[1]) : player.getMapId();
-            final MapleMap map = custMap ? player.getClient().getChannelServer().getMapFactory().getMap(mapid) : player.getMap();
+            final MapleMap map = custMap ? player.getClient().getChannelServer().getMapFactory().getMap(mapid)
+                    : player.getMap();
             if (player.getClient().getChannelServer().getMapFactory().destroyMap(mapid)) {
                 final MapleMap newMap = player.getClient().getChannelServer().getMapFactory().getMap(mapid);
                 final MaplePortal newPor = newMap.getPortal(0);
                 final LinkedHashSet<MapleCharacter> mcs = new LinkedHashSet<MapleCharacter>(map.getCharacters());
-                Label_0139:
-                for (final MapleCharacter m : mcs) {
+                Label_0139: for (final MapleCharacter m : mcs) {
                     int x = 0;
                     while (x < 5) {
                         try {
@@ -3023,8 +3077,10 @@ public class AdminCommand {
                 npc.setFh(fh);
                 npc.setCustom(true);
                 try {
-                    final com.mysql.jdbc.Connection con = (com.mysql.jdbc.Connection) DatabaseConnection.getConnection();
-                    try (PreparedStatement ps = (PreparedStatement) con.prepareStatement("INSERT INTO wz_customlife (dataid, f, hide, fh, cy, rx0, rx1, type, x, y, mid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+                    final com.mysql.jdbc.Connection con = (com.mysql.jdbc.Connection) DatabaseConnection
+                            .getConnection();
+                    try (PreparedStatement ps = (PreparedStatement) con.prepareStatement(
+                            "INSERT INTO wz_customlife (dataid, f, hide, fh, cy, rx0, rx1, type, x, y, mid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
                         ps.setInt(1, npcId);
                         ps.setInt(2, 0);
                         ps.setInt(3, 0);
@@ -3043,9 +3099,11 @@ public class AdminCommand {
                 }
                 for (final ChannelServer cserv : ChannelServer.getAllInstances()) {
                     cserv.getMapFactory().getMap(c.getPlayer().getMapId()).addMapObject(npc);
-                    cserv.getMapFactory().getMap(c.getPlayer().getMapId()).broadcastMessage(MaplePacketCreator.spawnNPC(npc, true));
+                    cserv.getMapFactory().getMap(c.getPlayer().getMapId())
+                            .broadcastMessage(MaplePacketCreator.spawnNPC(npc, true));
                 }
-                c.getPlayer().dropMessage(6, "Please do not reload this map or else the NPC will disappear till the next restart.");
+                c.getPlayer().dropMessage(6,
+                        "Please do not reload this map or else the NPC will disappear till the next restart.");
             } else {
                 c.getPlayer().dropMessage(6, "查无此 Npc ");
             }
@@ -3136,7 +3194,8 @@ public class AdminCommand {
         }
 
         public String getMessage() {
-            return new StringBuilder().append("!copyinv 玩家名称 装备栏位(0 = 装备中 1=装备栏 2=消耗栏 3=其他栏 4=装饰栏 5=点数栏)(预设装备栏) - 复制玩家道具").toString();
+            return new StringBuilder()
+                    .append("!copyinv 玩家名称 装备栏位(0 = 装备中 1=装备栏 2=消耗栏 3=其他栏 4=装饰栏 5=点数栏)(预设装备栏) - 复制玩家道具").toString();
         }
     }
 
@@ -3151,7 +3210,8 @@ public class AdminCommand {
                 int id = 0;
                 final int quantity = 0;
                 final String name = splitted[2];
-                final PreparedStatement ps = (PreparedStatement) dcon.prepareStatement("select * from characters where name = ?");
+                final PreparedStatement ps = (PreparedStatement) dcon
+                        .prepareStatement("select * from characters where name = ?");
                 ps.setString(1, name);
                 try (final ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
@@ -3162,7 +3222,8 @@ public class AdminCommand {
                     c.getPlayer().dropMessage(5, "角色不存在资料库。");
                     return 0;
                 }
-                final PreparedStatement ps2 = (PreparedStatement) dcon.prepareStatement("delete from inventoryitems WHERE itemid = ? and characterid = ?");
+                final PreparedStatement ps2 = (PreparedStatement) dcon
+                        .prepareStatement("delete from inventoryitems WHERE itemid = ? and characterid = ?");
                 ps2.setInt(1, Integer.parseInt(splitted[1]));
                 ps2.setInt(2, id);
                 ps2.executeUpdate();
@@ -3200,7 +3261,8 @@ public class AdminCommand {
                     mch.startMapEffect("管理员发放" + gain + "经验给在线的所有玩家！祝您玩的开心玩的快乐", 5121009);
                 }
             }
-            c.getPlayer().dropMessage(6, "命令使用成功，当前共有: " + ret + " 个玩家获得: " + gain + " 点的" + " 经验 " + " 总计: " + ret * gain);
+            c.getPlayer().dropMessage(6,
+                    "命令使用成功，当前共有: " + ret + " 个玩家获得: " + gain + " 点的" + " 经验 " + " 总计: " + ret * gain);
             return 1;
         }
     }
@@ -3241,7 +3303,8 @@ public class AdminCommand {
                         mch2.startMapEffect("管理员发放" + quantity + show + "点卷给在线的所有玩家！祝您的开心玩的快乐", 5121009);
                     }
                 }
-                c.getPlayer().dropMessage(6, "命令使用成功，当前共有: " + ret + " 个玩家获得: " + quantity + " 点的" + ((type == 1) ? "点券 " : " 抵用券 ") + " 总计: " + ret * quantity);
+                c.getPlayer().dropMessage(6, "命令使用成功，当前共有: " + ret + " 个玩家获得: " + quantity + " 点的"
+                        + ((type == 1) ? "点券 " : " 抵用券 ") + " 总计: " + ret * quantity);
             } else {
                 c.getPlayer().dropMessage(6, "用法: !给所有人点卷 [点卷类型1-2] [点卷数量][1是点卷.2是抵用卷]");
             }
@@ -3288,7 +3351,8 @@ public class AdminCommand {
                     if (arg <= 50) {
                         for (final ChannelServer cservs : ChannelServer.getAllInstances()) {
                             cservs.setExpRate(arg);
-                            cservs.broadcastPacket(MaplePacketCreator.serverNotice(6, "经验倍率已经成功修改为 " + arg + "倍。祝大家游戏开心.经验倍率将在时间到后自动更正！"));
+                            cservs.broadcastPacket(MaplePacketCreator.serverNotice(6,
+                                    "经验倍率已经成功修改为 " + arg + "倍。祝大家游戏开心.经验倍率将在时间到后自动更正！"));
                         }
                     } else {
                         mc.dropMessage("操作已被系统限制。");
@@ -3297,7 +3361,8 @@ public class AdminCommand {
                     if (arg <= 5) {
                         for (final ChannelServer cservs : ChannelServer.getAllInstances()) {
                             cservs.setDropRate(arg);
-                            cservs.broadcastPacket(MaplePacketCreator.serverNotice(6, "爆率倍率已经成功修改为 " + arg + "倍。祝大家游戏开心.经验倍率将在时间到后自动更正！！"));
+                            cservs.broadcastPacket(MaplePacketCreator.serverNotice(6,
+                                    "爆率倍率已经成功修改为 " + arg + "倍。祝大家游戏开心.经验倍率将在时间到后自动更正！！"));
                         }
                     } else {
                         mc.dropMessage("操作已被系统限制。");
@@ -3306,7 +3371,8 @@ public class AdminCommand {
                     if (arg <= 5) {
                         for (final ChannelServer cservs : ChannelServer.getAllInstances()) {
                             cservs.setMesoRate(arg);
-                            cservs.broadcastPacket(MaplePacketCreator.serverNotice(6, "金币倍率已经成功修改为 " + arg + "倍。祝大家游戏开心.经验倍率将在时间到后自动更正！！"));
+                            cservs.broadcastPacket(MaplePacketCreator.serverNotice(6,
+                                    "金币倍率已经成功修改为 " + arg + "倍。祝大家游戏开心.经验倍率将在时间到后自动更正！！"));
                         }
                     } else {
                         mc.dropMessage("操作已被系统限制。");
@@ -3315,7 +3381,8 @@ public class AdminCommand {
                     if (arg <= 5) {
                         for (final ChannelServer cservs : ChannelServer.getAllInstances()) {
                             cservs.setBossDropRate(arg);
-                            cservs.broadcastPacket(MaplePacketCreator.serverNotice(6, "BOSS掉宝已经成功修改为 " + arg + "倍。祝大家游戏开心.经验倍率将在时间到后自动更正！！"));
+                            cservs.broadcastPacket(MaplePacketCreator.serverNotice(6,
+                                    "BOSS掉宝已经成功修改为 " + arg + "倍。祝大家游戏开心.经验倍率将在时间到后自动更正！！"));
                         }
                     } else {
                         mc.dropMessage("操作已被系统限制。");
@@ -3396,7 +3463,8 @@ public class AdminCommand {
                     toDrop = new client.inventory.Item(itemId, (short) 0, quantity, (byte) 0);
                 }
                 toDrop.setGMLog(c.getPlayer().getName());
-                c.getPlayer().getMap().spawnItemDrop(c.getPlayer(), c.getPlayer(), toDrop, c.getPlayer().getPosition(), true, true);
+                c.getPlayer().getMap().spawnItemDrop(c.getPlayer(), c.getPlayer(), toDrop, c.getPlayer().getPosition(),
+                        true, true);
             }
             return 1;
         }
@@ -3457,7 +3525,9 @@ public class AdminCommand {
     public static class WhereAmI extends CommandExecute {
         @Override
         public int execute(final MapleClient c, final String[] splitted) {
-            c.getPlayer().dropMessage(5, "目前地图 " + c.getPlayer().getMap().getId() + "坐标 (" + String.valueOf(c.getPlayer().getPosition().x) + " , " + String.valueOf(c.getPlayer().getPosition().y) + ")");
+            c.getPlayer().dropMessage(5,
+                    "目前地图 " + c.getPlayer().getMap().getId() + "坐标 (" + String.valueOf(c.getPlayer().getPosition().x)
+                            + " , " + String.valueOf(c.getPlayer().getPosition().y) + ")");
             return 1;
         }
     }
@@ -3475,7 +3545,8 @@ public class AdminCommand {
             mplew.write(HexTool.getByteArrayFromHexString(packet_in));
             mplew.writeZeroBytes(20);
             c.getSession().write(mplew.getPacket());
-            c.getPlayer().dropMessage(packetheader + "已传送封包[" + mplew.getPacket().getBytes().length + "] : " + mplew.toString());
+            c.getPlayer().dropMessage(
+                    packetheader + "已传送封包[" + mplew.getPacket().getBytes().length + "] : " + mplew.toString());
             return 1;
         }
     }
@@ -3484,7 +3555,8 @@ public class AdminCommand {
         @Override
         public int execute(final MapleClient c, final String[] splitted) {
             MapleMonster monster = null;
-            for (final MapleMapObject monstermo : c.getPlayer().getMap().getMapObjectsInRange(c.getPlayer().getPosition(), 100000.0, Arrays.asList(MapleMapObjectType.MONSTER))) {
+            for (final MapleMapObject monstermo : c.getPlayer().getMap().getMapObjectsInRange(
+                    c.getPlayer().getPosition(), 100000.0, Arrays.asList(MapleMapObjectType.MONSTER))) {
                 monster = (MapleMonster) monstermo;
                 if (monster.isAlive()) {
                     c.getPlayer().dropMessage(6, "怪物 " + monster.toString());
@@ -3528,7 +3600,8 @@ public class AdminCommand {
                 System.out.println(ex);
                 return 0;
             }
-            try (final PreparedStatement ps = (PreparedStatement) con.prepareStatement("INSERT INTO accounts (name, password) VALUES (?, ?)")) {
+            try (final PreparedStatement ps = (PreparedStatement) con
+                    .prepareStatement("INSERT INTO accounts (name, password) VALUES (?, ?)")) {
                 ps.setString(1, acc);
                 ps.setString(2, LoginCrypto.hexSha1(password));
                 ps.executeUpdate();
@@ -3619,9 +3692,18 @@ public class AdminCommand {
                                     }
                                     if (ret.isFirst()) {
                                         ret.setFirst(false);
-                                        msgs.add("角色: " + StringUtil.getRightPaddedStr(ret.name, ' ', 13) + " 角色ID: " + StringUtil.getRightPaddedStr(String.valueOf(ret.chrId), ' ', 6) + " 道具: " + ret.itemId + " - " + ii.getName(ret.itemId) + " 唯一ID: " + item.getEquipOnlyId());
+                                        msgs.add(
+                                                "角色: " + StringUtil.getRightPaddedStr(ret.name, ' ', 13) + " 角色ID: "
+                                                        + StringUtil.getRightPaddedStr(String.valueOf(ret.chrId), ' ',
+                                                                6)
+                                                        + " 道具: " + ret.itemId + " - " + ii.getName(ret.itemId)
+                                                        + " 唯一ID: " + item.getEquipOnlyId());
                                     } else {
-                                        msgs.add("角色: " + StringUtil.getRightPaddedStr(player.getName(), ' ', 13) + " 角色ID: " + StringUtil.getRightPaddedStr(String.valueOf(player.getId()), ' ', 6) + " 道具: " + item.getItemId() + " - " + ii.getName(item.getItemId()) + " 唯一ID: " + item.getEquipOnlyId());
+                                        msgs.add("角色: " + StringUtil.getRightPaddedStr(player.getName(), ' ', 13)
+                                                + " 角色ID: "
+                                                + StringUtil.getRightPaddedStr(String.valueOf(player.getId()), ' ', 6)
+                                                + " 道具: " + item.getItemId() + " - " + ii.getName(item.getItemId())
+                                                + " 唯一ID: " + item.getEquipOnlyId());
                                     }
                                 } else {
                                     checkItems.put(item.getEquipOnlyId(), ret);
@@ -3639,9 +3721,18 @@ public class AdminCommand {
                                     }
                                     if (ret.isFirst()) {
                                         ret.setFirst(false);
-                                        msgs.add("角色: " + StringUtil.getRightPaddedStr(ret.name, ' ', 13) + " 角色ID: " + StringUtil.getRightPaddedStr(String.valueOf(ret.chrId), ' ', 6) + " 道具: " + ret.itemId + " - " + ii.getName(ret.itemId) + " 唯一ID: " + item.getEquipOnlyId());
+                                        msgs.add(
+                                                "角色: " + StringUtil.getRightPaddedStr(ret.name, ' ', 13) + " 角色ID: "
+                                                        + StringUtil.getRightPaddedStr(String.valueOf(ret.chrId), ' ',
+                                                                6)
+                                                        + " 道具: " + ret.itemId + " - " + ii.getName(ret.itemId)
+                                                        + " 唯一ID: " + item.getEquipOnlyId());
                                     } else {
-                                        msgs.add("角色: " + StringUtil.getRightPaddedStr(player.getName(), ' ', 13) + " 角色ID: " + StringUtil.getRightPaddedStr(String.valueOf(player.getId()), ' ', 6) + " 道具: " + item.getItemId() + " - " + ii.getName(item.getItemId()) + " 唯一ID: " + item.getEquipOnlyId());
+                                        msgs.add("角色: " + StringUtil.getRightPaddedStr(player.getName(), ' ', 13)
+                                                + " 角色ID: "
+                                                + StringUtil.getRightPaddedStr(String.valueOf(player.getId()), ' ', 6)
+                                                + " 道具: " + item.getItemId() + " - " + ii.getName(item.getItemId())
+                                                + " 唯一ID: " + item.getEquipOnlyId());
                                     }
                                 } else {
                                     checkItems.put(item.getEquipOnlyId(), ret);

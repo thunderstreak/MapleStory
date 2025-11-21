@@ -1,6 +1,5 @@
 package server.life;
 
-public interface MonsterListener
-{
+public interface MonsterListener {
     void monsterKilled();
 }

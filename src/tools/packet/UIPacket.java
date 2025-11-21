@@ -6,8 +6,7 @@ import handling.SendPacketOpcode;
 import tools.MaplePacketCreator;
 import tools.data.output.MaplePacketLittleEndianWriter;
 
-public class UIPacket
-{
+public class UIPacket {
     public static MaplePacket getSPMsg(final byte sp, final short job) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         if (ServerConstants.调试输出封包) {
@@ -23,7 +22,7 @@ public class UIPacket
         }
         return mplew.getPacket();
     }
-    
+
     public static MaplePacket getGPMsg(final int itemid) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         if (ServerConstants.调试输出封包) {
@@ -38,7 +37,7 @@ public class UIPacket
         }
         return mplew.getPacket();
     }
-    
+
     public static MaplePacket getTopMsg(final String msg) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         if (ServerConstants.调试输出封包) {
@@ -52,7 +51,7 @@ public class UIPacket
         }
         return mplew.getPacket();
     }
-    
+
     public static MaplePacket getStatusMsg(final int itemid) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         if (ServerConstants.调试输出封包) {
@@ -67,28 +66,28 @@ public class UIPacket
         }
         return mplew.getPacket();
     }
-    
+
     public static MaplePacket MapEff(final String path) {
         if (ServerConstants.调试输出封包) {
             System.out.println("MapEff--------------------");
         }
         return MaplePacketCreator.environmentChange(path, 3);
     }
-    
+
     public static MaplePacket MapNameDisplay(final int mapid) {
         if (ServerConstants.调试输出封包) {
             System.out.println("MapNameDisplay--------------------");
         }
         return MaplePacketCreator.environmentChange("maplemap/enter/" + mapid, 3);
     }
-    
+
     public static MaplePacket Aran_Start() {
         if (ServerConstants.调试输出封包) {
             System.out.println("Aran_Start--------------------");
         }
         return MaplePacketCreator.environmentChange("Aran/balloon", 4);
     }
-    
+
     public static MaplePacket AranTutInstructionalBalloon(final String data) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         if (ServerConstants.调试输出封包) {
@@ -104,7 +103,7 @@ public class UIPacket
         }
         return mplew.getPacket();
     }
-    
+
     public static MaplePacket ShowWZEffect(final String data, final int info) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         if (ServerConstants.调试输出封包) {
@@ -113,8 +112,7 @@ public class UIPacket
         mplew.writeShort(SendPacketOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
         if (info == -1) {
             mplew.write(18);
-        }
-        else {
+        } else {
             mplew.write(23);
         }
         mplew.writeMapleAsciiString(data);
@@ -127,7 +125,7 @@ public class UIPacket
         }
         return mplew.getPacket();
     }
-    
+
     public static MaplePacket ShowWZEffectS(final String data, final int info) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendPacketOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
@@ -142,7 +140,7 @@ public class UIPacket
         }
         return mplew.getPacket();
     }
-    
+
     public static MaplePacket summonHelper(final boolean summon) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         if (ServerConstants.调试输出封包) {
@@ -156,7 +154,7 @@ public class UIPacket
         }
         return mplew.getPacket();
     }
-    
+
     public static MaplePacket summonMessage(final int type) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         if (ServerConstants.调试输出封包) {
@@ -172,7 +170,7 @@ public class UIPacket
         }
         return mplew.getPacket();
     }
-    
+
     public static MaplePacket summonMessage(final String message) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         if (ServerConstants.调试输出封包) {
@@ -190,7 +188,7 @@ public class UIPacket
         }
         return mplew.getPacket();
     }
-    
+
     public static MaplePacket IntroLock(final boolean enable) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         if (ServerConstants.调试输出封包) {
@@ -204,7 +202,7 @@ public class UIPacket
         }
         return mplew.getPacket();
     }
-    
+
     public static MaplePacket IntroDisableUI(final boolean enable) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         if (ServerConstants.调试输出封包) {
@@ -218,7 +216,7 @@ public class UIPacket
         }
         return mplew.getPacket();
     }
-    
+
     public static MaplePacket fishingUpdate(final byte type, final int id) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         if (ServerConstants.调试输出封包) {
@@ -233,7 +231,7 @@ public class UIPacket
         }
         return mplew.getPacket();
     }
-    
+
     public static MaplePacket fishingCaught(final int chrid) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         if (ServerConstants.调试输出封包) {

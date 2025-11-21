@@ -1,1 +1,1 @@
-﻿cm.setBossLog("mrkl");
+﻿cm.setBossLog('mrkl');

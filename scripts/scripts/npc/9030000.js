@@ -1,8 +1,8 @@
 function start() {
-    cm.openMerchantItemStore();
-    cm.dispose();
+  cm.openMerchantItemStore();
+  cm.dispose();
 }
 
 function action(mode, type, selection) {
-    cm.dispose();
+  cm.dispose();
 }

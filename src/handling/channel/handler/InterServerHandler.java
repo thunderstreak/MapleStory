@@ -14,6 +14,7 @@ import handling.world.CharacterIdChannelPair;
 import handling.world.CharacterTransfer;
 import handling.world.MapleMessenger;
 import handling.world.MapleMessengerCharacter;
+import handling.world.MapleParty;
 import handling.world.MaplePartyCharacter;
 import handling.world.PartyOperation;
 import handling.world.PlayerBuffStorage;
@@ -27,6 +28,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
@@ -182,64 +184,294 @@ public class InterServerHandler {
         final CharacterTransfer transfer = channelServer.getPlayerStorage().getPendingCharacter(playerid);
         boolean firstLoggedIn = true;
         MapleCharacter player;
+        long loadStartTime = System.currentTimeMillis();
         if (transfer == null) {
+            System.out.println("开始加载角色数据 - 角色ID: " + playerid);
             player = MapleCharacter.loadCharFromDB(playerid, c, true);
+            long loadDuration = System.currentTimeMillis() - loadStartTime;
+            System.out.println(
+                    "角色数据加载完成 - 角色ID: " + playerid + " 名字: " + player.getName() + " 耗时: " + loadDuration + "ms");
+            if (loadDuration > 1000) {
+                System.err.println("警告：loadCharFromDB 执行时间过长: " + loadDuration + "ms - 角色: " + player.getName());
+            }
         } else {
             player = MapleCharacter.ReconstructChr(transfer, c, true);
             firstLoggedIn = false;
+            long loadDuration = System.currentTimeMillis() - loadStartTime;
+            System.out.println(
+                    "角色数据重构完成 - 角色ID: " + playerid + " 名字: " + player.getName() + " 耗时: " + loadDuration + "ms");
         }
         c.setPlayer(player);
         c.setAccID(player.getAccountID());
+        long accountDataStartTime = System.currentTimeMillis();
         c.loadAccountData(player.getAccountID());
+        long accountDataDuration = System.currentTimeMillis() - accountDataStartTime;
+        if (accountDataDuration > 500) {
+            System.out.println("loadAccountData 耗时: " + accountDataDuration + "ms - 角色: " + player.getName());
+        }
         ChannelServer.forceRemovePlayerByAccId(c, c.getAccID());
         final int state = c.getLoginState();
-        boolean allowLogin = false;
+        boolean allowLogin = true; // 默认允许登录，除非检测到真正的问题
         String allowLoginTip = null;
+
+        // 记录登录状态用于调试
+        System.out.println("玩家登录 - 角色ID: " + player.getId() + " 名字: " + player.getName() + " 登录状态: " + state);
+
+        // 只有在特定状态下才需要检查是否已有角色在线
         if (state == MapleClient.LOGIN_SERVER_TRANSITION || state == MapleClient.CHANGE_CHANNEL
                 || state == MapleClient.LOGIN_NOTLOGGEDIN) {
             final List<String> charNames = c.loadCharacterNames(c.getWorld());
+            System.out.println("检查账号下角色列表: " + charNames);
+
+            // 检查并清理无效玩家（清理操作是同步的，一次清理即可）
+            for (final String charName : charNames) {
+                for (final ChannelServer cs : ChannelServer.getAllInstances()) {
+                    final MapleCharacter existingChr = cs.getPlayerStorage().getCharacterByName(charName);
+                    if (existingChr != null) {
+                        // 如果玩家存在但客户端无效，强制清理
+                        if (existingChr.getClient() == null || !existingChr.getClient().isLoggedIn()
+                                || existingChr.getClient().getSession() == null
+                                || !existingChr.getClient().getSession().isConnected()) {
+                            try {
+                                // 如果玩家有组队，先清理组队状态
+                                if (existingChr.getParty() != null) {
+                                    final MapleParty party = existingChr.getParty();
+                                    party.removeMember(new MaplePartyCharacter(existingChr));
+                                    existingChr.setParty(null);
+                                    final String logMsg = "时间：" + FileoutputUtil.CurrentReadable_Time()
+                                            + " || 组队ID：" + party.getId()
+                                            + " || 玩家名字：" + existingChr.getName()
+                                            + " || 玩家ID：" + existingChr.getId()
+                                            + " || 操作类型：登录时清理无效玩家的组队状态"
+                                            + " || 错误原因：玩家存在但客户端无效，清理组队状态"
+                                            + " || 频道：" + cs.getChannel()
+                                            + " || 地图："
+                                            + (existingChr.getMap() != null ? existingChr.getMap().getId() : "未知")
+                                            + "\r\n";
+                                    FileoutputUtil.packetLog("logs/组队掉线.log", logMsg);
+                                }
+                                cs.removePlayer(existingChr.getId(), existingChr.getName());
+                                World.Find.forceDeregister(existingChr.getId(), existingChr.getName());
+                                System.out.println("清理无效玩家: " + charName);
+                                final String logMsg = "时间：" + FileoutputUtil.CurrentReadable_Time()
+                                        + " || 玩家名字：" + charName
+                                        + " || 玩家ID：" + existingChr.getId()
+                                        + " || 操作类型：登录时清理无效玩家"
+                                        + " || 错误原因：玩家存在但客户端无效，已强制清理"
+                                        + " || 频道：" + cs.getChannel()
+                                        + " || 地图："
+                                        + (existingChr.getMap() != null ? existingChr.getMap().getId() : "未知")
+                                        + "\r\n";
+                                FileoutputUtil.packetLog("logs/组队掉线.log", logMsg);
+                            } catch (Exception e) {
+                                System.err.println("清理无效玩家失败: " + charName + " - " + e.getMessage());
+                                final String logMsg = "时间：" + FileoutputUtil.CurrentReadable_Time()
+                                        + " || 玩家名字：" + charName
+                                        + " || 玩家ID：" + (existingChr != null ? existingChr.getId() : "未知")
+                                        + " || 操作类型：登录时清理无效玩家失败"
+                                        + " || 错误原因：" + e.getMessage()
+                                        + " || 频道：" + cs.getChannel()
+                                        + "\r\n";
+                                FileoutputUtil.packetLog("logs/组队掉线.log", logMsg);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 清理后再次检查
             allowLogin = !World.isCharacterListConnected(charNames);
             if (!allowLogin) {
                 allowLoginTip = World.getAllowLoginTip(charNames);
+                System.out.println("登录被阻止 - 原因: " + allowLoginTip);
+            } else {
+                System.out.println("登录检查通过 - 角色ID: " + player.getId() + " 名字: " + player.getName());
             }
+        } else {
+            // 如果状态不是这三个值之一，允许登录（可能是其他合法的登录状态）
+            System.out.println("登录状态不是标准状态，允许登录 - 状态: " + state);
         }
+
         if (!allowLogin) {
             final String msg = "检测账号下已有角色登陆游戏 服务端断开这个连接 [角色ID: " + player.getId() + " 名字: " + player.getName()
                     + " ]\r\n" + allowLoginTip;
-            System.out.print("自动断开连接2");
+            System.out.println("自动断开连接2: " + msg);
+            final String logMsg = "时间：" + FileoutputUtil.CurrentReadable_Time()
+                    + " || 玩家名字：" + player.getName()
+                    + " || 玩家ID：" + player.getId()
+                    + " || 操作类型：登录被阻止"
+                    + " || 错误原因：" + allowLoginTip
+                    + " || 登录状态：" + state
+                    + "\r\n";
+            FileoutputUtil.packetLog("logs/组队掉线.log", logMsg);
             c.setPlayer(null);
             c.getSession().close(true);
-            System.out.println(msg);
             return;
         }
+        long loginProcessStartTime = System.currentTimeMillis();
         c.updateLoginState(MapleClient.LOGIN_LOGGEDIN, c.getSessionIPAddress());
+        long addPlayerStartTime = System.currentTimeMillis();
         channelServer.addPlayer(player);
+        long addPlayerDuration = System.currentTimeMillis() - addPlayerStartTime;
+        if (addPlayerDuration > 500) {
+            System.out.println("addPlayer 耗时: " + addPlayerDuration + "ms - 角色: " + player.getName());
+        }
+
+        long packetStartTime = System.currentTimeMillis();
         c.getSession().write(MaplePacketCreator.getCharInfo(player));
         if (player.isGM()) {
             SkillFactory.getSkill(9001004).getEffect(1).applyTo(player);
         }
         c.getSession().write(MaplePacketCreator.temporaryStats_Reset());
-        player.getMap().addPlayer(player);
+        long packetDuration = System.currentTimeMillis() - packetStartTime;
+        if (packetDuration > 500) {
+            System.out.println("发送登录封包耗时: " + packetDuration + "ms - 角色: " + player.getName());
+        }
+
+        long mapAddStartTime = System.currentTimeMillis();
+        if (player.getMap() == null) {
+            System.err.println("错误：玩家地图为 null - 角色: " + player.getName() + " 地图ID: " + player.getMapId());
+        } else {
+            player.getMap().addPlayer(player);
+            long mapAddDuration = System.currentTimeMillis() - mapAddStartTime;
+            if (mapAddDuration > 500) {
+                System.out.println("addPlayerToMap 耗时: " + mapAddDuration + "ms - 角色: " + player.getName() + " 地图: "
+                        + player.getMapId());
+            }
+        }
+        long loginProcessDuration = System.currentTimeMillis() - loginProcessStartTime;
+        System.out.println("登录流程总耗时: " + loginProcessDuration + "ms - 角色: " + player.getName());
         try {
+            long buffStartTime = System.currentTimeMillis();
             player.silentGiveBuffs(PlayerBuffStorage.getBuffsFromStorage(player.getId()));
             player.giveCoolDowns(PlayerBuffStorage.getCooldownsFromStorage(player.getId()));
             player.giveSilentDebuff(PlayerBuffStorage.getDiseaseFromStorage(player.getId()));
-            final Collection<Integer> buddyIds = player.getBuddylist().getBuddiesIds();
-            World.Buddy.loggedOn(player.getName(), player.getId(), c.getChannel(), buddyIds, player.getGMLevel(),
-                    player.isHidden());
+            long buffDuration = System.currentTimeMillis() - buffStartTime;
+            if (buffDuration > 500) {
+                System.out.println("恢复Buff/Cooldown耗时: " + buffDuration + "ms - 角色: " + player.getName());
+            }
+
+            long buddyStartTime = System.currentTimeMillis();
+            Collection<Integer> buddyIds = Collections.<Integer>emptyList();
+            try {
+                if (player.getBuddylist() != null) {
+                    buddyIds = player.getBuddylist().getBuddiesIds();
+                    World.Buddy.loggedOn(player.getName(), player.getId(), c.getChannel(), buddyIds,
+                            player.getGMLevel(),
+                            player.isHidden());
+                } else {
+                    System.err.println("警告：角色好友列表为 null - 角色: " + player.getName() + " (ID: " + player.getId() + ")");
+                    // 使用空集合继续登录流程
+                    World.Buddy.loggedOn(player.getName(), player.getId(), c.getChannel(),
+                            Collections.<Integer>emptyList(),
+                            player.getGMLevel(), player.isHidden());
+                }
+            } catch (Exception e) {
+                System.err.println(
+                        "好友系统登录处理异常 - 角色: " + player.getName() + " (ID: " + player.getId() + ") - " + e.getMessage());
+                e.printStackTrace();
+                FileoutputUtil.outputFileError("logs/好友系统异常.log", e);
+                // 如果获取 buddyIds 失败，使用空集合继续登录流程
+                buddyIds = Collections.<Integer>emptyList();
+            }
+            long buddyDuration = System.currentTimeMillis() - buddyStartTime;
+            if (buddyDuration > 500) {
+                System.out.println("Buddy登录处理耗时: " + buddyDuration + "ms - 角色: " + player.getName());
+            }
+            // 登录时清理组队中的无效成员
             if (player.getParty() != null) {
-                World.Party.updateParty(player.getParty().getId(), PartyOperation.LOG_ONOFF,
-                        new MaplePartyCharacter(player));
+                final MapleParty party = player.getParty();
+                final List<MaplePartyCharacter> membersToRemove = new ArrayList<>();
+                for (final MaplePartyCharacter partychar : party.getMembers()) {
+                    // 跳过当前玩家自己
+                    if (partychar.getId() == player.getId()) {
+                        continue;
+                    }
+                    final int ch = World.Find.findChannel(partychar.getName());
+                    if (ch <= 0) {
+                        // 玩家不在任何频道，标记为需要移除
+                        membersToRemove.add(partychar);
+                        continue;
+                    }
+                    final MapleCharacter chr = ChannelServer.getInstance(ch).getPlayerStorage()
+                            .getCharacterByName(partychar.getName());
+                    if (chr == null) {
+                        // 玩家不存在，标记为需要移除
+                        membersToRemove.add(partychar);
+                        continue;
+                    }
+                    // 检查客户端是否有效
+                    if (chr.getClient() == null || !chr.getClient().isLoggedIn()
+                            || chr.getClient().getSession() == null
+                            || !chr.getClient().getSession().isConnected()) {
+                        // 客户端无效，标记为需要移除
+                        membersToRemove.add(partychar);
+                        final String logMsg = "时间：" + FileoutputUtil.CurrentReadable_Time()
+                                + " || 组队ID：" + party.getId()
+                                + " || 玩家名字：" + partychar.getName()
+                                + " || 玩家ID：" + partychar.getId()
+                                + " || 操作类型：登录时清理无效组队成员"
+                                + " || 错误原因：客户端无效或已断开连接"
+                                + " || 频道：" + ch
+                                + " || 地图：" + (chr.getMap() != null ? chr.getMap().getId() : "未知")
+                                + "\r\n";
+                        FileoutputUtil.packetLog("logs/组队掉线.log", logMsg);
+                    }
+                }
+                // 移除无效成员
+                for (final MaplePartyCharacter member : membersToRemove) {
+                    party.removeMember(member);
+                    final String logMsg = "时间：" + FileoutputUtil.CurrentReadable_Time()
+                            + " || 组队ID：" + party.getId()
+                            + " || 玩家名字：" + member.getName()
+                            + " || 玩家ID：" + member.getId()
+                            + " || 操作类型：登录时清理无效组队成员"
+                            + " || 错误原因：已从组队中移除无效成员"
+                            + " || 当前登录玩家：" + player.getName()
+                            + "\r\n";
+                    FileoutputUtil.packetLog("logs/组队掉线.log", logMsg);
+                }
+                // 如果组队中只剩下当前玩家，清理组队状态
+                if (party.getMembers().size() <= 1) {
+                    player.setParty(null);
+                    final String logMsg = "时间：" + FileoutputUtil.CurrentReadable_Time()
+                            + " || 组队ID：" + party.getId()
+                            + " || 玩家名字：" + player.getName()
+                            + " || 玩家ID：" + player.getId()
+                            + " || 操作类型：登录时清理空组队"
+                            + " || 错误原因：组队中只剩下当前玩家，自动清理组队状态"
+                            + "\r\n";
+                    FileoutputUtil.packetLog("logs/组队掉线.log", logMsg);
+                } else {
+                    // 更新组队状态
+                    World.Party.updateParty(party.getId(), PartyOperation.LOG_ONOFF,
+                            new MaplePartyCharacter(player));
+                }
             }
-            final CharacterIdChannelPair[] multiBuddyFind;
-            final CharacterIdChannelPair[] onlineBuddies = multiBuddyFind = World.Find.multiBuddyFind(player.getId(),
-                    buddyIds);
-            for (final CharacterIdChannelPair onlineBuddy : multiBuddyFind) {
-                final BuddyEntry ble = player.getBuddylist().get(onlineBuddy.getCharacterId());
-                ble.setChannel(onlineBuddy.getChannel());
-                player.getBuddylist().put(ble);
+            // 更新好友列表状态（需要 buddyIds 变量）
+            if (player.getBuddylist() != null) {
+                try {
+                    // 如果有好友，先查找在线好友并更新状态
+                    if (!buddyIds.isEmpty()) {
+                        final CharacterIdChannelPair[] multiBuddyFind = World.Find.multiBuddyFind(player.getId(),
+                                buddyIds);
+                        for (final CharacterIdChannelPair onlineBuddy : multiBuddyFind) {
+                            final BuddyEntry ble = player.getBuddylist().get(onlineBuddy.getCharacterId());
+                            if (ble != null) {
+                                ble.setChannel(onlineBuddy.getChannel());
+                                player.getBuddylist().put(ble);
+                            }
+                        }
+                    }
+                    // 无论是否有好友，都发送好友列表更新
+                    c.sendPacket(MaplePacketCreator.updateBuddylist(player.getBuddylist().getBuddies()));
+                } catch (Exception e) {
+                    System.err.println("更新好友列表状态异常 - 角色: " + player.getName() + " (ID: " + player.getId() + ") - "
+                            + e.getMessage());
+                    e.printStackTrace();
+                    FileoutputUtil.outputFileError("logs/好友系统异常.log", e);
+                }
             }
-            c.sendPacket(MaplePacketCreator.updateBuddylist(player.getBuddylist().getBuddies()));
             final MapleMessenger messenger = player.getMessenger();
             if (messenger != null) {
                 World.Messenger.silentJoinMessenger(messenger.getId(), new MapleMessengerCharacter(c.getPlayer()));
@@ -267,19 +499,32 @@ public class InterServerHandler {
         } catch (Exception e) {
             FileoutputUtil.outputFileError(FileoutputUtil.Login_Error, e);
         }
+        // 发送家族数据和其他登录后的初始化操作
         c.getSession().write(FamilyPacket.getFamilyData());
         for (final MapleQuestStatus status : player.getStartedQuests()) {
             if (status.hasMobKills()) {
                 c.getSession().write(MaplePacketCreator.updateQuestMobKills(status));
             }
         }
-        final BuddyEntry pendingBuddyRequest = player.getBuddylist().pollPendingRequest();
-        if (pendingBuddyRequest != null) {
-            player.getBuddylist()
-                    .put(new BuddyEntry(pendingBuddyRequest.getName(), pendingBuddyRequest.getCharacterId(), "ETC", -1,
-                            false, pendingBuddyRequest.getLevel(), pendingBuddyRequest.getJob()));
-            c.sendPacket(MaplePacketCreator.requestBuddylistAdd(pendingBuddyRequest.getCharacterId(),
-                    pendingBuddyRequest.getName(), pendingBuddyRequest.getLevel(), pendingBuddyRequest.getJob()));
+        // 处理待处理的好友请求（使用内部 try-catch 防止好友系统问题影响登录）
+        if (player.getBuddylist() != null) {
+            try {
+                final BuddyEntry pendingBuddyRequest = player.getBuddylist().pollPendingRequest();
+                if (pendingBuddyRequest != null) {
+                    player.getBuddylist()
+                            .put(new BuddyEntry(pendingBuddyRequest.getName(), pendingBuddyRequest.getCharacterId(),
+                                    "ETC", -1,
+                                    false, pendingBuddyRequest.getLevel(), pendingBuddyRequest.getJob()));
+                    c.sendPacket(MaplePacketCreator.requestBuddylistAdd(pendingBuddyRequest.getCharacterId(),
+                            pendingBuddyRequest.getName(), pendingBuddyRequest.getLevel(),
+                            pendingBuddyRequest.getJob()));
+                }
+            } catch (Exception e) {
+                System.err.println("处理待处理好友请求异常 - 角色: " + player.getName() + " (ID: " + player.getId() + ") - "
+                        + e.getMessage());
+                e.printStackTrace();
+                FileoutputUtil.outputFileError("logs/好友系统异常.log", e);
+            }
         }
         player.expirationTask();
         if (player.getJob() == 132) {
@@ -326,22 +571,11 @@ public class InterServerHandler {
             }
         }
         // 注释掉：检查并提示玩家使用神秘箱子领取新手礼包
-        // if (player.haveItem(2022336)) {
-        // player.dropMessage(5, "欢迎来到" +
-        // ServerProperties.getProperty("RoyMS.ServerName") +
-        // ",请按"I"键，打开背包，双击使用神秘箱子，领取新人礼包");
-        // }
-        if (player.getLevel() == 1) {
-            player.dropMessage(1, "欢迎来到 " + c.getChannelServer().getServerName() + ", " + player.getName()
-                    + " ！\r\n使用 @help 可以查看您当前能使用的命令\r\n祝您玩的愉快！");
-            player.dropMessage(5, "使用 @help 可以查看您当前能使用的命令 祝您玩的愉快！");
+        if (player.haveItem(2022336)) {
+            player.dropMessage(5,
+                    "欢迎来到" + ServerProperties.getProperty("RoyMS.ServerName") + ",请按“I”键，打开背包，双击使用神秘箱子，领取新人礼包");
         }
-        if (c.getPlayer().hasEquipped(1122017)) {
-            player.dropMessage(5, "您装备了精灵吊坠！打猎时可以额外获得10%的道具佩戴经验奖励！在线1小时后，经验增加10%，最高可获得30%");
-        }
-        if (c.getChannelServer().getDoubleExp() > 1) {
-            player.dropMessage(6, "[系统提示] 当前服务器处于双倍经验活动中，祝您玩的愉快！目前倍率：" + c.getChannelServer().getDoubleExp() + " 倍");
-        }
+
         final int 阴森世界地图 = 551030200;
         if (c.getPlayer().getHp() != 50
                 && (c.getPlayer().getBossLog("狮熊Boss") >= 1 || c.getPlayer().getBossLogChannel("狮熊Boss") > 0)

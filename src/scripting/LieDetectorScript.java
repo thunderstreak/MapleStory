@@ -27,11 +27,12 @@ public class LieDetectorScript {
                 output.write(buffer, 0, n);
             }
             final String imgByte = HexTool.toString(output.toByteArray());
-            return new Pair<String, String>(imgByte.substring(39, imgByte.length()), output.toString().split("CAPTCHA")[0]);
+            return new Pair<String, String>(imgByte.substring(39, imgByte.length()),
+                    output.toString().split("CAPTCHA")[0]);
         } catch (IOException ex) {
             ex.printStackTrace();
             String scriptsPath = System.getProperty("scripts_path");
-            final File directory = new File(scriptsPath+"scripts"+File.separator+"lieDetector");
+            final File directory = new File(scriptsPath + "scripts" + File.separator + "lieDetector");
             if (!directory.exists()) {
                 System.err.println("lieDetector folder does not exist!");
                 return null;
@@ -40,7 +41,9 @@ public class LieDetectorScript {
             String answer = filename[Randomizer.nextInt(filename.length)];
             answer = answer.substring(0, answer.length() - 4);
             try {
-                return new Pair<String, String>(HexTool.toString(getBytesFromFile(new File(scriptsPath+"scripts"+File.separator+"lieDetector"+File.separator + answer + ".jpg"))), answer);
+                return new Pair<String, String>(HexTool.toString(getBytesFromFile(new File(
+                        scriptsPath + "scripts" + File.separator + "lieDetector" + File.separator + answer + ".jpg"))),
+                        answer);
             } catch (IOException ex2) {
                 ex2.printStackTrace();
                 return null;
@@ -58,7 +61,8 @@ public class LieDetectorScript {
             }
             bytes = new byte[(int) length];
             int offset = 0;
-            for (int numRead = 0; offset < bytes.length && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0; offset += numRead) {
+            for (int numRead = 0; offset < bytes.length
+                    && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0; offset += numRead) {
             }
             if (offset < bytes.length) {
                 System.err.println("[Lie Detector Script] Could not completely read file " + file.getName());

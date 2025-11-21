@@ -16,15 +16,14 @@ import provider.MapleData;
 import provider.MapleDataTool;
 import tools.Pair;
 
-public class MapleQuestRequirement implements Serializable
-{
+public class MapleQuestRequirement implements Serializable {
     private static final long serialVersionUID = 9179541993413738569L;
     private MapleQuest quest;
     private MapleQuestRequirementType type;
     private int intStore;
     private String stringStore;
     private List<Pair<Integer, Integer>> dataStore;
-    
+
     public MapleQuestRequirement(final MapleQuest quest, final MapleQuestRequirementType type, final MapleData data) {
         this.type = type;
         this.quest = quest;
@@ -42,7 +41,9 @@ public class MapleQuestRequirement implements Serializable
                 this.dataStore = new LinkedList<Pair<Integer, Integer>>();
                 for (int i = 0; i < child.size(); ++i) {
                     final MapleData childdata = child.get(i);
-                    this.dataStore.add(new Pair<Integer, Integer>(MapleDataTool.getInt(childdata.getChildByPath("id"), 0), MapleDataTool.getInt(childdata.getChildByPath("acquire"), 0)));
+                    this.dataStore
+                            .add(new Pair<Integer, Integer>(MapleDataTool.getInt(childdata.getChildByPath("id"), 0),
+                                    MapleDataTool.getInt(childdata.getChildByPath("acquire"), 0)));
                 }
                 break;
             }
@@ -51,7 +52,8 @@ public class MapleQuestRequirement implements Serializable
                 this.dataStore = new LinkedList<Pair<Integer, Integer>>();
                 for (int i = 0; i < child.size(); ++i) {
                     final MapleData childdata = child.get(i);
-                    this.dataStore.add(new Pair<Integer, Integer>(MapleDataTool.getInt(childdata.getChildByPath("id")), MapleDataTool.getInt(childdata.getChildByPath("state"), 0)));
+                    this.dataStore.add(new Pair<Integer, Integer>(MapleDataTool.getInt(childdata.getChildByPath("id")),
+                            MapleDataTool.getInt(childdata.getChildByPath("state"), 0)));
                 }
                 break;
             }
@@ -60,7 +62,8 @@ public class MapleQuestRequirement implements Serializable
                 this.dataStore = new LinkedList<Pair<Integer, Integer>>();
                 for (int i = 0; i < child.size(); ++i) {
                     final MapleData childdata = child.get(i);
-                    this.dataStore.add(new Pair<Integer, Integer>(MapleDataTool.getInt(childdata.getChildByPath("id")), MapleDataTool.getInt(childdata.getChildByPath("count"), 0)));
+                    this.dataStore.add(new Pair<Integer, Integer>(MapleDataTool.getInt(childdata.getChildByPath("id")),
+                            MapleDataTool.getInt(childdata.getChildByPath("count"), 0)));
                 }
                 break;
             }
@@ -84,7 +87,9 @@ public class MapleQuestRequirement implements Serializable
                 this.dataStore = new LinkedList<Pair<Integer, Integer>>();
                 for (int i = 0; i < child.size(); ++i) {
                     final MapleData childdata = child.get(i);
-                    this.dataStore.add(new Pair<Integer, Integer>(MapleDataTool.getInt(childdata.getChildByPath("id"), 0), MapleDataTool.getInt(childdata.getChildByPath("count"), 0)));
+                    this.dataStore
+                            .add(new Pair<Integer, Integer>(MapleDataTool.getInt(childdata.getChildByPath("id"), 0),
+                                    MapleDataTool.getInt(childdata.getChildByPath("count"), 0)));
                 }
                 break;
             }
@@ -102,7 +107,9 @@ public class MapleQuestRequirement implements Serializable
                 this.dataStore = new LinkedList<Pair<Integer, Integer>>();
                 for (int i = 0; i < child.size(); ++i) {
                     final MapleData childdata = child.get(i);
-                    this.dataStore.add(new Pair<Integer, Integer>(MapleDataTool.getInt(childdata.getChildByPath("id"), 0), MapleDataTool.getInt(childdata.getChildByPath("min"), 0)));
+                    this.dataStore
+                            .add(new Pair<Integer, Integer>(MapleDataTool.getInt(childdata.getChildByPath("id"), 0),
+                                    MapleDataTool.getInt(childdata.getChildByPath("min"), 0)));
                 }
                 break;
             }
@@ -122,14 +129,14 @@ public class MapleQuestRequirement implements Serializable
         switch (this.type) {
             case job:
                 for (Pair<Integer, Integer> a : this.dataStore) {
-                    if (((Integer)a.getRight()).intValue() == c.getJob() || c.isGM())
+                    if (((Integer) a.getRight()).intValue() == c.getJob() || c.isGM())
                         return true;
                 }
                 return false;
             case skill:
                 for (Pair<Integer, Integer> a : this.dataStore) {
-                    boolean acquire = (((Integer)a.getRight()).intValue() > 0);
-                    int skill = ((Integer)a.getLeft()).intValue();
+                    boolean acquire = (((Integer) a.getRight()).intValue() > 0);
+                    int skill = ((Integer) a.getLeft()).intValue();
                     ISkill skil = SkillFactory.getSkill(skill);
                     if (acquire) {
                         if (skil.isFourthJob()) {
@@ -147,10 +154,9 @@ public class MapleQuestRequirement implements Serializable
                 return true;
             case quest:
                 for (Pair<Integer, Integer> a : this.dataStore) {
-                    MapleQuestStatus q = c.getQuest(MapleQuest.getInstance(((Integer)a.getLeft()).intValue()));
-                    int state = ((Integer)a.getRight()).intValue();
-                    if (state == 0 || (
-                            q == null && state == 0))
+                    MapleQuestStatus q = c.getQuest(MapleQuest.getInstance(((Integer) a.getLeft()).intValue()));
+                    int state = ((Integer) a.getRight()).intValue();
+                    if (state == 0 || (q == null && state == 0))
                         continue;
                     if (q == null || q.getStatus() != state)
                         return false;
@@ -158,12 +164,12 @@ public class MapleQuestRequirement implements Serializable
                 return true;
             case item:
                 for (Pair<Integer, Integer> a : this.dataStore) {
-                    int itemId = ((Integer)a.getLeft()).intValue();
+                    int itemId = ((Integer) a.getLeft()).intValue();
                     short quantity = 0;
                     MapleInventoryType iType = GameConstants.getInventoryType(itemId);
                     for (IItem item : c.getInventory(iType).listById(itemId))
-                        quantity = (short)(quantity + item.getQuantity());
-                    int count = ((Integer)a.getRight()).intValue();
+                        quantity = (short) (quantity + item.getQuantity());
+                    int count = ((Integer) a.getRight()).intValue();
                     if (quantity < count || (count <= 0 && quantity > 0))
                         return false;
                 }
@@ -175,12 +181,13 @@ public class MapleQuestRequirement implements Serializable
             case end:
                 timeStr = this.stringStore;
                 cal = Calendar.getInstance();
-                cal.set(Integer.parseInt(timeStr.substring(0, 4)), Integer.parseInt(timeStr.substring(4, 6)), Integer.parseInt(timeStr.substring(6, 8)), Integer.parseInt(timeStr.substring(8, 10)), 0);
+                cal.set(Integer.parseInt(timeStr.substring(0, 4)), Integer.parseInt(timeStr.substring(4, 6)),
+                        Integer.parseInt(timeStr.substring(6, 8)), Integer.parseInt(timeStr.substring(8, 10)), 0);
                 return (cal.getTimeInMillis() >= System.currentTimeMillis());
             case mob:
                 for (Pair<Integer, Integer> a : this.dataStore) {
-                    int mobId = ((Integer)a.getLeft()).intValue();
-                    int killReq = ((Integer)a.getRight()).intValue();
+                    int mobId = ((Integer) a.getLeft()).intValue();
+                    int killReq = ((Integer) a.getRight()).intValue();
                     if (c.getQuest(this.quest).getMobKills(mobId) < killReq)
                         return false;
                 }
@@ -197,8 +204,8 @@ public class MapleQuestRequirement implements Serializable
                 return false;
             case mbcard:
                 for (Pair<Integer, Integer> a : this.dataStore) {
-                    int cardId = ((Integer)a.getLeft()).intValue();
-                    int killReq = ((Integer)a.getRight()).intValue();
+                    int cardId = ((Integer) a.getLeft()).intValue();
+                    int killReq = ((Integer) a.getRight()).intValue();
                     if (c.getMonsterBook().getLevelByCard(cardId) < killReq)
                         return false;
                 }
@@ -208,10 +215,11 @@ public class MapleQuestRequirement implements Serializable
             case questComplete:
                 return (c.getNumQuest() >= this.intStore);
             case interval:
-                return (c.getQuest(this.quest).getStatus() != 2 || c.getQuest(this.quest).getCompletionTime() <= System.currentTimeMillis() - (this.intStore * 60) * 1000L);
+                return (c.getQuest(this.quest).getStatus() != 2 || c.getQuest(this.quest)
+                        .getCompletionTime() <= System.currentTimeMillis() - (this.intStore * 60) * 1000L);
             case pet:
                 for (Pair<Integer, Integer> a : this.dataStore) {
-                    if (c.getPetIndexById(((Integer)a.getRight()).intValue()) == -1)
+                    if (c.getPetIndexById(((Integer) a.getRight()).intValue()) == -1)
                         return false;
                 }
                 return true;
@@ -228,7 +236,7 @@ public class MapleQuestRequirement implements Serializable
     public MapleQuestRequirementType getType() {
         return this.type;
     }
-    
+
     @Override
     public String toString() {
         return this.type.toString();

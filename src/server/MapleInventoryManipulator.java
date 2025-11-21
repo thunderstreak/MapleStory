@@ -24,8 +24,7 @@ import tools.FileoutputUtil;
 import tools.MaplePacketCreator;
 import tools.packet.MTSCSPacket;
 
-public class MapleInventoryManipulator
-{
+public class MapleInventoryManipulator {
     public static void addRing(final MapleCharacter chr, final int itemId, final int ringId, final int sn) {
         final CashItemInfo csi = CashItemFactory.getInstance().getItem(sn);
         if (csi == null) {
@@ -38,11 +37,11 @@ public class MapleInventoryManipulator
         chr.getCashInventory().addToInventory(ring);
         chr.getClient().getSession().write(MTSCSPacket.showBoughtCSItem(ring, sn, chr.getClient().getAccID()));
     }
-    
+
     public static boolean addbyItem(final MapleClient c, final IItem item) {
         return addbyItem(c, item, false) >= 0;
     }
-    
+
     public static short addbyItem(final MapleClient c, final IItem item, final boolean fromcs) {
         final MapleInventoryType type = GameConstants.getInventoryType(item.getItemId());
         final short newSlot = c.getPlayer().getInventory(type).addItem(item);
@@ -62,44 +61,50 @@ public class MapleInventoryManipulator
         }
         return newSlot;
     }
-    
+
     public static void gainItemPeriod(final MapleClient c, final int id, final short quantity, final int period) {
-        gainItem(c, id, quantity, false, period, -1, "", (byte)0);
+        gainItem(c, id, quantity, false, period, -1, "", (byte) 0);
     }
-    
-    public static void gainItemPeriod(final MapleClient c, final int id, final short quantity, final long period, final String owner) {
-        gainItem(c, id, quantity, false, period, -1, owner, (byte)0);
+
+    public static void gainItemPeriod(final MapleClient c, final int id, final short quantity, final long period,
+            final String owner) {
+        gainItem(c, id, quantity, false, period, -1, owner, (byte) 0);
     }
-    
+
     public static void gainItem(final MapleClient c, final int id, final short quantity) {
-        gainItem(c, id, quantity, false, 0L, -1, "", (byte)0);
+        gainItem(c, id, quantity, false, 0L, -1, "", (byte) 0);
     }
-    
-    public static void gainItem(final MapleClient c, final int id, final short quantity, final long period, final byte Flag) {
+
+    public static void gainItem(final MapleClient c, final int id, final short quantity, final long period,
+            final byte Flag) {
         gainItem(c, id, quantity, false, period, -1, "", Flag);
     }
-    
+
     public static void gainItem(final MapleClient c, final int id, final short quantity, final boolean randomStats) {
-        gainItem(c, id, quantity, randomStats, 0L, -1, "", (byte)0);
+        gainItem(c, id, quantity, randomStats, 0L, -1, "", (byte) 0);
     }
-    
-    public static void gainItem(final MapleClient c, final int id, final short quantity, final boolean randomStats, final int slots) {
-        gainItem(c, id, quantity, randomStats, 0L, slots, "", (byte)0);
+
+    public static void gainItem(final MapleClient c, final int id, final short quantity, final boolean randomStats,
+            final int slots) {
+        gainItem(c, id, quantity, randomStats, 0L, slots, "", (byte) 0);
     }
-    
+
     public static void gainItem(final MapleClient c, final int id, final short quantity, final long period) {
-        gainItem(c, id, quantity, false, period, -1, "", (byte)0);
+        gainItem(c, id, quantity, false, period, -1, "", (byte) 0);
     }
-    
-    public static void gainItem(final MapleClient c, final int id, final short quantity, final boolean randomStats, final long period, final int slots) {
-        gainItem(c, id, quantity, randomStats, period, slots, "", (byte)0);
+
+    public static void gainItem(final MapleClient c, final int id, final short quantity, final boolean randomStats,
+            final long period, final int slots) {
+        gainItem(c, id, quantity, randomStats, period, slots, "", (byte) 0);
     }
-    
-    public static void gainItem(final MapleClient c, final int id, final short quantity, final boolean randomStats, final long period, final int slots, final String owner, final byte Flag) {
+
+    public static void gainItem(final MapleClient c, final int id, final short quantity, final boolean randomStats,
+            final long period, final int slots, final String owner, final byte Flag) {
         gainItem(id, quantity, randomStats, period, slots, owner, c, Flag);
     }
-    
-    public static void gainItem(final int id, final short quantity, final boolean randomStats, final long period, final int slots, final String owner, final MapleClient cg, final byte Flag) {
+
+    public static void gainItem(final int id, final short quantity, final boolean randomStats, final long period,
+            final int slots, final String owner, final MapleClient cg, final byte Flag) {
         if (quantity >= 0) {
             final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
             final MapleInventoryType type = GameConstants.getInventoryType(id);
@@ -107,12 +112,13 @@ public class MapleInventoryManipulator
                 return;
             }
             if (type.equals(MapleInventoryType.EQUIP) && !GameConstants.is飞镖道具(id) && !GameConstants.is子弹道具(id)) {
-                final Equip item = (Equip)(randomStats ? ii.randomizeStats((Equip)ii.getEquipById(id)) : ii.getEquipById(id));
+                final Equip item = (Equip) (randomStats ? ii.randomizeStats((Equip) ii.getEquipById(id))
+                        : ii.getEquipById(id));
                 if (period > 0L) {
                     item.setExpiration(System.currentTimeMillis() + period * 60L * 60L * 1000L);
                 }
                 if (slots > 0) {
-                    item.setUpgradeSlots((byte)(item.getUpgradeSlots() + slots));
+                    item.setUpgradeSlots((byte) (item.getUpgradeSlots() + slots));
                 }
                 if (owner != null) {
                     item.setOwner(owner);
@@ -124,57 +130,60 @@ public class MapleInventoryManipulator
                     cg.getPlayer().dropMessage(5, msg);
                 }
                 addbyItem(cg, item.copy());
-            }
-            else {
+            } else {
                 addById(cg, id, quantity, (owner == null) ? "" : owner, null, period, Flag);
             }
-        }
-        else {
+        } else {
             removeById(cg, GameConstants.getInventoryType(id), id, -quantity, true, false);
         }
     }
-    
+
     public static int getUniqueId(final int itemId, final MaplePet pet) {
         int uniqueid = -1;
         if (GameConstants.isPet(itemId)) {
             if (pet != null) {
                 uniqueid = pet.getUniqueId();
-            }
-            else {
+            } else {
                 uniqueid = MapleInventoryIdentifier.getInstance();
             }
-        }
-        else if (GameConstants.getInventoryType(itemId) == MapleInventoryType.CASH || MapleItemInformationProvider.getInstance().isCash(itemId)) {
+        } else if (GameConstants.getInventoryType(itemId) == MapleInventoryType.CASH
+                || MapleItemInformationProvider.getInstance().isCash(itemId)) {
             uniqueid = MapleInventoryIdentifier.getInstance();
         }
         return uniqueid;
     }
-    
+
     public static boolean addById(final MapleClient c, final int itemId, final short quantity, final byte Flag) {
         return addById(c, itemId, quantity, null, null, 0L, Flag);
     }
-    
-    public static boolean addById(final MapleClient c, final int itemId, final short quantity, final String owner, final byte Flag) {
+
+    public static boolean addById(final MapleClient c, final int itemId, final short quantity, final String owner,
+            final byte Flag) {
         return addById(c, itemId, quantity, owner, null, 0L, Flag);
     }
-    
-    public static byte addId(final MapleClient c, final int itemId, final short quantity, final String owner, final byte Flag) {
+
+    public static byte addId(final MapleClient c, final int itemId, final short quantity, final String owner,
+            final byte Flag) {
         return addId(c, itemId, quantity, owner, null, 0L, Flag);
     }
-    
-    public static byte addId(final MapleClient c, final int itemId, final short quantity, final String owner, final long period, final byte Flag) {
+
+    public static byte addId(final MapleClient c, final int itemId, final short quantity, final String owner,
+            final long period, final byte Flag) {
         return addId(c, itemId, quantity, owner, null, period, Flag);
     }
-    
-    public static boolean addById(final MapleClient c, final int itemId, final short quantity, final String owner, final MaplePet pet, final byte Flag) {
+
+    public static boolean addById(final MapleClient c, final int itemId, final short quantity, final String owner,
+            final MaplePet pet, final byte Flag) {
         return addById(c, itemId, quantity, owner, pet, 0L, Flag);
     }
-    
-    public static boolean addById(final MapleClient c, final int itemId, final short quantity, final String owner, final MaplePet pet, final long period, final byte Flag) {
+
+    public static boolean addById(final MapleClient c, final int itemId, final short quantity, final String owner,
+            final MaplePet pet, final long period, final byte Flag) {
         return addId(c, itemId, quantity, owner, pet, period, Flag) >= 0;
     }
 
-    public static byte addId(MapleClient c, int itemId, short quantity, String owner, MaplePet pet, long period, byte Flag) {
+    public static byte addId(MapleClient c, int itemId, short quantity, String owner, MaplePet pet, long period,
+            byte Flag) {
         MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
         if (ii.isPickupRestricted(itemId) && c.getPlayer().haveItem(itemId, 1, true, false)) {
             c.getSession().write(MaplePacketCreator.getInventoryFull());
@@ -192,22 +201,23 @@ public class MapleInventoryManipulator
                     Iterator<IItem> i = existing.iterator();
                     while (quantity > 0 &&
                             i.hasNext()) {
-                        Item eItem = (Item)i.next();
+                        Item eItem = (Item) i.next();
                         short oldQ = eItem.getQuantity();
-                        if (oldQ < slotMax && (eItem.getOwner().equals(owner) || owner == null) && eItem.getExpiration() == -1L) {
-                            short newQ = (short)Math.min(oldQ + quantity, slotMax);
-                            quantity = (short)(quantity - newQ - oldQ);
+                        if (oldQ < slotMax && (eItem.getOwner().equals(owner) || owner == null)
+                                && eItem.getExpiration() == -1L) {
+                            short newQ = (short) Math.min(oldQ + quantity, slotMax);
+                            quantity = (short) (quantity - newQ - oldQ);
                             eItem.setQuantity(newQ);
-                            c.getSession().write(MaplePacketCreator.updateInventorySlot(type, (IItem)eItem, false));
+                            c.getSession().write(MaplePacketCreator.updateInventorySlot(type, (IItem) eItem, false));
                         }
                     }
                 }
                 while (quantity > 0) {
-                    short newQ = (short)Math.min(quantity, slotMax);
+                    short newQ = (short) Math.min(quantity, slotMax);
                     if (newQ != 0) {
-                        quantity = (short)(quantity - newQ);
-                        Item nItem = new Item(itemId, (short)0, newQ, (byte)0, uniqueid);
-                        newSlot = c.getPlayer().getInventory(type).addItem((IItem)nItem);
+                        quantity = (short) (quantity - newQ);
+                        Item nItem = new Item(itemId, (short) 0, newQ, (byte) 0, uniqueid);
+                        newSlot = c.getPlayer().getInventory(type).addItem((IItem) nItem);
                         if (newSlot == -1) {
                             c.getSession().write(MaplePacketCreator.getInventoryFull());
                             c.getSession().write(MaplePacketCreator.getShowInventoryFull());
@@ -217,7 +227,7 @@ public class MapleInventoryManipulator
                             nItem.setOwner(owner);
                         if (Flag > 0 && ii.isCash(nItem.getItemId())) {
                             byte flag = nItem.getFlag();
-                            flag = (byte)(flag | ItemFlag.KARMA_EQ.getValue());
+                            flag = (byte) (flag | ItemFlag.KARMA_EQ.getValue());
                             nItem.setFlag(flag);
                         }
                         if (period > 0L)
@@ -227,18 +237,18 @@ public class MapleInventoryManipulator
                             pet.setInventoryPosition(newSlot);
                             c.getPlayer().addPet(pet);
                         }
-                        c.getSession().write(MaplePacketCreator.addInventorySlot(type, (IItem)nItem));
+                        c.getSession().write(MaplePacketCreator.addInventorySlot(type, (IItem) nItem));
                         if (GameConstants.isRechargable(itemId) && quantity == 0)
                             break;
                         continue;
                     }
                     c.getPlayer().havePartyQuest(itemId);
                     c.getSession().write(MaplePacketCreator.enableActions());
-                    return (byte)newSlot;
+                    return (byte) newSlot;
                 }
             } else {
-                Item nItem = new Item(itemId, (short)0, quantity, (byte)0, uniqueid);
-                newSlot = c.getPlayer().getInventory(type).addItem((IItem)nItem);
+                Item nItem = new Item(itemId, (short) 0, quantity, (byte) 0, uniqueid);
+                newSlot = c.getPlayer().getInventory(type).addItem((IItem) nItem);
                 if (newSlot == -1) {
                     c.getSession().write(MaplePacketCreator.getInventoryFull());
                     c.getSession().write(MaplePacketCreator.getShowInventoryFull());
@@ -246,7 +256,7 @@ public class MapleInventoryManipulator
                 }
                 if (period > 0L)
                     nItem.setExpiration(System.currentTimeMillis() + period * 60L * 60L * 1000L);
-                c.getSession().write(MaplePacketCreator.addInventorySlot(type, (IItem)nItem));
+                c.getSession().write(MaplePacketCreator.addInventorySlot(type, (IItem) nItem));
                 c.getSession().write(MaplePacketCreator.enableActions());
             }
         } else if (quantity == 1) {
@@ -256,7 +266,7 @@ public class MapleInventoryManipulator
             nEquip.setUniqueId(uniqueid);
             if (Flag > 0 && ii.isCash(nEquip.getItemId())) {
                 byte flag = nEquip.getFlag();
-                flag = (byte)(flag | ItemFlag.KARMA_USE.getValue());
+                flag = (byte) (flag | ItemFlag.KARMA_USE.getValue());
                 nEquip.setFlag(flag);
             }
             if (period > 0L)
@@ -273,19 +283,24 @@ public class MapleInventoryManipulator
             throw new InventoryException("Trying to create equip with non-one quantity");
         }
         c.getPlayer().havePartyQuest(itemId);
-        return (byte)newSlot;
+        return (byte) newSlot;
     }
 
     public static IItem addbyId_Gachapon(final MapleClient c, final int itemId, final short quantity) {
         return addbyId_Gachapon(c, itemId, quantity, null, 0L);
     }
-    
-    public static IItem addbyId_Gachapon(final MapleClient c, final int itemId, final short quantity, final String gmLog) {
+
+    public static IItem addbyId_Gachapon(final MapleClient c, final int itemId, final short quantity,
+            final String gmLog) {
         return addbyId_Gachapon(c, itemId, quantity, null, 0L);
     }
-    
-    public static IItem addbyId_Gachapon(final MapleClient c, final int itemId, short quantity, final String gmLog, final long period) {
-        if (c.getPlayer().getInventory(MapleInventoryType.EQUIP).getNextFreeSlot() == -1 || c.getPlayer().getInventory(MapleInventoryType.USE).getNextFreeSlot() == -1 || c.getPlayer().getInventory(MapleInventoryType.ETC).getNextFreeSlot() == -1 || c.getPlayer().getInventory(MapleInventoryType.SETUP).getNextFreeSlot() == -1) {
+
+    public static IItem addbyId_Gachapon(final MapleClient c, final int itemId, short quantity, final String gmLog,
+            final long period) {
+        if (c.getPlayer().getInventory(MapleInventoryType.EQUIP).getNextFreeSlot() == -1
+                || c.getPlayer().getInventory(MapleInventoryType.USE).getNextFreeSlot() == -1
+                || c.getPlayer().getInventory(MapleInventoryType.ETC).getNextFreeSlot() == -1
+                || c.getPlayer().getInventory(MapleInventoryType.SETUP).getNextFreeSlot() == -1) {
             return null;
         }
         final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
@@ -308,20 +323,20 @@ public class MapleInventoryManipulator
                         final short oldQ = nItem.getQuantity();
                         if (oldQ < slotMax) {
                             recieved = true;
-                            final short newQ = (short)Math.min(oldQ + quantity, slotMax);
-                            quantity -= (short)(newQ - oldQ);
+                            final short newQ = (short) Math.min(oldQ + quantity, slotMax);
+                            quantity -= (short) (newQ - oldQ);
                             nItem.setQuantity(newQ);
                             c.getSession().write(MaplePacketCreator.updateInventorySlot(type, nItem, false));
                         }
                     }
                 }
                 while (quantity > 0) {
-                    final short newQ2 = (short)Math.min(quantity, slotMax);
+                    final short newQ2 = (short) Math.min(quantity, slotMax);
                     if (newQ2 == 0) {
                         break;
                     }
                     quantity -= newQ2;
-                    nItem = new Item(itemId, (short)0, newQ2, (byte)0);
+                    nItem = new Item(itemId, (short) 0, newQ2, (byte) 0);
                     final short newSlot = c.getPlayer().getInventory(type).addItem(nItem);
                     if (newSlot == -1 && recieved) {
                         return nItem;
@@ -336,8 +351,7 @@ public class MapleInventoryManipulator
                     if (period > 0L) {
                         if (period < 1000L) {
                             nItem.setExpiration(System.currentTimeMillis() + period * 24L * 60L * 60L * 1000L);
-                        }
-                        else {
+                        } else {
                             nItem.setExpiration(System.currentTimeMillis() + period);
                         }
                     }
@@ -351,9 +365,8 @@ public class MapleInventoryManipulator
                     return nItem;
                 }
                 return null;
-            }
-            else {
-                final Item nItem2 = new Item(itemId, (short)0, quantity, (byte)0);
+            } else {
+                final Item nItem2 = new Item(itemId, (short) 0, quantity, (byte) 0);
                 final short newSlot2 = c.getPlayer().getInventory(type).addItem(nItem2);
                 if (newSlot2 == -1) {
                     return null;
@@ -362,12 +375,11 @@ public class MapleInventoryManipulator
                 c.getPlayer().havePartyQuest(nItem2.getItemId());
                 return nItem2;
             }
-        }
-        else {
+        } else {
             if (quantity != 1) {
                 throw new InventoryException("Trying to create equip with non-one quantity");
             }
-            final IItem item = ii.randomizeStats((Equip)ii.getEquipById(itemId));
+            final IItem item = ii.randomizeStats((Equip) ii.getEquipById(itemId));
             final short newSlot3 = c.getPlayer().getInventory(type).addItem(item);
             if (newSlot3 == -1) {
                 return null;
@@ -378,8 +390,7 @@ public class MapleInventoryManipulator
             if (period > 0L) {
                 if (period < 1000L) {
                     item.setExpiration(System.currentTimeMillis() + period * 24L * 60L * 60L * 1000L);
-                }
-                else {
+                } else {
                     item.setExpiration(System.currentTimeMillis() + period);
                 }
             }
@@ -388,7 +399,7 @@ public class MapleInventoryManipulator
             return item;
         }
     }
-    
+
     public static boolean addFromDrop(final MapleClient c, final IItem item, final boolean show) {
         return addFromDrop(c, item, show, false);
     }
@@ -416,44 +427,45 @@ public class MapleInventoryManipulator
                     Iterator<IItem> i = existing.iterator();
                     while (quantity > 0 &&
                             i.hasNext()) {
-                        Item eItem = (Item)i.next();
+                        Item eItem = (Item) i.next();
                         short oldQ = eItem.getQuantity();
-                        if (oldQ < slotMax && item.getOwner().equals(eItem.getOwner()) && item.getExpiration() == eItem.getExpiration()) {
-                            short newQ = (short)Math.min(oldQ + quantity, slotMax);
-                            quantity = (short)(quantity - newQ - oldQ);
+                        if (oldQ < slotMax && item.getOwner().equals(eItem.getOwner())
+                                && item.getExpiration() == eItem.getExpiration()) {
+                            short newQ = (short) Math.min(oldQ + quantity, slotMax);
+                            quantity = (short) (quantity - newQ - oldQ);
                             eItem.setQuantity(newQ);
-                            c.getSession().write(MaplePacketCreator.updateInventorySlot(type, (IItem)eItem, true));
+                            c.getSession().write(MaplePacketCreator.updateInventorySlot(type, (IItem) eItem, true));
                         }
                     }
                 }
                 while (quantity > 0) {
-                    short newQ = (short)Math.min(quantity, slotMax);
-                    quantity = (short)(quantity - newQ);
-                    Item nItem = new Item(item.getItemId(), (short)0, newQ, item.getFlag());
+                    short newQ = (short) Math.min(quantity, slotMax);
+                    quantity = (short) (quantity - newQ);
+                    Item nItem = new Item(item.getItemId(), (short) 0, newQ, item.getFlag());
                     nItem.setExpiration(item.getExpiration());
                     nItem.setOwner(item.getOwner());
                     nItem.setPet(item.getPet());
-                    short newSlot = c.getPlayer().getInventory(type).addItem((IItem)nItem);
+                    short newSlot = c.getPlayer().getInventory(type).addItem((IItem) nItem);
                     if (newSlot == -1) {
                         c.getSession().write(MaplePacketCreator.getInventoryFull());
                         c.getSession().write(MaplePacketCreator.getShowInventoryFull());
-                        item.setQuantity((short)(quantity + newQ));
+                        item.setQuantity((short) (quantity + newQ));
                         return false;
                     }
-                    c.getSession().write(MaplePacketCreator.addInventorySlot(type, (IItem)nItem, true));
+                    c.getSession().write(MaplePacketCreator.addInventorySlot(type, (IItem) nItem, true));
                 }
             } else {
-                Item nItem = new Item(item.getItemId(), (short)0, quantity, item.getFlag());
+                Item nItem = new Item(item.getItemId(), (short) 0, quantity, item.getFlag());
                 nItem.setExpiration(item.getExpiration());
                 nItem.setOwner(item.getOwner());
                 nItem.setPet(item.getPet());
-                short newSlot = c.getPlayer().getInventory(type).addItem((IItem)nItem);
+                short newSlot = c.getPlayer().getInventory(type).addItem((IItem) nItem);
                 if (newSlot == -1) {
                     c.getSession().write(MaplePacketCreator.getInventoryFull());
                     c.getSession().write(MaplePacketCreator.getShowInventoryFull());
                     return false;
                 }
-                c.getSession().write(MaplePacketCreator.addInventorySlot(type, (IItem)nItem));
+                c.getSession().write(MaplePacketCreator.addInventorySlot(type, (IItem) nItem));
                 c.getSession().write(MaplePacketCreator.enableActions());
             }
         } else if (quantity == 1) {
@@ -475,13 +487,16 @@ public class MapleInventoryManipulator
         if (before == 0)
             switch (item.getItemId()) {
                 case 4031875:
-                    c.getPlayer().dropMessage(5, "You have gained a Powder Keg, you can give this in to Aramia of Henesys.");
+                    c.getPlayer().dropMessage(5,
+                            "You have gained a Powder Keg, you can give this in to Aramia of Henesys.");
                     break;
                 case 4001246:
-                    c.getPlayer().dropMessage(5, "You have gained a Warm Sun, you can give this in to Maple Tree Hill through @joyce.");
+                    c.getPlayer().dropMessage(5,
+                            "You have gained a Warm Sun, you can give this in to Maple Tree Hill through @joyce.");
                     break;
                 case 4001473:
-                    c.getPlayer().dropMessage(5, "You have gained a Tree Decoration, you can give this in to White Christmas Hill through @joyce.");
+                    c.getPlayer().dropMessage(5,
+                            "You have gained a Tree Decoration, you can give this in to White Christmas Hill through @joyce.");
                     break;
             }
         c.getPlayer().havePartyQuest(item.getItemId());
@@ -517,44 +532,45 @@ public class MapleInventoryManipulator
                     Iterator<IItem> i = existing.iterator();
                     while (quantity > 0 &&
                             i.hasNext()) {
-                        Item eItem = (Item)i.next();
+                        Item eItem = (Item) i.next();
                         short oldQ = eItem.getQuantity();
-                        if (oldQ < slotMax && item.getOwner().equals(eItem.getOwner()) && item.getExpiration() == eItem.getExpiration() && slotMax <= slotMax - oldQ) {
-                            short newQ = (short)Math.min(oldQ + quantity, slotMax);
-                            quantity = (short)(quantity - newQ - oldQ);
+                        if (oldQ < slotMax && item.getOwner().equals(eItem.getOwner())
+                                && item.getExpiration() == eItem.getExpiration() && slotMax <= slotMax - oldQ) {
+                            short newQ = (short) Math.min(oldQ + quantity, slotMax);
+                            quantity = (short) (quantity - newQ - oldQ);
                             eItem.setQuantity(newQ);
-                            c.getSession().write(MaplePacketCreator.updateInventorySlot(type, (IItem)eItem, true));
+                            c.getSession().write(MaplePacketCreator.updateInventorySlot(type, (IItem) eItem, true));
                         }
                     }
                 }
                 while (quantity > 0) {
-                    short newQ = (short)Math.min(quantity, slotMax);
-                    quantity = (short)(quantity - newQ);
-                    Item nItem = new Item(item.getItemId(), (short)0, newQ, item.getFlag());
+                    short newQ = (short) Math.min(quantity, slotMax);
+                    quantity = (short) (quantity - newQ);
+                    Item nItem = new Item(item.getItemId(), (short) 0, newQ, item.getFlag());
                     nItem.setExpiration(item.getExpiration());
                     nItem.setOwner(item.getOwner());
                     nItem.setPet(item.getPet());
-                    short newSlot = c.getPlayer().getInventory(type).addItem((IItem)nItem);
+                    short newSlot = c.getPlayer().getInventory(type).addItem((IItem) nItem);
                     if (newSlot == -1) {
                         c.getSession().write(MaplePacketCreator.getInventoryFull());
                         c.getSession().write(MaplePacketCreator.getShowInventoryFull());
-                        item.setQuantity((short)(quantity + newQ));
+                        item.setQuantity((short) (quantity + newQ));
                         return false;
                     }
-                    c.getSession().write(MaplePacketCreator.addInventorySlot(type, (IItem)nItem, true));
+                    c.getSession().write(MaplePacketCreator.addInventorySlot(type, (IItem) nItem, true));
                 }
             } else {
-                Item nItem = new Item(item.getItemId(), (short)0, quantity, item.getFlag());
+                Item nItem = new Item(item.getItemId(), (short) 0, quantity, item.getFlag());
                 nItem.setExpiration(item.getExpiration());
                 nItem.setOwner(item.getOwner());
                 nItem.setPet(item.getPet());
-                short newSlot = c.getPlayer().getInventory(type).addItem((IItem)nItem);
+                short newSlot = c.getPlayer().getInventory(type).addItem((IItem) nItem);
                 if (newSlot == -1) {
                     c.getSession().write(MaplePacketCreator.getInventoryFull());
                     c.getSession().write(MaplePacketCreator.getShowInventoryFull());
                     return false;
                 }
-                c.getSession().write(MaplePacketCreator.addInventorySlot(type, (IItem)nItem));
+                c.getSession().write(MaplePacketCreator.addInventorySlot(type, (IItem) nItem));
                 c.getSession().write(MaplePacketCreator.enableActions());
             }
         } else if (quantity == 1) {
@@ -575,13 +591,16 @@ public class MapleInventoryManipulator
         if (before == 0)
             switch (item.getItemId()) {
                 case 4031875:
-                    c.getPlayer().dropMessage(5, "You have gained a Powder Keg, you can give this in to Aramia of Henesys.");
+                    c.getPlayer().dropMessage(5,
+                            "You have gained a Powder Keg, you can give this in to Aramia of Henesys.");
                     break;
                 case 4001246:
-                    c.getPlayer().dropMessage(5, "You have gained a Warm Sun, you can give this in to Maple Tree Hill through @joyce.");
+                    c.getPlayer().dropMessage(5,
+                            "You have gained a Warm Sun, you can give this in to Maple Tree Hill through @joyce.");
                     break;
                 case 4001473:
-                    c.getPlayer().dropMessage(5, "You have gained a Tree Decoration, you can give this in to White Christmas Hill through @joyce.");
+                    c.getPlayer().dropMessage(5,
+                            "You have gained a Tree Decoration, you can give this in to White Christmas Hill through @joyce.");
                     break;
             }
         c.getPlayer().havePartyQuest(item.getItemId());
@@ -613,44 +632,45 @@ public class MapleInventoryManipulator
                     Iterator<IItem> i = existing.iterator();
                     while (quantity > 0 &&
                             i.hasNext()) {
-                        Item eItem = (Item)i.next();
+                        Item eItem = (Item) i.next();
                         short oldQ = eItem.getQuantity();
-                        if (oldQ < slotMax && item.getOwner().equals(eItem.getOwner()) && item.getExpiration() == eItem.getExpiration()) {
-                            short newQ = (short)Math.min(oldQ + quantity, slotMax);
-                            quantity = (short)(quantity - newQ - oldQ);
+                        if (oldQ < slotMax && item.getOwner().equals(eItem.getOwner())
+                                && item.getExpiration() == eItem.getExpiration()) {
+                            short newQ = (short) Math.min(oldQ + quantity, slotMax);
+                            quantity = (short) (quantity - newQ - oldQ);
                             eItem.setQuantity(newQ);
-                            c.getSession().write(MaplePacketCreator.updateInventorySlot(type, (IItem)eItem, false));
+                            c.getSession().write(MaplePacketCreator.updateInventorySlot(type, (IItem) eItem, false));
                         }
                     }
                 }
                 while (quantity > 0) {
-                    short newQ = (short)Math.min(quantity, slotMax);
-                    quantity = (short)(quantity - newQ);
-                    Item nItem = new Item(item.getItemId(), (short)0, newQ, item.getFlag());
+                    short newQ = (short) Math.min(quantity, slotMax);
+                    quantity = (short) (quantity - newQ);
+                    Item nItem = new Item(item.getItemId(), (short) 0, newQ, item.getFlag());
                     nItem.setExpiration(item.getExpiration());
                     nItem.setOwner(item.getOwner());
                     nItem.setPet(item.getPet());
-                    short newSlot = c.getPlayer().getInventory(type).addItem((IItem)nItem);
+                    short newSlot = c.getPlayer().getInventory(type).addItem((IItem) nItem);
                     if (newSlot == -1) {
                         c.getSession().write(MaplePacketCreator.getInventoryFull());
                         c.getSession().write(MaplePacketCreator.getShowInventoryFull());
-                        item.setQuantity((short)(quantity + newQ));
+                        item.setQuantity((short) (quantity + newQ));
                         return false;
                     }
-                    c.getSession().write(MaplePacketCreator.addInventorySlot(type, (IItem)nItem, false));
+                    c.getSession().write(MaplePacketCreator.addInventorySlot(type, (IItem) nItem, false));
                 }
             } else {
-                Item nItem = new Item(item.getItemId(), (short)0, quantity, item.getFlag());
+                Item nItem = new Item(item.getItemId(), (short) 0, quantity, item.getFlag());
                 nItem.setExpiration(item.getExpiration());
                 nItem.setOwner(item.getOwner());
                 nItem.setPet(item.getPet());
-                short newSlot = c.getPlayer().getInventory(type).addItem((IItem)nItem);
+                short newSlot = c.getPlayer().getInventory(type).addItem((IItem) nItem);
                 if (newSlot == -1) {
                     c.getSession().write(MaplePacketCreator.getInventoryFull());
                     c.getSession().write(MaplePacketCreator.getShowInventoryFull());
                     return false;
                 }
-                c.getSession().write(MaplePacketCreator.addInventorySlot(type, (IItem)nItem));
+                c.getSession().write(MaplePacketCreator.addInventorySlot(type, (IItem) nItem));
                 c.getSession().write(MaplePacketCreator.enableActions());
             }
         } else if (quantity == 1) {
@@ -671,13 +691,16 @@ public class MapleInventoryManipulator
         if (before == 0)
             switch (item.getItemId()) {
                 case 4031875:
-                    c.getPlayer().dropMessage(5, "You have gained a Powder Keg, you can give this in to Aramia of Henesys.");
+                    c.getPlayer().dropMessage(5,
+                            "You have gained a Powder Keg, you can give this in to Aramia of Henesys.");
                     break;
                 case 4001246:
-                    c.getPlayer().dropMessage(5, "You have gained a Warm Sun, you can give this in to Maple Tree Hill through @joyce.");
+                    c.getPlayer().dropMessage(5,
+                            "You have gained a Warm Sun, you can give this in to Maple Tree Hill through @joyce.");
                     break;
                 case 4001473:
-                    c.getPlayer().dropMessage(5, "You have gained a Tree Decoration, you can give this in to White Christmas Hill through @joyce.");
+                    c.getPlayer().dropMessage(5,
+                            "You have gained a Tree Decoration, you can give this in to White Christmas Hill through @joyce.");
                     break;
             }
         c.getPlayer().havePartyQuest(item.getItemId());
@@ -688,21 +711,23 @@ public class MapleInventoryManipulator
 
     private static IItem checkEnhanced(final IItem before, final MapleCharacter chr) {
         if (before instanceof Equip) {
-            final Equip eq = (Equip)before;
-            if (eq.getState() == 0 && (eq.getUpgradeSlots() >= 1 || eq.getLevel() >= 1) && Randomizer.nextInt(100) > 80) {
+            final Equip eq = (Equip) before;
+            if (eq.getState() == 0 && (eq.getUpgradeSlots() >= 1 || eq.getLevel() >= 1)
+                    && Randomizer.nextInt(100) > 80) {
                 eq.resetPotential();
             }
         }
         return before;
     }
-    
+
     private static int rand(final int min, final int max) {
         return Math.abs(Randomizer.rand(min, max));
     }
-    
+
     public static boolean checkSpace(final MapleClient c, final int itemid, int quantity, final String owner) {
         final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
-        if (c.getPlayer() == null || (ii.isPickupRestricted(itemid) && c.getPlayer().haveItem(itemid, 1, true, false))) {
+        if (c.getPlayer() == null
+                || (ii.isPickupRestricted(itemid) && c.getPlayer().haveItem(itemid, 1, true, false))) {
             c.getSession().write(MaplePacketCreator.enableActions());
             return false;
         }
@@ -720,7 +745,7 @@ public class MapleInventoryManipulator
                 for (final IItem eItem : existing) {
                     final short oldQ = eItem.getQuantity();
                     if (oldQ < slotMax && owner != null && owner.equals(eItem.getOwner())) {
-                        final short newQ = (short)Math.min(oldQ + quantity, slotMax);
+                        final short newQ = (short) Math.min(oldQ + quantity, slotMax);
                         quantity -= newQ - oldQ;
                     }
                     if (quantity <= 0) {
@@ -730,21 +755,22 @@ public class MapleInventoryManipulator
             }
             int numSlotsNeeded;
             if (slotMax > 0 && !GameConstants.isRechargable(itemid)) {
-                numSlotsNeeded = (int)Math.ceil(quantity / (double)slotMax);
-            }
-            else {
+                numSlotsNeeded = (int) Math.ceil(quantity / (double) slotMax);
+            } else {
                 numSlotsNeeded = 1;
             }
             return !c.getPlayer().getInventory(type).isFull(numSlotsNeeded - 1);
         }
         return !c.getPlayer().getInventory(type).isFull();
     }
-    
-    public static void removeFromSlot(final MapleClient c, final MapleInventoryType type, final short slot, final short quantity, final boolean fromDrop) {
+
+    public static void removeFromSlot(final MapleClient c, final MapleInventoryType type, final short slot,
+            final short quantity, final boolean fromDrop) {
         removeFromSlot(c, type, slot, quantity, fromDrop, false);
     }
-    
-    public static void removeFromSlot(final MapleClient c, final MapleInventoryType type, final short slot, final short quantity, final boolean fromDrop, final boolean consume) {
+
+    public static void removeFromSlot(final MapleClient c, final MapleInventoryType type, final short slot,
+            final short quantity, final boolean fromDrop, final boolean consume) {
         if (c.getPlayer() == null || c.getPlayer().getInventory(type) == null) {
             return;
         }
@@ -754,14 +780,14 @@ public class MapleInventoryManipulator
             c.getPlayer().getInventory(type).removeItem(slot, quantity, allowZero);
             if (item.getQuantity() == 0 && !allowZero) {
                 c.getSession().write(MaplePacketCreator.clearInventoryItem(type, item.getPosition(), fromDrop));
-            }
-            else {
+            } else {
                 c.getSession().write(MaplePacketCreator.updateInventorySlot(type, item, fromDrop));
             }
         }
     }
-    
-    public static boolean removeById(final MapleClient c, final MapleInventoryType type, final int itemId, final int quantity, final boolean fromDrop, final boolean consume) {
+
+    public static boolean removeById(final MapleClient c, final MapleInventoryType type, final int itemId,
+            final int quantity, final boolean fromDrop, final boolean consume) {
         int remremove = quantity;
         if (c.getPlayer() == null || c.getPlayer().getInventory(type) == null) {
             return false;
@@ -769,7 +795,7 @@ public class MapleInventoryManipulator
         for (final IItem item : c.getPlayer().getInventory(type).listById(itemId)) {
             final int theQ = item.getQuantity();
             if (remremove <= theQ) {
-                removeFromSlot(c, type, item.getPosition(), (short)remremove, fromDrop, consume);
+                removeFromSlot(c, type, item.getPosition(), (short) remremove, fromDrop, consume);
                 remremove = 0;
                 break;
             }
@@ -781,7 +807,7 @@ public class MapleInventoryManipulator
         }
         return remremove <= 0;
     }
-    
+
     public static void move(final MapleClient c, final MapleInventoryType type, final short src, final short dst) {
         if (src < 0 || dst < 0 || dst > c.getPlayer().getInventory(type).getSlotLimit() || src == dst) {
             return;
@@ -801,19 +827,22 @@ public class MapleInventoryManipulator
         final short oldsrcQ = source.getQuantity();
         final short slotMax = ii.getSlotMax(c, source.getItemId());
         c.getPlayer().getInventory(type).move(src, dst, slotMax);
-        if (!type.equals(MapleInventoryType.EQUIP) && initialTarget != null && initialTarget.getItemId() == source.getItemId() && initialTarget.getOwner().equals(source.getOwner()) && initialTarget.getExpiration() == source.getExpiration() && !GameConstants.isRechargable(source.getItemId()) && !type.equals(MapleInventoryType.CASH)) {
+        if (!type.equals(MapleInventoryType.EQUIP) && initialTarget != null
+                && initialTarget.getItemId() == source.getItemId() && initialTarget.getOwner().equals(source.getOwner())
+                && initialTarget.getExpiration() == source.getExpiration()
+                && !GameConstants.isRechargable(source.getItemId()) && !type.equals(MapleInventoryType.CASH)) {
             if (olddstQ + oldsrcQ > slotMax) {
-                c.getSession().write(MaplePacketCreator.moveAndMergeWithRestInventoryItem(type, src, dst, (short)(olddstQ + oldsrcQ - slotMax), slotMax));
+                c.getSession().write(MaplePacketCreator.moveAndMergeWithRestInventoryItem(type, src, dst,
+                        (short) (olddstQ + oldsrcQ - slotMax), slotMax));
+            } else {
+                c.getSession().write(MaplePacketCreator.moveAndMergeInventoryItem(type, src, dst,
+                        ((Item) c.getPlayer().getInventory(type).getItem(dst)).getQuantity()));
             }
-            else {
-                c.getSession().write(MaplePacketCreator.moveAndMergeInventoryItem(type, src, dst, ((Item)c.getPlayer().getInventory(type).getItem(dst)).getQuantity()));
-            }
-        }
-        else {
+        } else {
             c.getSession().write(MaplePacketCreator.moveInventoryItem(type, src, dst));
         }
     }
-    
+
     public static void equip(final MapleClient c, final short src, final short dst) {
         boolean itemChanged = false;
         final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
@@ -822,30 +851,34 @@ public class MapleInventoryManipulator
             return;
         }
         final PlayerStats statst = c.getPlayer().getStat();
-        Equip source = (Equip)chr.getInventory(MapleInventoryType.EQUIP).getItem(src);
-        Equip target = (Equip)chr.getInventory(MapleInventoryType.EQUIPPED).getItem(dst);
+        Equip source = (Equip) chr.getInventory(MapleInventoryType.EQUIP).getItem(src);
+        Equip target = (Equip) chr.getInventory(MapleInventoryType.EQUIPPED).getItem(dst);
         if (source == null || source.getDurability() == 0) {
             c.getSession().write(MaplePacketCreator.enableActions());
             return;
         }
         if (MapleItemInformationProvider.getInstance().isUntradeableOnEquip(source.getItemId())) {
-            source.setFlag((byte)ItemFlag.UNTRADEABLE.getValue());
+            source.setFlag((byte) ItemFlag.UNTRADEABLE.getValue());
             itemChanged = true;
         }
         final Map<String, Integer> stats = ii.getEquipStats(source.getItemId());
         if (ii.isCash(source.getItemId()) && source.getUniqueId() <= 0) {
             source.setUniqueId(1);
-            c.getSession().write(MaplePacketCreator.updateSpecialItemUse_(source, GameConstants.getInventoryType(source.getItemId()).getType()));
+            c.getSession().write(MaplePacketCreator.updateSpecialItemUse_(source,
+                    GameConstants.getInventoryType(source.getItemId()).getType()));
         }
-        if (dst < -999 && !GameConstants.isEvanDragonItem(source.getItemId()) && !GameConstants.is豆豆装备(source.getItemId())) {
+        if (dst < -999 && !GameConstants.isEvanDragonItem(source.getItemId())
+                && !GameConstants.is豆豆装备(source.getItemId())) {
             c.getSession().write(MaplePacketCreator.enableActions());
             return;
         }
-        if (dst >= -999 && dst < -99 && stats.get("cash") == 0 && !GameConstants.is豆豆装备(source.getItemId()) && !GameConstants.isEffectRing(source.getItemId())) {
+        if (dst >= -999 && dst < -99 && stats.get("cash") == 0 && !GameConstants.is豆豆装备(source.getItemId())
+                && !GameConstants.isEffectRing(source.getItemId())) {
             c.getSession().write(MaplePacketCreator.enableActions());
             return;
         }
-        if (!ii.canEquip(stats, source.getItemId(), chr.getLevel(), chr.getJob(), chr.getFame(), statst.getTotalStr(), statst.getTotalDex(), statst.getTotalLuk(), statst.getTotalInt(), c.getPlayer().getStat().levelBonus)) {
+        if (!ii.canEquip(stats, source.getItemId(), chr.getLevel(), chr.getJob(), chr.getFame(), statst.getTotalStr(),
+                statst.getTotalDex(), statst.getTotalLuk(), statst.getTotalInt(), c.getPlayer().getStat().levelBonus)) {
             c.getSession().write(MaplePacketCreator.enableActions());
             return;
         }
@@ -853,13 +886,14 @@ public class MapleInventoryManipulator
             AutobanManager.getInstance().autoban(c, "Equipment hack, itemid " + source.getItemId() + " to slot " + dst);
             return;
         }
-        if (!ii.isCash(source.getItemId()) && !GameConstants.isMountItemAvailable(source.getItemId(), c.getPlayer().getJob())) {
+        if (!ii.isCash(source.getItemId())
+                && !GameConstants.isMountItemAvailable(source.getItemId(), c.getPlayer().getJob())) {
             c.getSession().write(MaplePacketCreator.enableActions());
             return;
         }
         switch (dst) {
             case -6: {
-                final IItem top = chr.getInventory(MapleInventoryType.EQUIPPED).getItem((short)(-5));
+                final IItem top = chr.getInventory(MapleInventoryType.EQUIPPED).getItem((short) (-5));
                 if (top == null || !GameConstants.isOverall(top.getItemId())) {
                     break;
                 }
@@ -868,19 +902,20 @@ public class MapleInventoryManipulator
                     c.getSession().write(MaplePacketCreator.getShowInventoryFull());
                     return;
                 }
-                unequip(c, (short)(-5), chr.getInventory(MapleInventoryType.EQUIP).getNextFreeSlot());
+                unequip(c, (short) (-5), chr.getInventory(MapleInventoryType.EQUIP).getNextFreeSlot());
                 break;
             }
             case -5: {
-                final IItem top = chr.getInventory(MapleInventoryType.EQUIPPED).getItem((short)(-5));
-                final IItem bottom = chr.getInventory(MapleInventoryType.EQUIPPED).getItem((short)(-6));
+                final IItem top = chr.getInventory(MapleInventoryType.EQUIPPED).getItem((short) (-5));
+                final IItem bottom = chr.getInventory(MapleInventoryType.EQUIPPED).getItem((short) (-6));
                 if (top != null && GameConstants.isOverall(source.getItemId())) {
-                    if (chr.getInventory(MapleInventoryType.EQUIP).isFull((bottom != null && GameConstants.isOverall(source.getItemId())) ? 1 : 0)) {
+                    if (chr.getInventory(MapleInventoryType.EQUIP)
+                            .isFull((bottom != null && GameConstants.isOverall(source.getItemId())) ? 1 : 0)) {
                         c.getSession().write(MaplePacketCreator.getInventoryFull());
                         c.getSession().write(MaplePacketCreator.getShowInventoryFull());
                         return;
                     }
-                    unequip(c, (short)(-5), chr.getInventory(MapleInventoryType.EQUIP).getNextFreeSlot());
+                    unequip(c, (short) (-5), chr.getInventory(MapleInventoryType.EQUIP).getNextFreeSlot());
                 }
                 if (bottom == null || !GameConstants.isOverall(source.getItemId())) {
                     break;
@@ -890,20 +925,20 @@ public class MapleInventoryManipulator
                     c.getSession().write(MaplePacketCreator.getShowInventoryFull());
                     return;
                 }
-                unequip(c, (short)(-6), chr.getInventory(MapleInventoryType.EQUIP).getNextFreeSlot());
+                unequip(c, (short) (-6), chr.getInventory(MapleInventoryType.EQUIP).getNextFreeSlot());
                 break;
             }
             case -10: {
-                final IItem weapon = chr.getInventory(MapleInventoryType.EQUIPPED).getItem((short)(-11));
+                final IItem weapon = chr.getInventory(MapleInventoryType.EQUIPPED).getItem((short) (-11));
                 if (GameConstants.isKatara(source.getItemId())) {
-                    if ((chr.getJob() != 900 && (chr.getJob() < 430 || chr.getJob() > 434)) || weapon == null || !GameConstants.isDagger(weapon.getItemId())) {
+                    if ((chr.getJob() != 900 && (chr.getJob() < 430 || chr.getJob() > 434)) || weapon == null
+                            || !GameConstants.isDagger(weapon.getItemId())) {
                         c.getSession().write(MaplePacketCreator.getInventoryFull());
                         c.getSession().write(MaplePacketCreator.getShowInventoryFull());
                         return;
                     }
                     break;
-                }
-                else {
+                } else {
                     if (weapon == null || !GameConstants.isTwoHanded(weapon.getItemId())) {
                         break;
                     }
@@ -912,12 +947,12 @@ public class MapleInventoryManipulator
                         c.getSession().write(MaplePacketCreator.getShowInventoryFull());
                         return;
                     }
-                    unequip(c, (short)(-11), chr.getInventory(MapleInventoryType.EQUIP).getNextFreeSlot());
+                    unequip(c, (short) (-11), chr.getInventory(MapleInventoryType.EQUIP).getNextFreeSlot());
                     break;
                 }
             }
             case -11: {
-                final IItem shield = chr.getInventory(MapleInventoryType.EQUIPPED).getItem((short)(-10));
+                final IItem shield = chr.getInventory(MapleInventoryType.EQUIPPED).getItem((short) (-10));
                 if (shield == null || !GameConstants.isTwoHanded(source.getItemId())) {
                     break;
                 }
@@ -926,12 +961,12 @@ public class MapleInventoryManipulator
                     c.getSession().write(MaplePacketCreator.getShowInventoryFull());
                     return;
                 }
-                unequip(c, (short)(-10), chr.getInventory(MapleInventoryType.EQUIP).getNextFreeSlot());
+                unequip(c, (short) (-10), chr.getInventory(MapleInventoryType.EQUIP).getNextFreeSlot());
                 break;
             }
         }
-        source = (Equip)chr.getInventory(MapleInventoryType.EQUIP).getItem(src);
-        target = (Equip)chr.getInventory(MapleInventoryType.EQUIPPED).getItem(dst);
+        source = (Equip) chr.getInventory(MapleInventoryType.EQUIP).getItem(src);
+        target = (Equip) chr.getInventory(MapleInventoryType.EQUIPPED).getItem(dst);
         if (source == null) {
             c.getSession().write(MaplePacketCreator.enableActions());
             return;
@@ -939,18 +974,19 @@ public class MapleInventoryManipulator
         byte flag = source.getFlag();
         if (stats.get("equipTradeBlock") == 1) {
             if (!ItemFlag.UNTRADEABLE.check(flag)) {
-                flag |= (byte)ItemFlag.UNTRADEABLE.getValue();
+                flag |= (byte) ItemFlag.UNTRADEABLE.getValue();
                 source.setFlag(flag);
-                c.getSession().write(MaplePacketCreator.updateSpecialItemUse_(source, GameConstants.getInventoryType(source.getItemId()).getType()));
+                c.getSession().write(MaplePacketCreator.updateSpecialItemUse_(source,
+                        GameConstants.getInventoryType(source.getItemId()).getType()));
             }
-        }
-        else if (ItemFlag.KARMA_EQ.check(flag)) {
-            source.setFlag((byte)(flag - ItemFlag.KARMA_EQ.getValue()));
-            c.getSession().write(MaplePacketCreator.updateSpecialItemUse(source, GameConstants.getInventoryType(source.getItemId()).getType()));
-        }
-        else if (ItemFlag.KARMA_USE.check(flag)) {
-            source.setFlag((byte)(flag - ItemFlag.KARMA_USE.getValue()));
-            c.getSession().write(MaplePacketCreator.updateSpecialItemUse(source, GameConstants.getInventoryType(source.getItemId()).getType()));
+        } else if (ItemFlag.KARMA_EQ.check(flag)) {
+            source.setFlag((byte) (flag - ItemFlag.KARMA_EQ.getValue()));
+            c.getSession().write(MaplePacketCreator.updateSpecialItemUse(source,
+                    GameConstants.getInventoryType(source.getItemId()).getType()));
+        } else if (ItemFlag.KARMA_USE.check(flag)) {
+            source.setFlag((byte) (flag - ItemFlag.KARMA_USE.getValue()));
+            c.getSession().write(MaplePacketCreator.updateSpecialItemUse(source,
+                    GameConstants.getInventoryType(source.getItemId()).getType()));
         }
         chr.getInventory(MapleInventoryType.EQUIP).removeSlot(src);
         if (target != null) {
@@ -989,14 +1025,15 @@ public class MapleInventoryManipulator
             chr.startFairySchedule(true, true);
         }
         mods.add(new ModifyInventory(2, source, src));
-        c.getSession().write(MaplePacketCreator.moveInventoryItem(MapleInventoryType.EQUIP, src, dst, (short)2));
+        c.getSession().write(MaplePacketCreator.moveInventoryItem(MapleInventoryType.EQUIP, src, dst, (short) 2));
         chr.equipChanged();
-        c.getSession().write(MaplePacketCreator.updateSpecialItemUse_(source, GameConstants.getInventoryType(source.getItemId()).getType()));
+        c.getSession().write(MaplePacketCreator.updateSpecialItemUse_(source,
+                GameConstants.getInventoryType(source.getItemId()).getType()));
     }
-    
+
     public static void unequip(final MapleClient c, final short src, final short dst) {
-        final Equip source = (Equip)c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).getItem(src);
-        final Equip target = (Equip)c.getPlayer().getInventory(MapleInventoryType.EQUIP).getItem(dst);
+        final Equip source = (Equip) c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).getItem(src);
+        final Equip target = (Equip) c.getPlayer().getInventory(MapleInventoryType.EQUIP).getItem(dst);
         if (dst < 0 || source == null) {
             c.getSession().write(MaplePacketCreator.enableActions());
             return;
@@ -1033,15 +1070,17 @@ public class MapleInventoryManipulator
             c.getPlayer().dropMessage(5, "精灵吊坠已脱下。计时结束。");
             c.getPlayer().cancelFairySchedule(true);
         }
-        c.getSession().write(MaplePacketCreator.moveInventoryItem(MapleInventoryType.EQUIP, src, dst, (short)1));
+        c.getSession().write(MaplePacketCreator.moveInventoryItem(MapleInventoryType.EQUIP, src, dst, (short) 1));
         c.getPlayer().equipChanged();
     }
-    
-    public static boolean drop(final MapleClient c, final MapleInventoryType type, final short src, final short quantity) {
+
+    public static boolean drop(final MapleClient c, final MapleInventoryType type, final short src,
+            final short quantity) {
         return drop(c, type, src, quantity, false);
     }
-    
-    public static boolean drop(final MapleClient c, MapleInventoryType type, final short src, final short quantity, final boolean npcInduced) {
+
+    public static boolean drop(final MapleClient c, MapleInventoryType type, final short src, final short quantity,
+            final boolean npcInduced) {
         final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
         if (src < 0) {
             type = MapleInventoryType.EQUIPPED;
@@ -1061,7 +1100,7 @@ public class MapleInventoryManipulator
         final byte flag = source.getFlag();
         final int id = source.getItemId();
         if (GameConstants.isRechargable(id) && source.getQuantity() == 0) {
-            source.setQuantity((short)1);
+            source.setQuantity((short) 1);
         }
         if (quantity > source.getQuantity()) {
             c.getSession().write(MaplePacketCreator.enableActions());
@@ -1083,124 +1122,123 @@ public class MapleInventoryManipulator
         if (quantity < source.getQuantity() && !GameConstants.isRechargable(source.getItemId())) {
             final IItem target = source.copy();
             target.setQuantity(quantity);
-            source.setQuantity((short)(source.getQuantity() - quantity));
+            source.setQuantity((short) (source.getQuantity() - quantity));
             c.getSession().write(MaplePacketCreator.dropInventoryItemUpdate(type, source));
             if (ii.isDropRestricted(target.getItemId()) || ii.isAccountShared(target.getItemId())) {
                 if (ItemFlag.KARMA_EQ.check(flag)) {
-                    target.setFlag((byte)(flag - ItemFlag.KARMA_EQ.getValue()));
+                    target.setFlag((byte) (flag - ItemFlag.KARMA_EQ.getValue()));
                     c.getPlayer().getMap().spawnItemDrop(c.getPlayer(), c.getPlayer(), target, dropPos, true, true);
-                }
-                else if (ItemFlag.KARMA_USE.check(flag)) {
-                    target.setFlag((byte)(flag - ItemFlag.KARMA_USE.getValue()));
+                } else if (ItemFlag.KARMA_USE.check(flag)) {
+                    target.setFlag((byte) (flag - ItemFlag.KARMA_USE.getValue()));
                     c.getPlayer().getMap().spawnItemDrop(c.getPlayer(), c.getPlayer(), target, dropPos, true, true);
-                }
-                else {
+                } else {
                     c.getPlayer().getMap().disappearingItemDrop(c.getPlayer(), c.getPlayer(), target, dropPos);
                 }
-            }
-            else if (GameConstants.isPet(source.getItemId()) || ItemFlag.UNTRADEABLE.check(flag)) {
+            } else if (GameConstants.isPet(source.getItemId()) || ItemFlag.UNTRADEABLE.check(flag)) {
                 c.getPlayer().getMap().disappearingItemDrop(c.getPlayer(), c.getPlayer(), target, dropPos);
-            }
-            else {
+            } else {
                 c.getPlayer().getMap().spawnItemDrop(c.getPlayer(), c.getPlayer(), target, dropPos, true, true);
             }
-        }
-        else {
+        } else {
             c.getPlayer().getInventory(type).removeSlot(src);
-            c.getSession().write(MaplePacketCreator.dropInventoryItem((src < 0) ? MapleInventoryType.EQUIP : type, src));
+            c.getSession()
+                    .write(MaplePacketCreator.dropInventoryItem((src < 0) ? MapleInventoryType.EQUIP : type, src));
             if (src < 0) {
                 c.getPlayer().equipChanged();
             }
             if (ii.isDropRestricted(source.getItemId()) || ii.isAccountShared(source.getItemId())) {
                 if (ItemFlag.KARMA_EQ.check(flag)) {
-                    source.setFlag((byte)(flag - ItemFlag.KARMA_EQ.getValue()));
+                    source.setFlag((byte) (flag - ItemFlag.KARMA_EQ.getValue()));
                     c.getPlayer().getMap().spawnItemDrop(c.getPlayer(), c.getPlayer(), source, dropPos, true, true);
-                }
-                else if (ItemFlag.KARMA_USE.check(flag)) {
-                    source.setFlag((byte)(flag - ItemFlag.KARMA_USE.getValue()));
+                } else if (ItemFlag.KARMA_USE.check(flag)) {
+                    source.setFlag((byte) (flag - ItemFlag.KARMA_USE.getValue()));
                     c.getPlayer().getMap().spawnItemDrop(c.getPlayer(), c.getPlayer(), source, dropPos, true, true);
-                }
-                else {
+                } else {
                     c.getPlayer().getMap().disappearingItemDrop(c.getPlayer(), c.getPlayer(), source, dropPos);
                 }
-            }
-            else if (GameConstants.isPet(source.getItemId()) || ItemFlag.UNTRADEABLE.check(flag)) {
+            } else if (GameConstants.isPet(source.getItemId()) || ItemFlag.UNTRADEABLE.check(flag)) {
                 c.getPlayer().getMap().disappearingItemDrop(c.getPlayer(), c.getPlayer(), source, dropPos);
-            }
-            else {
+            } else {
                 c.getPlayer().getMap().spawnItemDrop(c.getPlayer(), c.getPlayer(), source, dropPos, true, true);
             }
         }
         return true;
     }
-    
+
     public static void removeAllByEquipOnlyId(final MapleClient c, final int equipOnlyId) {
         if (c.getPlayer() == null) {
             return;
         }
         boolean locked = false;
         final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
-        final List<IItem> copyEquipItems = c.getPlayer().getInventory(MapleInventoryType.EQUIP).listByEquipOnlyId(equipOnlyId);
+        final List<IItem> copyEquipItems = c.getPlayer().getInventory(MapleInventoryType.EQUIP)
+                .listByEquipOnlyId(equipOnlyId);
         for (final IItem item : copyEquipItems) {
             if (item != null) {
                 if (!locked) {
                     short flag = item.getFlag();
-                    flag |= (short)ItemFlag.LOCK.getValue();
-                    flag |= (short)ItemFlag.UNTRADEABLE.getValue();
-                    item.setFlag((byte)flag);
+                    flag |= (short) ItemFlag.LOCK.getValue();
+                    flag |= (short) ItemFlag.UNTRADEABLE.getValue();
+                    item.setFlag((byte) flag);
                     item.setOwner("复制装备");
                     c.getPlayer().forceUpdateItem(item);
                     c.getPlayer().dropMessage(5, "在背包中发现复制装备[" + ii.getName(item.getItemId()) + "]已经将其锁定。");
-                    final String msgtext = "玩家 " + c.getPlayer().getName() + " ID: " + c.getPlayer().getId() + " (等级 " + c.getPlayer().getLevel() + ") 地图: " + c.getPlayer().getMapId() + " 在玩家背包中发现复制装备[" + ii.getName(item.getItemId()) + "]已经将其锁定。";
+                    final String msgtext = "玩家 " + c.getPlayer().getName() + " ID: " + c.getPlayer().getId() + " (等级 "
+                            + c.getPlayer().getLevel() + ") 地图: " + c.getPlayer().getMapId() + " 在玩家背包中发现复制装备["
+                            + ii.getName(item.getItemId()) + "]已经将其锁定。";
                     FileoutputUtil.log("logs/复制装备.txt", msgtext + " 道具唯一ID: " + item.getEquipOnlyId());
                     locked = true;
-                }
-                else {
+                } else {
                     removeFromSlot(c, MapleInventoryType.EQUIP, item.getPosition(), item.getQuantity(), true, false);
                     c.getPlayer().dropMessage(5, "在背包中发现复制装备[" + ii.getName(item.getItemId()) + "]已经将其删除。");
                 }
             }
         }
         locked = false;
-        final List<IItem> copyEquipedItems = c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).listByEquipOnlyId(equipOnlyId);
+        final List<IItem> copyEquipedItems = c.getPlayer().getInventory(MapleInventoryType.EQUIPPED)
+                .listByEquipOnlyId(equipOnlyId);
         for (final IItem item2 : copyEquipedItems) {
             if (item2 != null) {
                 if (!locked) {
                     short flag2 = item2.getFlag();
-                    flag2 |= (short)ItemFlag.LOCK.getValue();
-                    flag2 |= (short)ItemFlag.UNTRADEABLE.getValue();
-                    item2.setFlag((byte)flag2);
+                    flag2 |= (short) ItemFlag.LOCK.getValue();
+                    flag2 |= (short) ItemFlag.UNTRADEABLE.getValue();
+                    item2.setFlag((byte) flag2);
                     item2.setOwner("复制装备");
                     c.getPlayer().forceUpdateItem(item2);
                     c.getPlayer().dropMessage(5, "在穿戴中发现复制装备[" + ii.getName(item2.getItemId()) + "]已经将其锁定。");
-                    final String msgtext2 = "玩家 " + c.getPlayer().getName() + " ID: " + c.getPlayer().getId() + " (等级 " + c.getPlayer().getLevel() + ") 地图: " + c.getPlayer().getMapId() + " 在玩家穿戴中发现复制装备[" + ii.getName(item2.getItemId()) + "]已经将其锁定。";
+                    final String msgtext2 = "玩家 " + c.getPlayer().getName() + " ID: " + c.getPlayer().getId() + " (等级 "
+                            + c.getPlayer().getLevel() + ") 地图: " + c.getPlayer().getMapId() + " 在玩家穿戴中发现复制装备["
+                            + ii.getName(item2.getItemId()) + "]已经将其锁定。";
                     FileoutputUtil.log("logs/复制装备.txt", msgtext2 + " 道具唯一ID: " + item2.getEquipOnlyId());
                     locked = true;
-                }
-                else {
-                    removeFromSlot(c, MapleInventoryType.EQUIPPED, item2.getPosition(), item2.getQuantity(), true, false);
+                } else {
+                    removeFromSlot(c, MapleInventoryType.EQUIPPED, item2.getPosition(), item2.getQuantity(), true,
+                            false);
                     c.getPlayer().dropMessage(5, "在穿戴中发现复制装备[" + ii.getName(item2.getItemId()) + "]已经将其删除。");
                     c.getPlayer().equipChanged();
                 }
             }
         }
         locked = false;
-        final List<IItem> copyUseItems = c.getPlayer().getInventory(MapleInventoryType.USE).listByEquipOnlyId(equipOnlyId);
+        final List<IItem> copyUseItems = c.getPlayer().getInventory(MapleInventoryType.USE)
+                .listByEquipOnlyId(equipOnlyId);
         for (final IItem item3 : copyUseItems) {
             if (item3 != null) {
                 if (!locked) {
                     short flag3 = item3.getFlag();
-                    flag3 |= (short)ItemFlag.LOCK.getValue();
-                    flag3 |= (short)ItemFlag.UNTRADEABLE.getValue();
-                    item3.setFlag((byte)flag3);
+                    flag3 |= (short) ItemFlag.LOCK.getValue();
+                    flag3 |= (short) ItemFlag.UNTRADEABLE.getValue();
+                    item3.setFlag((byte) flag3);
                     item3.setOwner("复制道具");
                     c.getPlayer().forceUpdateItem(item3);
                     c.getPlayer().dropMessage(5, "在消耗中发现复制道具[" + ii.getName(item3.getItemId()) + "]已经将其锁定。");
-                    final String msgtext3 = "玩家 " + c.getPlayer().getName() + " ID: " + c.getPlayer().getId() + " (等级 " + c.getPlayer().getLevel() + ") 地图: " + c.getPlayer().getMapId() + " 在玩家消耗中发现复制道具[" + ii.getName(item3.getItemId()) + "]已经将其锁定。";
+                    final String msgtext3 = "玩家 " + c.getPlayer().getName() + " ID: " + c.getPlayer().getId() + " (等级 "
+                            + c.getPlayer().getLevel() + ") 地图: " + c.getPlayer().getMapId() + " 在玩家消耗中发现复制道具["
+                            + ii.getName(item3.getItemId()) + "]已经将其锁定。";
                     FileoutputUtil.log("logs/复制装备.txt", msgtext3 + " 道具唯一ID: " + item3.getEquipOnlyId());
                     locked = true;
-                }
-                else {
+                } else {
                     removeFromSlot(c, MapleInventoryType.USE, item3.getPosition(), item3.getQuantity(), true, false);
                     c.getPlayer().dropMessage(5, "在消耗中发现复制道具[" + ii.getName(item3.getItemId()) + "]已经将其删除。");
                     c.getPlayer().equipChanged();
@@ -1208,22 +1246,24 @@ public class MapleInventoryManipulator
             }
         }
         locked = false;
-        final List<IItem> copyEtcItems = c.getPlayer().getInventory(MapleInventoryType.ETC).listByEquipOnlyId(equipOnlyId);
+        final List<IItem> copyEtcItems = c.getPlayer().getInventory(MapleInventoryType.ETC)
+                .listByEquipOnlyId(equipOnlyId);
         for (final IItem item4 : copyEtcItems) {
             if (item4 != null) {
                 if (!locked) {
                     short flag4 = item4.getFlag();
-                    flag4 |= (short)ItemFlag.LOCK.getValue();
-                    flag4 |= (short)ItemFlag.UNTRADEABLE.getValue();
-                    item4.setFlag((byte)flag4);
+                    flag4 |= (short) ItemFlag.LOCK.getValue();
+                    flag4 |= (short) ItemFlag.UNTRADEABLE.getValue();
+                    item4.setFlag((byte) flag4);
                     item4.setOwner("复制道具");
                     c.getPlayer().forceUpdateItem(item4);
                     c.getPlayer().dropMessage(5, "在其他中发现复制道具[" + ii.getName(item4.getItemId()) + "]已经将其锁定。");
-                    final String msgtext4 = "玩家 " + c.getPlayer().getName() + " ID: " + c.getPlayer().getId() + " (等级 " + c.getPlayer().getLevel() + ") 地图: " + c.getPlayer().getMapId() + " 在玩家其他中发现复制道具[" + ii.getName(item4.getItemId()) + "]已经将其锁定。";
+                    final String msgtext4 = "玩家 " + c.getPlayer().getName() + " ID: " + c.getPlayer().getId() + " (等级 "
+                            + c.getPlayer().getLevel() + ") 地图: " + c.getPlayer().getMapId() + " 在玩家其他中发现复制道具["
+                            + ii.getName(item4.getItemId()) + "]已经将其锁定。";
                     FileoutputUtil.log("logs/复制装备.txt", msgtext4 + " 道具唯一ID: " + item4.getEquipOnlyId());
                     locked = true;
-                }
-                else {
+                } else {
                     removeFromSlot(c, MapleInventoryType.ETC, item4.getPosition(), item4.getQuantity(), true, false);
                     c.getPlayer().dropMessage(5, "在其他中发现复制道具[" + ii.getName(item4.getItemId()) + "]已经将其删除。");
                     c.getPlayer().equipChanged();
@@ -1231,22 +1271,24 @@ public class MapleInventoryManipulator
             }
         }
         locked = false;
-        final List<IItem> copyCashItems = c.getPlayer().getInventory(MapleInventoryType.CASH).listByEquipOnlyId(equipOnlyId);
+        final List<IItem> copyCashItems = c.getPlayer().getInventory(MapleInventoryType.CASH)
+                .listByEquipOnlyId(equipOnlyId);
         for (final IItem item5 : copyCashItems) {
             if (item5 != null) {
                 if (!locked) {
                     short flag5 = item5.getFlag();
-                    flag5 |= (short)ItemFlag.LOCK.getValue();
-                    flag5 |= (short)ItemFlag.UNTRADEABLE.getValue();
-                    item5.setFlag((byte)flag5);
+                    flag5 |= (short) ItemFlag.LOCK.getValue();
+                    flag5 |= (short) ItemFlag.UNTRADEABLE.getValue();
+                    item5.setFlag((byte) flag5);
                     item5.setOwner("复制道具");
                     c.getPlayer().forceUpdateItem(item5);
                     c.getPlayer().dropMessage(5, "在现金道具中发现复制道具[" + ii.getName(item5.getItemId()) + "]已经将其锁定。");
-                    final String msgtext5 = "玩家 " + c.getPlayer().getName() + " ID: " + c.getPlayer().getId() + " (等级 " + c.getPlayer().getLevel() + ") 地图: " + c.getPlayer().getMapId() + " 在玩家现金道具中发现复制道具[" + ii.getName(item5.getItemId()) + "]已经将其锁定。";
+                    final String msgtext5 = "玩家 " + c.getPlayer().getName() + " ID: " + c.getPlayer().getId() + " (等级 "
+                            + c.getPlayer().getLevel() + ") 地图: " + c.getPlayer().getMapId() + " 在玩家现金道具中发现复制道具["
+                            + ii.getName(item5.getItemId()) + "]已经将其锁定。";
                     FileoutputUtil.log("logs/复制装备.txt", msgtext5 + " 道具唯一ID: " + item5.getEquipOnlyId());
                     locked = true;
-                }
-                else {
+                } else {
                     removeFromSlot(c, MapleInventoryType.CASH, item5.getPosition(), item5.getQuantity(), true, false);
                     c.getPlayer().dropMessage(5, "在现金道具中发现复制道具[" + ii.getName(item5.getItemId()) + "]已经将其删除。");
                     c.getPlayer().equipChanged();

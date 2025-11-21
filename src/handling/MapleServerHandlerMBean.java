@@ -1,6 +1,5 @@
 package handling;
 
-public interface MapleServerHandlerMBean
-{
+public interface MapleServerHandlerMBean {
     void writeLog();
 }

@@ -3,6 +3,6 @@
 	Map(s): 		Pantheon (400000000)
 */
 function start() {
-	cm.sendStorage();
-	cm.dispose();
+  cm.sendStorage();
+  cm.dispose();
 }

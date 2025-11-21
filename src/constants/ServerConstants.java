@@ -1,8 +1,8 @@
 package constants;
 
 import server.ServerProperties;
-public class ServerConstants
-{
+
+public class ServerConstants {
     public static boolean PollEnabled;
     public static String Poll_Question;
     public static String[] Poll_Answers;
@@ -17,8 +17,11 @@ public class ServerConstants
     public static int CHANNEL_COUNT;
     public static boolean 封包显示;
     public static boolean 调试输出封包;
+    public static boolean EnablePacketLog;
     public static boolean 自动注册;
     public static boolean PACKET_ERROR_OFF;
+    public static boolean EnablePlayerPacketLog;
+    public static double GOLD_EQUIP_FACTOR;
     public static boolean Super_password;
     public static boolean clientAutoDisconnect;
     public static String superpw;
@@ -26,40 +29,40 @@ public class ServerConstants
     public static int Channel;
     public static int removePlayerFromMap;
     public static boolean loadop;
-    
+
     public void setPACKET_ERROR(final String ERROR) {
         ServerConstants.PACKET_ERROR = ERROR;
     }
-    
+
     public String getPACKET_ERROR() {
         return ServerConstants.PACKET_ERROR;
     }
-    
+
     public void setChannel(final int ERROR) {
         ServerConstants.Channel = ERROR;
     }
-    
+
     public int getChannel() {
         return ServerConstants.Channel;
     }
-    
+
     public void setRemovePlayerFromMap(final int ERROR) {
         ServerConstants.removePlayerFromMap = ERROR;
     }
-    
+
     public int getRemovePlayerFromMap() {
         return ServerConstants.removePlayerFromMap;
     }
-    
+
     public static boolean getAutoReg() {
         return ServerConstants.自动注册;
     }
-    
+
     public static String ChangeAutoReg() {
         ServerConstants.自动注册 = !getAutoReg();
         return ServerConstants.自动注册 ? "开启" : "关闭";
     }
-    
+
     public static byte Class_Bonus_EXP(final int job) {
         switch (job) {
             case 3000:
@@ -82,7 +85,7 @@ public class ServerConstants
             }
         }
     }
-    
+
     static {
         ServerConstants.PollEnabled = false;
         ServerConstants.Poll_Question = "Are you mudkiz?";
@@ -98,8 +101,14 @@ public class ServerConstants
         ServerConstants.CHANNEL_COUNT = 200;
         ServerConstants.封包显示 = Boolean.parseBoolean(ServerProperties.getProperty("RoyMS.封包显示", "false"));
         ServerConstants.调试输出封包 = Boolean.parseBoolean(ServerProperties.getProperty("RoyMS.调试输出封包", "false"));
+        ServerConstants.EnablePacketLog = Boolean
+                .parseBoolean(ServerProperties.getProperty("RoyMS.EnablePacketLog", "true"));
         ServerConstants.自动注册 = Boolean.parseBoolean(ServerProperties.getProperty("RoyMS.AutoRegister", "false"));
         ServerConstants.PACKET_ERROR_OFF = Boolean.parseBoolean(ServerProperties.getProperty("RoyMS.记录38错误", "false"));
+        ServerConstants.EnablePlayerPacketLog = Boolean
+                .parseBoolean(ServerProperties.getProperty("RoyMS.EnablePlayerPacketLog", "false"));
+        ServerConstants.GOLD_EQUIP_FACTOR = Double
+                .parseDouble(ServerProperties.getProperty("RoyMS.GoldEquipFactor", "0.5"));
         ServerConstants.Super_password = false;
         ServerConstants.clientAutoDisconnect = true;
         ServerConstants.superpw = "";
@@ -108,67 +117,64 @@ public class ServerConstants
         ServerConstants.removePlayerFromMap = 0;
         ServerConstants.loadop = true;
     }
-    
-    public enum PlayerGMRank
-    {
-        NORMAL('@', 0), 
-        INTERN('!', 1), 
-        GM('!', 2), 
+
+    public enum PlayerGMRank {
+        NORMAL('@', 0),
+        INTERN('!', 1),
+        GM('!', 2),
         ADMIN('!', 3);
-        
+
         private final char commandPrefix;
         private final int level;
-        
+
         private PlayerGMRank(final char ch, final int level) {
             this.commandPrefix = ch;
             this.level = level;
         }
-        
+
         public char getCommandPrefix() {
             return this.commandPrefix;
         }
-        
+
         public int getLevel() {
             return this.level;
         }
     }
-    
-    public enum CommandType
-    {
-        NORMAL(0), 
+
+    public enum CommandType {
+        NORMAL(0),
         TRADE(1);
-        
+
         private final int level;
-        
+
         private CommandType(final int level) {
             this.level = level;
         }
-        
+
         public int getType() {
             return this.level;
         }
     }
-    
-    public enum MapleType
-    {
+
+    public enum MapleType {
         中国(4, "GB18030");
-        
+
         final byte type;
         final String ascii;
-        
+
         private MapleType(final int type, final String ascii) {
-            this.type = (byte)type;
+            this.type = (byte) type;
             this.ascii = ascii;
         }
-        
+
         public String getAscii() {
             return this.ascii;
         }
-        
+
         public byte getType() {
             return this.type;
         }
-        
+
         public static MapleType getByType(final byte type) {
             for (final MapleType l : values()) {
                 if (l.getType() == type) {

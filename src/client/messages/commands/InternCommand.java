@@ -8,39 +8,33 @@ import tools.*;
 import client.*;
 import server.maps.*;
 
-public class InternCommand
-{
+public class InternCommand {
     public static ServerConstants.PlayerGMRank getPlayerLevelRequired() {
         return ServerConstants.PlayerGMRank.INTERN;
     }
-    
-    public static class 跟踪 extends Warp
-    {
+
+    public static class 跟踪 extends Warp {
     }
-    
-    public static class 封号 extends Ban
-    {
+
+    public static class 封号 extends Ban {
     }
-    
-    public static class 隐身 extends Hide
-    {
+
+    public static class 隐身 extends Hide {
     }
-    
-    public static class 解除隐身 extends UnHide
-    {
+
+    public static class 解除隐身 extends UnHide {
     }
-    
-    public static class 在线人数 extends online
-    {
+
+    public static class 在线人数 extends online {
     }
-    
-    public static class online extends CommandExecute
-    {
+
+    public static class online extends CommandExecute {
         @Override
         public int execute(final MapleClient c, final String[] splitted) {
             int total = 0;
             final int curConnected = c.getChannelServer().getConnectedClients();
-            c.getPlayer().dropMessage(6, "-------------------------------------------------------------------------------------");
+            c.getPlayer().dropMessage(6,
+                    "-------------------------------------------------------------------------------------");
             c.getPlayer().dropMessage(6, "頻道: " + c.getChannelServer().getChannel() + " 线上人数: " + curConnected);
             total += curConnected;
             for (final MapleCharacter chr : c.getChannelServer().getPlayerStorage().getAllCharacters()) {
@@ -64,30 +58,31 @@ public class InternCommand
                 }
             }
             c.getPlayer().dropMessage(6, "当前频道总计在线人数: " + total);
-            c.getPlayer().dropMessage(6, "-------------------------------------------------------------------------------------");
+            c.getPlayer().dropMessage(6,
+                    "-------------------------------------------------------------------------------------");
             final int channelOnline = c.getChannelServer().getConnectedClients();
             int totalOnline = 0;
             for (final ChannelServer cserv : ChannelServer.getAllInstances()) {
                 totalOnline += cserv.getConnectedClients();
             }
             c.getPlayer().dropMessage(6, "当前服务器总计在线人数: " + totalOnline + "个");
-            c.getPlayer().dropMessage(6, "-------------------------------------------------------------------------------------");
+            c.getPlayer().dropMessage(6,
+                    "-------------------------------------------------------------------------------------");
             return 1;
         }
     }
-    
-    public static class Ban extends CommandExecute
-    {
+
+    public static class Ban extends CommandExecute {
         protected boolean hellban;
-        
+
         public Ban() {
             this.hellban = false;
         }
-        
+
         private String getCommand() {
             return "Ban";
         }
-        
+
         @Override
         public int execute(final MapleClient c, final String[] splitted) {
             if (splitted.length < 3) {
@@ -97,16 +92,17 @@ public class InternCommand
             final int ch = World.Find.findChannel(splitted[1]);
             final StringBuilder sb = new StringBuilder(c.getPlayer().getName());
             sb.append(" banned ").append(splitted[1]).append(": ").append(StringUtil.joinStringFrom(splitted, 2));
-            final MapleCharacter target = ChannelServer.getInstance(ch).getPlayerStorage().getCharacterByName(splitted[1]);
+            final MapleCharacter target = ChannelServer.getInstance(ch).getPlayerStorage()
+                    .getCharacterByName(splitted[1]);
             if (target == null || ch < 1) {
-                if (MapleCharacter.ban(splitted[1], sb.toString(), false, c.getPlayer().isAdmin() ? 250 : c.getPlayer().getGMLevel(), splitted[0].equals("!hellban"))) {
+                if (MapleCharacter.ban(splitted[1], sb.toString(), false,
+                        c.getPlayer().isAdmin() ? 250 : c.getPlayer().getGMLevel(), splitted[0].equals("!hellban"))) {
                     c.getPlayer().dropMessage(6, "[" + this.getCommand() + "] 成功离线封锁 " + splitted[1] + ".");
                     return 1;
                 }
                 c.getPlayer().dropMessage(6, "[" + this.getCommand() + "] 封锁失败 " + splitted[1]);
                 return 0;
-            }
-            else {
+            } else {
                 if (c.getPlayer().getGMLevel() <= target.getGMLevel()) {
                     c.getPlayer().dropMessage(6, "[" + this.getCommand() + "] 不能封锁GM...");
                     return 1;
@@ -115,7 +111,8 @@ public class InternCommand
                 if (target.ban(sb.toString(), c.getPlayer().isAdmin(), false, this.hellban)) {
                     c.getPlayer().dropMessage(6, "[" + this.getCommand() + "] 成功封锁 " + splitted[1] + ".");
                     FileoutputUtil.logToFile_chr(c.getPlayer(), FileoutputUtil.ban_log, sb.toString());
-                    World.Broadcast.broadcastMessage(MaplePacketCreator.serverNotice(6, "[封号系统]" + target.getName() + " 因为使用非法软件而被永久封号。").getBytes());
+                    World.Broadcast.broadcastMessage(MaplePacketCreator
+                            .serverNotice(6, "[封号系统]" + target.getName() + " 因为使用非法软件而被永久封号。").getBytes());
                     return 1;
                 }
                 c.getPlayer().dropMessage(6, "[" + this.getCommand() + "] 封锁失败.");
@@ -123,9 +120,8 @@ public class InternCommand
             }
         }
     }
-    
-    public static class online1 extends CommandExecute
-    {
+
+    public static class online1 extends CommandExecute {
         @Override
         public int execute(final MapleClient c, final String[] splitted) {
             c.getPlayer().dropMessage(6, "上线的角色 頻道-" + c.getChannel() + ":");
@@ -133,18 +129,21 @@ public class InternCommand
             return 1;
         }
     }
-    
-    public static class CnGM extends CommandExecute
-    {
+
+    public static class CnGM extends CommandExecute {
         @Override
         public int execute(final MapleClient c, final String[] splitted) {
-            World.Broadcast.broadcastGMMessage(MaplePacketCreator.serverNotice(5, "<GM聊天视窗>頻道" + c.getPlayer().getClient().getChannel() + " [" + c.getPlayer().getName() + "] : " + StringUtil.joinStringFrom(splitted, 1)).getBytes());
+            World.Broadcast
+                    .broadcastGMMessage(MaplePacketCreator
+                            .serverNotice(5,
+                                    "<GM聊天视窗>頻道" + c.getPlayer().getClient().getChannel() + " ["
+                                            + c.getPlayer().getName() + "] : " + StringUtil.joinStringFrom(splitted, 1))
+                            .getBytes());
             return 1;
         }
     }
-    
-    public static class Hide extends CommandExecute
-    {
+
+    public static class Hide extends CommandExecute {
         @Override
         public int execute(final MapleClient c, final String[] splitted) {
             SkillFactory.getSkill(9001004).getEffect(1).applyTo(c.getPlayer());
@@ -152,9 +151,8 @@ public class InternCommand
             return 0;
         }
     }
-    
-    public static class UnHide extends CommandExecute
-    {
+
+    public static class UnHide extends CommandExecute {
         @Override
         public int execute(final MapleClient c, final String[] splitted) {
             c.getPlayer().dispelBuff(9001004);
@@ -162,30 +160,29 @@ public class InternCommand
             return 1;
         }
     }
-    
-    public static class Warp extends CommandExecute
-    {
+
+    public static class Warp extends CommandExecute {
         @Override
         public int execute(final MapleClient c, final String[] splitted) {
             MapleCharacter victim = c.getChannelServer().getPlayerStorage().getCharacterByName(splitted[1]);
             if (victim != null) {
                 if (splitted.length == 2) {
-                    c.getPlayer().changeMap(victim.getMap(), victim.getMap().findClosestSpawnpoint(victim.getPosition()));
-                }
-                else {
-                    final MapleMap target = ChannelServer.getInstance(c.getChannel()).getMapFactory().getMap(Integer.parseInt(splitted[2]));
+                    c.getPlayer().changeMap(victim.getMap(),
+                            victim.getMap().findClosestSpawnpoint(victim.getPosition()));
+                } else {
+                    final MapleMap target = ChannelServer.getInstance(c.getChannel()).getMapFactory()
+                            .getMap(Integer.parseInt(splitted[2]));
                     victim.changeMap(target, target.getPortal(0));
                 }
-            }
-            else {
+            } else {
                 try {
                     victim = c.getPlayer();
                     final int ch = World.Find.findChannel(splitted[1]);
                     if (ch < 0) {
-                        final MapleMap target2 = c.getChannelServer().getMapFactory().getMap(Integer.parseInt(splitted[1]));
+                        final MapleMap target2 = c.getChannelServer().getMapFactory()
+                                .getMap(Integer.parseInt(splitted[1]));
                         c.getPlayer().changeMap(target2, target2.getPortal(0));
-                    }
-                    else {
+                    } else {
                         victim = ChannelServer.getInstance(ch).getPlayerStorage().getCharacterByName(splitted[1]);
                         c.getPlayer().dropMessage(6, "正在换频道,请等待.");
                         if (victim.getMapId() != c.getPlayer().getMapId()) {
@@ -194,8 +191,7 @@ public class InternCommand
                         }
                         c.getPlayer().changeChannel(ch);
                     }
-                }
-                catch (NumberFormatException e) {
+                } catch (NumberFormatException e) {
                     c.getPlayer().dropMessage(6, "该玩家不在线 " + e.getMessage());
                     return 0;
                 }

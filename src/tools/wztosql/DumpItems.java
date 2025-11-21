@@ -21,8 +21,7 @@ import provider.MapleDataProviderFactory;
 import provider.MapleDataTool;
 import tools.Pair;
 
-public class DumpItems
-{
+public class DumpItems {
     private final MapleDataProvider item;
     private final MapleDataProvider string;
     private final MapleDataProvider character;
@@ -39,7 +38,7 @@ public class DumpItems
     private final Connection con;
     private final List<String> subCon;
     private final List<String> subMain;
-    
+
     public DumpItems(final boolean update) throws Exception {
         this.string = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzPath") + "/String.wz"));
         this.cashStringData = this.string.getData("Cash.img");
@@ -57,30 +56,33 @@ public class DumpItems
         this.subMain = new LinkedList<String>();
         this.update = update;
         this.item = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzPath") + "/Item.wz"));
-        this.character = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzPath") + "/Character.wz"));
+        this.character = MapleDataProviderFactory
+                .getDataProvider(new File(System.getProperty("wzPath") + "/Character.wz"));
         if (this.item == null || this.string == null || this.character == null) {
             this.hadError = true;
         }
     }
-    
+
     public boolean isHadError() {
         return this.hadError;
     }
-    
+
     public void dumpItems() throws Exception {
         if (!this.hadError) {
-            final PreparedStatement psa = this.con.prepareStatement("INSERT INTO wz_itemadddata(itemid, `key`, `subKey`, `value`) VALUES (?, ?, ?, ?)");
-            final PreparedStatement psr = this.con.prepareStatement("INSERT INTO wz_itemrewarddata(itemid, item, prob, quantity, period, worldMsg, effect) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            final PreparedStatement ps = this.con.prepareStatement("INSERT INTO wz_itemdata(itemid, name, msg, `desc`, slotMax, price, wholePrice, stateChange, flags, karma, meso, monsterBook, itemMakeLevel, questId, scrollReqs, consumeItem, totalprob, incSkill, replaceId, replaceMsg, `create`, afterImage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            final PreparedStatement pse = this.con.prepareStatement("INSERT INTO wz_itemequipdata(itemid, itemLevel, `key`, `value`) VALUES (?, ?, ?, ?)");
+            final PreparedStatement psa = this.con.prepareStatement(
+                    "INSERT INTO wz_itemadddata(itemid, `key`, `subKey`, `value`) VALUES (?, ?, ?, ?)");
+            final PreparedStatement psr = this.con.prepareStatement(
+                    "INSERT INTO wz_itemrewarddata(itemid, item, prob, quantity, period, worldMsg, effect) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            final PreparedStatement ps = this.con.prepareStatement(
+                    "INSERT INTO wz_itemdata(itemid, name, msg, `desc`, slotMax, price, wholePrice, stateChange, flags, karma, meso, monsterBook, itemMakeLevel, questId, scrollReqs, consumeItem, totalprob, incSkill, replaceId, replaceMsg, `create`, afterImage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            final PreparedStatement pse = this.con.prepareStatement(
+                    "INSERT INTO wz_itemequipdata(itemid, itemLevel, `key`, `value`) VALUES (?, ?, ?, ?)");
             try {
                 this.dumpItems(psa, psr, ps, pse);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 System.out.println(this.id + " quest.");
                 this.hadError = true;
-            }
-            finally {
+            } finally {
                 psr.executeBatch();
                 psr.close();
                 psa.executeBatch();
@@ -92,31 +94,32 @@ public class DumpItems
             }
         }
     }
-    
+
     public void delete(final String sql) throws Exception {
         try (final PreparedStatement ps = this.con.prepareStatement(sql)) {
             ps.executeUpdate();
         }
     }
-    
+
     public boolean doesExist(final String sql) throws Exception {
         boolean ret;
         try (final PreparedStatement ps = this.con.prepareStatement(sql);
-             final ResultSet rs = ps.executeQuery()) {
+                final ResultSet rs = ps.executeQuery()) {
             ret = rs.next();
         }
         return ret;
     }
-    
-    public void dumpItems(final MapleDataProvider d, final PreparedStatement psa, final PreparedStatement psr, final PreparedStatement ps, final PreparedStatement pse, final boolean charz) throws Exception {
+
+    public void dumpItems(final MapleDataProvider d, final PreparedStatement psa, final PreparedStatement psr,
+            final PreparedStatement ps, final PreparedStatement pse, final boolean charz) throws Exception {
         for (final MapleDataDirectoryEntry topDir : d.getRoot().getSubdirectories()) {
-            if (!topDir.getName().equalsIgnoreCase("Special") && !topDir.getName().equalsIgnoreCase("Hair") && !topDir.getName().equalsIgnoreCase("Face") && !topDir.getName().equalsIgnoreCase("Afterimage")) {
+            if (!topDir.getName().equalsIgnoreCase("Special") && !topDir.getName().equalsIgnoreCase("Hair")
+                    && !topDir.getName().equalsIgnoreCase("Face") && !topDir.getName().equalsIgnoreCase("Afterimage")) {
                 for (final MapleDataFileEntry ifile : topDir.getFiles()) {
                     final MapleData iz = d.getData(topDir.getName() + "/" + ifile.getName());
                     if (charz || topDir.getName().equalsIgnoreCase("Pet")) {
                         this.dumpItem(psa, psr, ps, pse, iz);
-                    }
-                    else {
+                    } else {
                         for (final MapleData itemData : iz) {
                             this.dumpItem(psa, psr, ps, pse, itemData);
                         }
@@ -125,17 +128,16 @@ public class DumpItems
             }
         }
     }
-    
-    public void dumpItem(final PreparedStatement psa, final PreparedStatement psr, final PreparedStatement ps, final PreparedStatement pse, final MapleData iz) throws Exception {
+
+    public void dumpItem(final PreparedStatement psa, final PreparedStatement psr, final PreparedStatement ps,
+            final PreparedStatement pse, final MapleData iz) throws Exception {
         try {
             if (iz.getName().endsWith(".img")) {
                 this.id = Integer.parseInt(iz.getName().substring(0, iz.getName().length() - 4));
-            }
-            else {
+            } else {
                 this.id = Integer.parseInt(iz.getName());
             }
-        }
-        catch (NumberFormatException nfe) {
+        } catch (NumberFormatException nfe) {
             return;
         }
         if (this.doneIds.contains(this.id) || GameConstants.getInventoryType(this.id) == MapleInventoryType.UNDEFINED) {
@@ -151,8 +153,7 @@ public class DumpItems
             ps.setString(2, "");
             ps.setString(3, "");
             ps.setString(4, "");
-        }
-        else {
+        } else {
             ps.setString(2, MapleDataTool.getString("name", stringData, ""));
             ps.setString(3, MapleDataTool.getString("msg", stringData, ""));
             ps.setString(4, MapleDataTool.getString("desc", stringData, ""));
@@ -162,13 +163,11 @@ public class DumpItems
         if (smEntry == null) {
             if (GameConstants.getInventoryType(this.id) == MapleInventoryType.EQUIP) {
                 ret = 1;
-            }
-            else {
+            } else {
                 ret = 100;
             }
-        }
-        else {
-            ret = (short)MapleDataTool.getIntConvert(smEntry);
+        } else {
+            ret = (short) MapleDataTool.getIntConvert(smEntry);
         }
         ps.setInt(5, ret);
         MapleData pData = iz.getChildByPath("info/unitPrice");
@@ -176,17 +175,14 @@ public class DumpItems
         if (pData != null) {
             try {
                 pEntry = MapleDataTool.getDouble(pData);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 pEntry = MapleDataTool.getIntConvert(pData);
             }
-        }
-        else {
+        } else {
             pData = iz.getChildByPath("info/price");
             if (pData == null) {
                 pEntry = -1.0;
-            }
-            else {
+            } else {
                 pEntry = MapleDataTool.getIntConvert(pData);
             }
         }
@@ -221,7 +217,8 @@ public class DumpItems
         if (MapleDataTool.getIntConvert("info/accountShareTag", iz, 0) > 0) {
             flags |= 0x800;
         }
-        if (MapleDataTool.getIntConvert("info/mobHP", iz, 0) > 0 && MapleDataTool.getIntConvert("info/mobHP", iz, 0) < 100) {
+        if (MapleDataTool.getIntConvert("info/mobHP", iz, 0) > 0
+                && MapleDataTool.getIntConvert("info/mobHP", iz, 0) < 100) {
             flags |= 0x1000;
         }
         ps.setInt(9, flags);
@@ -259,7 +256,8 @@ public class DumpItems
         dat = iz.getChildByPath("mob");
         if (dat != null) {
             for (final MapleData child : dat) {
-                equipStats.get(-1).put("mob" + MapleDataTool.getIntConvert("id", child, 0), MapleDataTool.getIntConvert("prob", child, 0));
+                equipStats.get(-1).put("mob" + MapleDataTool.getIntConvert("id", child, 0),
+                        MapleDataTool.getIntConvert("prob", child, 0));
             }
         }
         dat = iz.getChildByPath("info/level/case");
@@ -316,14 +314,12 @@ public class DumpItems
                     if (dat.getChildByPath("level") != null) {
                         rett.put(stat, 1);
                     }
-                }
-                else if (d != null) {
+                } else if (d != null) {
                     if (stat.equals("skill")) {
                         for (int i = 0; i < d.getChildren().size(); ++i) {
                             rett.put("skillid" + i, MapleDataTool.getIntConvert(Integer.toString(i), d, 0));
                         }
-                    }
-                    else {
+                    } else {
                         final int dd = MapleDataTool.getIntConvert(d);
                         if (dd != 0) {
                             rett.put(stat, dd);
@@ -331,8 +327,7 @@ public class DumpItems
                     }
                 }
             }
-        }
-        else {
+        } else {
             ps.setString(22, "");
         }
         pse.setInt(1, this.id);
@@ -373,11 +368,11 @@ public class DumpItems
                                                     sbbb.append(",");
                                                 }
                                                 sbbb.deleteCharAt(sbbb.length() - 1);
-                                            }
-                                            else {
+                                            } else {
                                                 sbbb.append(conK.getData().toString());
                                             }
-                                            psa.setString(2, d2.getName().equals("elemBoost") ? "elemboost" : d2.getName());
+                                            psa.setString(2,
+                                                    d2.getName().equals("elemBoost") ? "elemboost" : d2.getName());
                                             psa.setString(3, "con:job");
                                             psa.setString(4, sbbb.toString());
                                             psa.addBatch();
@@ -387,7 +382,8 @@ public class DumpItems
                                             continue;
                                         }
                                         default: {
-                                            psa.setString(2, d2.getName().equals("elemBoost") ? "elemboost" : d2.getName());
+                                            psa.setString(2,
+                                                    d2.getName().equals("elemBoost") ? "elemboost" : d2.getName());
                                             psa.setString(3, "con:" + conK.getName());
                                             psa.setString(4, conK.getData().toString());
                                             psa.addBatch();
@@ -395,8 +391,7 @@ public class DumpItems
                                         }
                                     }
                                 }
-                            }
-                            else {
+                            } else {
                                 psa.setString(2, d2.getName().equals("elemBoost") ? "elemboost" : d2.getName());
                                 psa.setString(3, subKey.getName());
                                 psa.setString(4, subKey.getData().toString());
@@ -432,16 +427,16 @@ public class DumpItems
         if (dat != null) {
             ps.setInt(19, MapleDataTool.getInt("itemid", dat, 0));
             ps.setString(20, MapleDataTool.getString("msg", dat, ""));
-        }
-        else {
+        } else {
             ps.setInt(19, 0);
             ps.setString(20, "");
         }
         ps.setInt(21, MapleDataTool.getInt("info/create", iz, 0));
         ps.addBatch();
     }
-    
-    public void dumpItems(final PreparedStatement psa, final PreparedStatement psr, final PreparedStatement ps, final PreparedStatement pse) throws Exception {
+
+    public void dumpItems(final PreparedStatement psa, final PreparedStatement psr, final PreparedStatement ps,
+            final PreparedStatement pse) throws Exception {
         if (!this.update) {
             this.delete("DELETE FROM wz_itemdata");
             this.delete("DELETE FROM wz_itemequipdata");
@@ -460,11 +455,11 @@ public class DumpItems
             System.out.println(this.subCon.toString());
         }
     }
-    
+
     public int currentId() {
         return this.id;
     }
-    
+
     public static void main(final String[] args) {
         boolean hadError = false;
         boolean update = false;
@@ -481,119 +476,95 @@ public class DumpItems
             dq.dumpItems();
             hadError |= dq.isHadError();
             currentQuest = dq.currentId();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             hadError = true;
             System.out.println(currentQuest + " quest.");
         }
         final long endTime = System.currentTimeMillis();
         final double elapsedSeconds = (endTime - startTime) / 1000.0;
-        final int elapsedSecs = (int)elapsedSeconds % 60;
-        final int elapsedMinutes = (int)(elapsedSeconds / 60.0);
+        final int elapsedSecs = (int) elapsedSeconds % 60;
+        final int elapsedMinutes = (int) (elapsedSeconds / 60.0);
         String withErrors = "";
         if (hadError) {
             withErrors = " with errors";
         }
         System.out.println("Finished" + withErrors + " in " + elapsedMinutes + " minutes " + elapsedSecs + " seconds");
     }
-    
+
     protected final MapleData getStringData(final int itemId) {
         String cat = null;
         MapleData data;
         if (itemId >= 5010000) {
             data = this.cashStringData;
-        }
-        else if (itemId >= 2000000 && itemId < 3000000) {
+        } else if (itemId >= 2000000 && itemId < 3000000) {
             data = this.consumeStringData;
-        }
-        else if ((itemId >= 1132000 && itemId < 1183000) || (itemId >= 1010000 && itemId < 1040000) || (itemId >= 1122000 && itemId < 1123000)) {
+        } else if ((itemId >= 1132000 && itemId < 1183000) || (itemId >= 1010000 && itemId < 1040000)
+                || (itemId >= 1122000 && itemId < 1123000)) {
             data = this.eqpStringData;
             cat = "Eqp/Accessory";
-        }
-        else if (itemId >= 1172000 && itemId < 1180000) {
+        } else if (itemId >= 1172000 && itemId < 1180000) {
             data = this.eqpStringData;
             cat = "Eqp/MonsterBook";
-        }
-        else if (itemId >= 1662000 && itemId < 1680000) {
+        } else if (itemId >= 1662000 && itemId < 1680000) {
             data = this.eqpStringData;
             cat = "Eqp/Android";
-        }
-        else if (itemId >= 1000000 && itemId < 1010000) {
+        } else if (itemId >= 1000000 && itemId < 1010000) {
             data = this.eqpStringData;
             cat = "Eqp/Cap";
-        }
-        else if (itemId >= 1102000 && itemId < 1103000) {
+        } else if (itemId >= 1102000 && itemId < 1103000) {
             data = this.eqpStringData;
             cat = "Eqp/Cape";
-        }
-        else if (itemId >= 1040000 && itemId < 1050000) {
+        } else if (itemId >= 1040000 && itemId < 1050000) {
             data = this.eqpStringData;
             cat = "Eqp/Coat";
-        }
-        else if (itemId >= 20000 && itemId < 22000) {
+        } else if (itemId >= 20000 && itemId < 22000) {
             data = this.eqpStringData;
             cat = "Eqp/Face";
-        }
-        else if (itemId >= 1080000 && itemId < 1090000) {
+        } else if (itemId >= 1080000 && itemId < 1090000) {
             data = this.eqpStringData;
             cat = "Eqp/Glove";
-        }
-        else if (itemId >= 30000 && itemId < 35000) {
+        } else if (itemId >= 30000 && itemId < 35000) {
             data = this.eqpStringData;
             cat = "Eqp/Hair";
-        }
-        else if (itemId >= 1050000 && itemId < 1060000) {
+        } else if (itemId >= 1050000 && itemId < 1060000) {
             data = this.eqpStringData;
             cat = "Eqp/Longcoat";
-        }
-        else if (itemId >= 1060000 && itemId < 1070000) {
+        } else if (itemId >= 1060000 && itemId < 1070000) {
             data = this.eqpStringData;
             cat = "Eqp/Pants";
-        }
-        else if (itemId >= 1610000 && itemId < 1660000) {
+        } else if (itemId >= 1610000 && itemId < 1660000) {
             data = this.eqpStringData;
             cat = "Eqp/Mechanic";
-        }
-        else if (itemId >= 1802000 && itemId < 1820000) {
+        } else if (itemId >= 1802000 && itemId < 1820000) {
             data = this.eqpStringData;
             cat = "Eqp/PetEquip";
-        }
-        else if (itemId >= 1920000 && itemId < 2000000) {
+        } else if (itemId >= 1920000 && itemId < 2000000) {
             data = this.eqpStringData;
             cat = "Eqp/Dragon";
-        }
-        else if (itemId >= 1112000 && itemId < 1120000) {
+        } else if (itemId >= 1112000 && itemId < 1120000) {
             data = this.eqpStringData;
             cat = "Eqp/Ring";
-        }
-        else if (itemId >= 1092000 && itemId < 1100000) {
+        } else if (itemId >= 1092000 && itemId < 1100000) {
             data = this.eqpStringData;
             cat = "Eqp/Shield";
-        }
-        else if (itemId >= 1070000 && itemId < 1080000) {
+        } else if (itemId >= 1070000 && itemId < 1080000) {
             data = this.eqpStringData;
             cat = "Eqp/Shoes";
-        }
-        else if (itemId >= 1900000 && itemId < 1920000) {
+        } else if (itemId >= 1900000 && itemId < 1920000) {
             data = this.eqpStringData;
             cat = "Eqp/Taming";
-        }
-        else if (itemId >= 1200000 && itemId < 1210000) {
+        } else if (itemId >= 1200000 && itemId < 1210000) {
             data = this.eqpStringData;
             cat = "Eqp/Totem";
-        }
-        else if (itemId >= 1210000 && itemId < 1800000) {
+        } else if (itemId >= 1210000 && itemId < 1800000) {
             data = this.eqpStringData;
             cat = "Eqp/Weapon";
-        }
-        else if (itemId >= 4000000 && itemId < 5000000) {
+        } else if (itemId >= 4000000 && itemId < 5000000) {
             data = this.etcStringData;
             cat = "Etc";
-        }
-        else if (itemId >= 3000000 && itemId < 4000000) {
+        } else if (itemId >= 3000000 && itemId < 4000000) {
             data = this.insStringData;
-        }
-        else {
+        } else {
             if (itemId < 5000000 || itemId >= 5010000) {
                 return null;
             }

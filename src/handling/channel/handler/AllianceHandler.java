@@ -9,8 +9,7 @@ import java.util.Iterator;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
-public class AllianceHandler
-{
+public class AllianceHandler {
     public static void HandleAlliance(SeekableLittleEndianAccessor slea, MapleClient c, boolean denied) {
         int inviteid, newGuild, gid;
         if (c.getPlayer().getGuildId() <= 0) {
@@ -52,7 +51,8 @@ public class AllianceHandler
                 if (newGuild > 0 && c.getPlayer().getAllianceRank() == 1 && leaderid == c.getPlayer().getId()) {
                     MapleCharacter chr = c.getChannelServer().getPlayerStorage().getCharacterById(newGuild);
                     if (chr != null && chr.getGuildId() > 0 && World.Alliance.canInvite(gs.getAllianceId())) {
-                        chr.getClient().getSession().write(MaplePacketCreator.sendAllianceInvite(World.Alliance.getAlliance(gs.getAllianceId()).getName(), c.getPlayer()));
+                        chr.getClient().getSession().write(MaplePacketCreator.sendAllianceInvite(
+                                World.Alliance.getAlliance(gs.getAllianceId()).getName(), c.getPlayer()));
                         World.Guild.setInvitedId(chr.getGuildId(), gs.getAllianceId());
                     }
                 }
@@ -74,8 +74,10 @@ public class AllianceHandler
                 } else {
                     gid = c.getPlayer().getGuildId();
                 }
-                if (c.getPlayer().getAllianceRank() <= 2 && (c.getPlayer().getAllianceRank() == 1 || c.getPlayer().getGuildId() == gid) &&
-                        !World.Alliance.removeGuildFromAlliance(gs.getAllianceId(), gid, (c.getPlayer().getGuildId() != gid)))
+                if (c.getPlayer().getAllianceRank() <= 2
+                        && (c.getPlayer().getAllianceRank() == 1 || c.getPlayer().getGuildId() == gid) &&
+                        !World.Alliance.removeGuildFromAlliance(gs.getAllianceId(), gid,
+                                (c.getPlayer().getGuildId() != gid)))
                     c.getPlayer().dropMessage(5, "删除家族时出现错误.");
                 return;
             case 7:

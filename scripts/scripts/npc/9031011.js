@@ -1,4 +1,4 @@
 function action(mode, type, selection) {
-    cm.sendProfessionWindow();
-    cm.dispose();
+  cm.sendProfessionWindow();
+  cm.dispose();
 }

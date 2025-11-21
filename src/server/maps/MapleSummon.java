@@ -8,8 +8,7 @@ import java.awt.Point;
 import server.MapleStatEffect;
 import tools.MaplePacketCreator;
 
-public class MapleSummon extends AbstractAnimatedMapleMapObject
-{
+public class MapleSummon extends AbstractAnimatedMapleMapObject {
     private int ownerid;
     private int skillLevel;
     private int ownerLevel;
@@ -22,8 +21,9 @@ public class MapleSummon extends AbstractAnimatedMapleMapObject
     private int lastSummonTickCount;
     private byte Summon_tickResetCount;
     private long Server_ClientSummonTickDiff;
-    
-    public MapleSummon(final MapleCharacter owner, final MapleStatEffect skill, final Point pos, final SummonMovementType movementType) {
+
+    public MapleSummon(final MapleCharacter owner, final MapleStatEffect skill, final Point pos,
+            final SummonMovementType movementType) {
         this.changedMap = false;
         this.ownerid = owner.getId();
         this.ownerLevel = owner.getLevel();
@@ -34,8 +34,7 @@ public class MapleSummon extends AbstractAnimatedMapleMapObject
         this.setPosition(pos);
         try {
             this.fh = owner.getMap().getFootholds().findBelow(pos).getId();
-        }
-        catch (NullPointerException e) {
+        } catch (NullPointerException e) {
             this.fh = 0;
         }
         if (!this.is替身术()) {
@@ -44,56 +43,56 @@ public class MapleSummon extends AbstractAnimatedMapleMapObject
             this.Server_ClientSummonTickDiff = 0L;
         }
     }
-    
+
     @Override
     public void sendSpawnData(final MapleClient client) {
     }
-    
+
     @Override
     public void sendDestroyData(final MapleClient client) {
-        client.getSession().write((Object)MaplePacketCreator.removeSummon(this, false));
+        client.getSession().write((Object) MaplePacketCreator.removeSummon(this, false));
     }
-    
+
     public void updateMap(final MapleMap map) {
         this.map = map;
     }
-    
+
     public MapleCharacter getOwner() {
         return this.map.getCharacterById(this.ownerid);
     }
-    
+
     public int getFh() {
         return this.fh;
     }
-    
+
     public void setFh(final int fh) {
         this.fh = fh;
     }
-    
+
     public int getOwnerId() {
         return this.ownerid;
     }
-    
+
     public int getOwnerLevel() {
         return this.ownerLevel;
     }
-    
+
     public int getSkill() {
         return this.skill;
     }
-    
+
     public short getHP() {
         return this.hp;
     }
-    
+
     public void addHP(final short delta) {
         this.hp += delta;
     }
-    
+
     public SummonMovementType getMovementType() {
         return this.movementType;
     }
-    
+
     public boolean is替身术() {
         switch (this.skill) {
             case 3111002:
@@ -108,19 +107,19 @@ public class MapleSummon extends AbstractAnimatedMapleMapObject
             }
         }
     }
-    
+
     public boolean isGaviota() {
         return this.skill == 5211002;
     }
-    
+
     public boolean isBeholder() {
         return this.skill == 1321007;
     }
-    
+
     public boolean isMultiSummon() {
         return this.skill == 5211002 || this.skill == 5211001 || this.skill == 5220002 || this.skill == 32111006;
     }
-    
+
     public boolean isSummon() {
         switch (this.skill) {
             case 1321007:
@@ -145,11 +144,11 @@ public class MapleSummon extends AbstractAnimatedMapleMapObject
             }
         }
     }
-    
+
     public int getSkillLevel() {
         return this.skillLevel;
     }
-    
+
     public int getSummonType() {
         if (this.is替身术()) {
             return 0;
@@ -171,12 +170,12 @@ public class MapleSummon extends AbstractAnimatedMapleMapObject
             }
         }
     }
-    
+
     @Override
     public MapleMapObjectType getType() {
         return MapleMapObjectType.SUMMON;
     }
-    
+
     public void CheckSummonAttackFrequency(final MapleCharacter chr, final int tickcount) {
         final int tickdifference = tickcount - this.lastSummonTickCount;
         if (tickdifference < GameConstants.getSummonAttackDelay(this.skill)) {
@@ -194,11 +193,11 @@ public class MapleSummon extends AbstractAnimatedMapleMapObject
         }
         this.lastSummonTickCount = tickcount;
     }
-    
+
     public boolean isChangedMap() {
         return this.changedMap;
     }
-    
+
     public void setChangedMap(final boolean cm) {
         this.changedMap = cm;
     }

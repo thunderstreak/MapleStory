@@ -1,16 +1,15 @@
 package server.life;
 
-public enum Element
-{
-    NEUTRAL, 
-    PHYSICAL, 
-    FIRE, 
-    ICE, 
-    LIGHTING, 
-    POISON, 
-    HOLY, 
+public enum Element {
+    NEUTRAL,
+    PHYSICAL,
+    FIRE,
+    ICE,
+    LIGHTING,
+    POISON,
+    HOLY,
     DARKNESS;
-    
+
     public static Element getFromChar(final char c) {
         switch (Character.toUpperCase(c)) {
             case 'F': {

@@ -5,15 +5,14 @@ import provider.*;
 import java.util.*;
 import tools.*;
 
-public class CashItemFactoryA
-{
+public class CashItemFactoryA {
     private static final Map<Integer, Integer> snLookup;
     private static final Map<Integer, Integer> idLookup;
     private static final Map<Integer, CashItemInfoA> itemStats;
     private static final MapleDataProvider data;
     private static final MapleData commodities;
     private static final Map<Integer, List<CashItemInfoA>> cashPackages;
-    
+
     public static CashItemInfoA getItem(final int sn) {
         CashItemInfoA stats = CashItemFactoryA.itemStats.get(sn);
         if (stats == null) {
@@ -29,7 +28,7 @@ public class CashItemFactoryA
         }
         return stats;
     }
-    
+
     private static int getCommodityFromSN(final int sn) {
         int cid;
         if (CashItemFactoryA.snLookup.get(sn) == null) {
@@ -48,19 +47,19 @@ public class CashItemFactoryA
                 ++i;
             }
             cid = curr;
-        }
-        else {
+        } else {
             cid = CashItemFactoryA.snLookup.get(sn);
         }
         return cid;
     }
-    
+
     public static List<CashItemInfoA> getPackageItems(final int itemId) {
         if (CashItemFactoryA.cashPackages.containsKey(itemId)) {
             return CashItemFactoryA.cashPackages.get(itemId);
         }
         final List<CashItemInfoA> packageItems = new ArrayList<CashItemInfoA>();
-        final MapleDataProvider dataProvider = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzPath") + "/Etc.wz"));
+        final MapleDataProvider dataProvider = MapleDataProviderFactory
+                .getDataProvider(new File(System.getProperty("wzPath") + "/Etc.wz"));
         final MapleData a = dataProvider.getData("CashPackage.img");
         for (final MapleData b : a.getChildren()) {
             if (itemId == Integer.parseInt(b.getName())) {
@@ -76,7 +75,7 @@ public class CashItemFactoryA
         CashItemFactoryA.cashPackages.put(itemId, packageItems);
         return packageItems;
     }
-    
+
     public static int getSnFromId(final int id) {
         int cid;
         if (CashItemFactoryA.idLookup.get(id) == null) {
@@ -95,13 +94,12 @@ public class CashItemFactoryA
                 ++i;
             }
             cid = curr;
-        }
-        else {
+        } else {
             cid = CashItemFactoryA.idLookup.get(id);
         }
         return MapleDataTool.getIntConvert(cid + "/SN", CashItemFactoryA.commodities);
     }
-    
+
     static {
         snLookup = new HashMap<Integer, Integer>();
         idLookup = new HashMap<Integer, Integer>();

@@ -10,52 +10,45 @@ import java.util.*;
 import tools.*;
 import handling.world.*;
 
-public class PlayerCommand
-{
+public class PlayerCommand {
     public static ServerConstants.PlayerGMRank getPlayerLevelRequired() {
         return ServerConstants.PlayerGMRank.NORMAL;
     }
-    
-    public static class 帮助 extends help
-    {
+
+    public static class 帮助 extends help {
     }
-    
-    public static class 自由 extends zy
-    {
+
+    public static class 自由 extends zy {
     }
-    
-    public static class 怪物 extends Mob
-    {
+
+    public static class 怪物 extends Mob {
     }
-    
-    public static class 万能 extends wn
-    {
+
+    public static class 万能 extends wn {
     }
-    
-    public static class 爆率 extends Mobdrop
-    {
+
+    public static class 爆率 extends Mobdrop {
     }
-    
-    public static class ea extends 查看
-    {
+
+    public static class ea extends 查看 {
     }
-    
-    public static class 解卡 extends 查看
-    {
+
+    public static class 解卡 extends 查看 {
     }
-    
-    public static class 破攻 extends pg
-    {
+
+    public static class 破攻 extends pg {
     }
-    
-    public static class 查看 extends CommandExecute
-    {
+
+    public static class 查看 extends CommandExecute {
         @Override
         public int execute(final MapleClient c, final String[] splitted) {
             NPCScriptManager.getInstance().dispose(c);
             c.getSession().write(MaplePacketCreator.enableActions());
             c.getPlayer().dropMessage(1, "假死已处理完毕.");
-            c.getPlayer().dropMessage(6, "当前时间是" + FileoutputUtil.CurrentReadable_Time() + " GMT+8 | 经验值倍率 " + (int)(c.getPlayer().getEXPMod() * 100 * (c.getPlayer().getStat().expBuff / 100.0)) + "%, 怪物倍率 " + (int)(c.getPlayer().getDropMod() * 100 * (c.getPlayer().getStat().dropBuff / 100.0)) + "%, 金币倍率 " + (int)(c.getPlayer().getStat().mesoBuff / 100.0 * 100.0) + "%");
+            c.getPlayer().dropMessage(6, "当前时间是" + FileoutputUtil.CurrentReadable_Time() + " GMT+8 | 经验值倍率 "
+                    + (int) (c.getPlayer().getEXPMod() * 100 * (c.getPlayer().getStat().expBuff / 100.0)) + "%, 怪物倍率 "
+                    + (int) (c.getPlayer().getDropMod() * 100 * (c.getPlayer().getStat().dropBuff / 100.0)) + "%, 金币倍率 "
+                    + (int) (c.getPlayer().getStat().mesoBuff / 100.0 * 100.0) + "%");
             c.getPlayer().dropMessage(6, "当前延迟 " + c.getPlayer().getClient().getLatency() + " 毫秒");
             if (c.getPlayer().isAdmin()) {
                 c.sendPacket(MaplePacketCreator.sendPyramidEnergy("massacre_hit", String.valueOf(50)));
@@ -63,9 +56,8 @@ public class PlayerCommand
             return 1;
         }
     }
-    
-    public static class zy extends CommandExecute
-    {
+
+    public static class zy extends CommandExecute {
         @Override
         public int execute(final MapleClient c, final String[] splitted) {
             NPCScriptManager.getInstance().dispose(c);
@@ -87,9 +79,8 @@ public class PlayerCommand
             return 1;
         }
     }
-    
-    public static class wn extends CommandExecute
-    {
+
+    public static class wn extends CommandExecute {
         @Override
         public int execute(final MapleClient c, final String[] splitted) {
             NPCScriptManager.getInstance().dispose(c);
@@ -99,9 +90,8 @@ public class PlayerCommand
             return 1;
         }
     }
-    
-    public static class Mobdrop extends CommandExecute
-    {
+
+    public static class Mobdrop extends CommandExecute {
         @Override
         public int execute(final MapleClient c, final String[] splitted) {
             NPCScriptManager.getInstance().dispose(c);
@@ -111,14 +101,14 @@ public class PlayerCommand
             return 1;
         }
     }
-    
-    public static class Mob extends CommandExecute
-    {
+
+    public static class Mob extends CommandExecute {
         @Override
         public int execute(final MapleClient c, final String[] splitted) {
             MapleMonster mob = null;
-            for (final MapleMapObject monstermo : c.getPlayer().getMap().getMapObjectsInRange(c.getPlayer().getPosition(), 100000.0, Arrays.asList(MapleMapObjectType.MONSTER))) {
-                mob = (MapleMonster)monstermo;
+            for (final MapleMapObject monstermo : c.getPlayer().getMap().getMapObjectsInRange(
+                    c.getPlayer().getPosition(), 100000.0, Arrays.asList(MapleMapObjectType.MONSTER))) {
+                mob = (MapleMonster) monstermo;
                 if (mob.isAlive()) {
                     c.getPlayer().dropMessage(6, "怪物: " + mob.toString());
                     break;
@@ -130,9 +120,8 @@ public class PlayerCommand
             return 1;
         }
     }
-    
-    public static class CGM extends CommandExecute
-    {
+
+    public static class CGM extends CommandExecute {
         @Override
         public int execute(final MapleClient c, final String[] splitted) {
             if (splitted[1] == null) {
@@ -144,18 +133,19 @@ public class PlayerCommand
                 return 1;
             }
             if (!c.getPlayer().getCheatTracker().GMSpam(100000, 1)) {
-                World.Broadcast.broadcastGMMessage(MaplePacketCreator.serverNotice(6, "頻道 " + c.getPlayer().getClient().getChannel() + " 玩家 [" + c.getPlayer().getName() + "] : " + StringUtil.joinStringFrom(splitted, 1)).getBytes());
+                World.Broadcast.broadcastGMMessage(MaplePacketCreator
+                        .serverNotice(6, "頻道 " + c.getPlayer().getClient().getChannel() + " 玩家 ["
+                                + c.getPlayer().getName() + "] : " + StringUtil.joinStringFrom(splitted, 1))
+                        .getBytes());
                 c.getPlayer().dropMessage(6, "讯息已经发给GM了!");
-            }
-            else {
+            } else {
                 c.getPlayer().dropMessage(6, "为了防止对GM刷屏所以每1分鐘只能发一次.");
             }
             return 1;
         }
     }
-    
-    public static class pg extends CommandExecute
-    {
+
+    public static class pg extends CommandExecute {
         @Override
         public int execute(final MapleClient c, final String[] splitted) {
             final int VipCount = c.getPlayer().getVip();
@@ -171,9 +161,8 @@ public class PlayerCommand
             return 1;
         }
     }
-    
-    public static class help extends CommandExecute
-    {
+
+    public static class help extends CommandExecute {
         @Override
         public int execute(final MapleClient c, final String[] splitted) {
             c.getPlayer().dropMessage(5, "指令列表 :");
@@ -188,11 +177,10 @@ public class PlayerCommand
         }
     }
 
-    public static class abc extends CommandExecute
-    {
+    public static class abc extends CommandExecute {
         @Override
         public int execute(final MapleClient c, final String[] splitted) {
-            if(c.getPlayer().getVipexpired() < System.currentTimeMillis()) {
+            if (c.getPlayer().getVipexpired() < System.currentTimeMillis()) {
                 c.getPlayer().dropMessage("你不是VIP玩家或者VIP过期，请联系管理员");
                 return 0;
             }
@@ -201,32 +189,32 @@ public class PlayerCommand
             }
             String name = splitted[1];
             int mid = 0;
-            if("小金人".equals(name)) {
+            if ("小金人".equals(name)) {
                 mid = 9600019;
-            }else if("银人".equals(name)) {
+            } else if ("银人".equals(name)) {
                 mid = 9600024;
-            }else if("小铜人".equals(name)) {
+            } else if ("小铜人".equals(name)) {
                 mid = 9600020;
-            }else if("骷髅龙".equals(name)) {
+            } else if ("骷髅龙".equals(name)) {
                 mid = 8190003;
-            }else if("鲨鱼".equals(name)) {
+            } else if ("鲨鱼".equals(name)) {
                 mid = 8150100;
-            }else if("海胆".equals(name)) {
+            } else if ("海胆".equals(name)) {
                 mid = 2230108;
-            }else if("小石球".equals(name)) {
+            } else if ("小石球".equals(name)) {
                 mid = 5200000;
-            }else if("火独眼兽".equals(name)) {
+            } else if ("火独眼兽".equals(name)) {
                 mid = 2230100;
-            }else if("黑木妖".equals(name)) {
+            } else if ("黑木妖".equals(name)) {
                 mid = 1110101;
-            }else if("蜗牛".equals(name)){
+            } else if ("蜗牛".equals(name)) {
                 mid = 100100;
-            } else{
-                c.getPlayer().dropMessage("暂不支持召唤: "+name);
+            } else {
+                c.getPlayer().dropMessage("暂不支持召唤: " + name);
                 return 0;
             }
-            if(c.getPlayer().getBossLog(name) > 9) {
-                c.getPlayer().dropMessage(6,"今日召唤已超过10次，请明天再来吧");
+            if (c.getPlayer().getBossLog(name) > 9) {
+                c.getPlayer().dropMessage(6, "今日召唤已超过10次，请明天再来吧");
                 return 0;
             }
             c.getPlayer().setBossLog(name);
@@ -240,6 +228,7 @@ public class PlayerCommand
             }
             return 1;
         }
+
         public String getMessage() {
             return new StringBuilder().append("!abc <怪物ID>  - 召唤怪物").toString();
         }

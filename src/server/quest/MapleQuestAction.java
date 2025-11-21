@@ -21,13 +21,12 @@ import server.MapleItemInformationProvider;
 import server.Randomizer;
 import tools.MaplePacketCreator;
 
-public class MapleQuestAction implements Serializable
-{
+public class MapleQuestAction implements Serializable {
     private static final long serialVersionUID = 9179541993413738569L;
     private final MapleQuestActionType type;
     private final MapleData data;
     private final MapleQuest quest;
-    
+
     private static boolean canGetItem(final MapleData item, final MapleCharacter c) {
         if (item.getChildByPath("gender") != null) {
             final int gender = MapleDataTool.getInt(item.getChildByPath("gender"));
@@ -59,7 +58,7 @@ public class MapleQuestAction implements Serializable
         }
         return true;
     }
-    
+
     private static List<Integer> getJobBy5ByteEncoding(final int encoded) {
         final List<Integer> ret = new ArrayList<Integer>();
         if ((encoded & 0x1) != 0x0) {
@@ -121,13 +120,13 @@ public class MapleQuestAction implements Serializable
         }
         return ret;
     }
-    
+
     public MapleQuestAction(final MapleQuestActionType type, final MapleData data, final MapleQuest quest) {
         this.type = type;
         this.data = data;
         this.quest = quest;
     }
-    
+
     public boolean RestoreLostItem(final MapleCharacter c, final int itemid) {
         if (this.type == MapleQuestActionType.item) {
             for (final MapleData iEntry : this.data.getChildren()) {
@@ -136,7 +135,7 @@ public class MapleQuestAction implements Serializable
                 if (retitem == itemid) {
                     if (!c.haveItem(retitem, counts, true, false)) {
                         c.removeAll(retitem);
-                        MapleInventoryManipulator.addById(c.getClient(), retitem, (short)counts, (byte)0);
+                        MapleInventoryManipulator.addById(c.getClient(), retitem, (short) counts, (byte) 0);
                     }
                     return true;
                 }
@@ -144,7 +143,7 @@ public class MapleQuestAction implements Serializable
         }
         return false;
     }
-    
+
     public void runStart(final MapleCharacter c, final Integer extSelection) {
         switch (this.type) {
             case exp: {
@@ -152,7 +151,8 @@ public class MapleQuestAction implements Serializable
                 if (status.getForfeited() > 0) {
                     break;
                 }
-                c.gainExp(MapleDataTool.getInt(this.data, 0) * GameConstants.getExpRate_Quest(c.getLevel()), true, true, true);
+                c.gainExp(MapleDataTool.getInt(this.data, 0) * GameConstants.getExpRate_Quest(c.getLevel()), true, true,
+                        true);
                 break;
             }
             case item: {
@@ -180,22 +180,20 @@ public class MapleQuestAction implements Serializable
                             if (extSelection != extNum++) {
                                 continue;
                             }
-                        }
-                        else if (id != selection) {
+                        } else if (id != selection) {
                             continue;
                         }
                     }
-                    final short count = (short)MapleDataTool.getInt(iEntry2.getChildByPath("count"), 1);
+                    final short count = (short) MapleDataTool.getInt(iEntry2.getChildByPath("count"), 1);
                     if (count < 0) {
                         try {
-                            MapleInventoryManipulator.removeById(c.getClient(), GameConstants.getInventoryType(id), id, count * -1, true, false);
-                        }
-                        catch (InventoryException ie) {
+                            MapleInventoryManipulator.removeById(c.getClient(), GameConstants.getInventoryType(id), id,
+                                    count * -1, true, false);
+                        } catch (InventoryException ie) {
                             System.err.println("[h4x] Completing a quest without meeting the requirements" + ie);
                         }
                         c.getClient().getSession().write(MaplePacketCreator.getShowItemGain(id, count, true));
-                    }
-                    else {
+                    } else {
                         final int period = MapleDataTool.getInt(iEntry2.getChildByPath("period"), 0) / 1440;
                         final String name = MapleItemInformationProvider.getInstance().getName(id);
                         if (id / 10000 == 114 && name != null && name.length() > 0) {
@@ -203,7 +201,7 @@ public class MapleQuestAction implements Serializable
                             c.dropMessage(5, msg);
                             c.dropMessage(5, msg);
                         }
-                        MapleInventoryManipulator.addById(c.getClient(), id, count, "", null, period, (byte)0);
+                        MapleInventoryManipulator.addById(c.getClient(), id, count, "", null, period, (byte) 0);
                         c.getClient().getSession().write(MaplePacketCreator.getShowItemGain(id, count, true));
                     }
                 }
@@ -214,7 +212,8 @@ public class MapleQuestAction implements Serializable
                 if (status.getForfeited() > 0) {
                     break;
                 }
-                c.getClient().getSession().write(MaplePacketCreator.updateQuestFinish(this.quest.getId(), status.getNpc(), MapleDataTool.getInt(this.data)));
+                c.getClient().getSession().write(MaplePacketCreator.updateQuestFinish(this.quest.getId(),
+                        status.getNpc(), MapleDataTool.getInt(this.data)));
                 break;
             }
             case money: {
@@ -227,7 +226,9 @@ public class MapleQuestAction implements Serializable
             }
             case quest: {
                 for (final MapleData qEntry : this.data) {
-                    c.updateQuest(new MapleQuestStatus(MapleQuest.getInstance(MapleDataTool.getInt(qEntry.getChildByPath("id"))), (byte)MapleDataTool.getInt(qEntry.getChildByPath("state"), 0)));
+                    c.updateQuest(new MapleQuestStatus(
+                            MapleQuest.getInstance(MapleDataTool.getInt(qEntry.getChildByPath("id"))),
+                            (byte) MapleDataTool.getInt(qEntry.getChildByPath("state"), 0)));
                 }
                 break;
             }
@@ -239,7 +240,8 @@ public class MapleQuestAction implements Serializable
                     final ISkill skillObject = SkillFactory.getSkill(skillid);
                     for (final MapleData applicableJob : sEntry.getChildByPath("job")) {
                         if (skillObject.isBeginnerSkill() || c.getJob() == MapleDataTool.getInt(applicableJob)) {
-                            c.changeSkillLevel(skillObject, (byte)Math.max(skillLevel, c.getSkillLevel(skillObject)), (byte)Math.max(masterLevel, c.getMasterLevel(skillObject)));
+                            c.changeSkillLevel(skillObject, (byte) Math.max(skillLevel, c.getSkillLevel(skillObject)),
+                                    (byte) Math.max(masterLevel, c.getMasterLevel(skillObject)));
                             break;
                         }
                     }
@@ -286,12 +288,10 @@ public class MapleQuestAction implements Serializable
                         }
                         if (finalJob == 0) {
                             c.gainSP(sp_val);
-                        }
-                        else {
+                        } else {
                             c.gainSP(sp_val, GameConstants.getSkillBook(finalJob));
                         }
-                    }
-                    else {
+                    } else {
                         c.gainSP(sp_val);
                     }
                 }
@@ -299,7 +299,7 @@ public class MapleQuestAction implements Serializable
             }
         }
     }
-    
+
     public boolean checkEnd(final MapleCharacter c, final Integer extSelection) {
         switch (this.type) {
             case item: {
@@ -332,22 +332,22 @@ public class MapleQuestAction implements Serializable
                             if (extSelection != extNum++) {
                                 continue;
                             }
-                        }
-                        else if (id != selection) {
+                        } else if (id != selection) {
                             continue;
                         }
                     }
-                    final short count = (short)MapleDataTool.getInt(iEntry2.getChildByPath("count"), 1);
+                    final short count = (short) MapleDataTool.getInt(iEntry2.getChildByPath("count"), 1);
                     if (count < 0) {
                         if (!c.haveItem(id, count, false, true)) {
                             c.dropMessage(1, "You are short of some item to complete quest.");
                             return false;
                         }
                         continue;
-                    }
-                    else {
-                        if (MapleItemInformationProvider.getInstance().isPickupRestricted(id) && c.haveItem(id, 1, true, false)) {
-                            c.dropMessage(1, "You have this item already: " + MapleItemInformationProvider.getInstance().getName(id));
+                    } else {
+                        if (MapleItemInformationProvider.getInstance().isPickupRestricted(id)
+                                && c.haveItem(id, 1, true, false)) {
+                            c.dropMessage(1, "You have this item already: "
+                                    + MapleItemInformationProvider.getInstance().getName(id));
                             return false;
                         }
                         switch (GameConstants.getInventoryType(id)) {
@@ -413,11 +413,12 @@ public class MapleQuestAction implements Serializable
             }
         }
     }
-    
+
     public void runEnd(final MapleCharacter c, final Integer extSelection) {
         switch (this.type) {
             case exp: {
-                c.gainExp(MapleDataTool.getInt(this.data, 0) * GameConstants.getExpRate_Quest(c.getLevel()), true, true, true);
+                c.gainExp(MapleDataTool.getInt(this.data, 0) * GameConstants.getExpRate_Quest(c.getLevel()), true, true,
+                        true);
                 break;
             }
             case item: {
@@ -445,17 +446,16 @@ public class MapleQuestAction implements Serializable
                             if (extSelection != extNum++) {
                                 continue;
                             }
-                        }
-                        else if (id != selection) {
+                        } else if (id != selection) {
                             continue;
                         }
                     }
-                    final short count = (short)MapleDataTool.getInt(iEntry2.getChildByPath("count"), 1);
+                    final short count = (short) MapleDataTool.getInt(iEntry2.getChildByPath("count"), 1);
                     if (count < 0) {
-                        MapleInventoryManipulator.removeById(c.getClient(), GameConstants.getInventoryType(id), id, count * -1, true, false);
+                        MapleInventoryManipulator.removeById(c.getClient(), GameConstants.getInventoryType(id), id,
+                                count * -1, true, false);
                         c.getClient().getSession().write(MaplePacketCreator.getShowItemGain(id, count, true));
-                    }
-                    else {
+                    } else {
                         final int period = MapleDataTool.getInt(iEntry2.getChildByPath("period"), 0) / 1440;
                         final String name = MapleItemInformationProvider.getInstance().getName(id);
                         if (id / 10000 == 114 && name != null && name.length() > 0) {
@@ -463,14 +463,15 @@ public class MapleQuestAction implements Serializable
                             c.dropMessage(5, msg);
                             c.dropMessage(5, msg);
                         }
-                        MapleInventoryManipulator.addById(c.getClient(), id, count, "", null, period, (byte)0);
+                        MapleInventoryManipulator.addById(c.getClient(), id, count, "", null, period, (byte) 0);
                         c.getClient().getSession().write(MaplePacketCreator.getShowItemGain(id, count, true));
                     }
                 }
                 break;
             }
             case nextQuest: {
-                c.getClient().getSession().write(MaplePacketCreator.updateQuestFinish(this.quest.getId(), c.getQuest(this.quest).getNpc(), MapleDataTool.getInt(this.data)));
+                c.getClient().getSession().write(MaplePacketCreator.updateQuestFinish(this.quest.getId(),
+                        c.getQuest(this.quest).getNpc(), MapleDataTool.getInt(this.data)));
                 break;
             }
             case money: {
@@ -479,7 +480,9 @@ public class MapleQuestAction implements Serializable
             }
             case quest: {
                 for (final MapleData qEntry : this.data) {
-                    c.updateQuest(new MapleQuestStatus(MapleQuest.getInstance(MapleDataTool.getInt(qEntry.getChildByPath("id"))), (byte)MapleDataTool.getInt(qEntry.getChildByPath("state"), 0)));
+                    c.updateQuest(new MapleQuestStatus(
+                            MapleQuest.getInstance(MapleDataTool.getInt(qEntry.getChildByPath("id"))),
+                            (byte) MapleDataTool.getInt(qEntry.getChildByPath("state"), 0)));
                 }
                 break;
             }
@@ -491,7 +494,8 @@ public class MapleQuestAction implements Serializable
                     final ISkill skillObject = SkillFactory.getSkill(skillid);
                     for (final MapleData applicableJob : sEntry.getChildByPath("job")) {
                         if (skillObject.isBeginnerSkill() || c.getJob() == MapleDataTool.getInt(applicableJob)) {
-                            c.changeSkillLevel(skillObject, (byte)Math.max(skillLevel, c.getSkillLevel(skillObject)), (byte)Math.max(masterLevel, c.getMasterLevel(skillObject)));
+                            c.changeSkillLevel(skillObject, (byte) Math.max(skillLevel, c.getSkillLevel(skillObject)),
+                                    (byte) Math.max(masterLevel, c.getMasterLevel(skillObject)));
                             break;
                         }
                     }
@@ -525,8 +529,7 @@ public class MapleQuestAction implements Serializable
                             }
                         }
                         c.gainSP(sp_val, GameConstants.getSkillBook(finalJob));
-                    }
-                    else {
+                    } else {
                         c.gainSP(sp_val);
                     }
                 }
@@ -534,11 +537,11 @@ public class MapleQuestAction implements Serializable
             }
         }
     }
-    
+
     public MapleQuestActionType getType() {
         return this.type;
     }
-    
+
     @Override
     public String toString() {
         return this.type + ": " + this.data;

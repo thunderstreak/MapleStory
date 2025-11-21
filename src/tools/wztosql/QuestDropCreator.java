@@ -18,8 +18,7 @@ import server.quest.MapleQuest;
 import server.quest.MapleQuestRequirementType;
 import tools.Pair;
 
-public class QuestDropCreator
-{
+public class QuestDropCreator {
     protected static String monsterQueryData;
     protected static List<Pair<Integer, String>> itemNameCache;
     protected static Map<Integer, Boolean> bossCache;
@@ -29,13 +28,12 @@ public class QuestDropCreator
     public static List<MapleQuest> quests;
     public static List<Integer> itemIDs;
     private static Connection con;
-    
+
     public static int getItemAmountNeeded(final short questid, final int itemid) {
         MapleData data = null;
         try {
             data = QuestDropCreator.requirements.getChildByPath(String.valueOf(questid)).getChildByPath("1");
-        }
-        catch (NullPointerException ex) {
+        } catch (NullPointerException ex) {
             return 0;
         }
         if (data != null) {
@@ -53,39 +51,40 @@ public class QuestDropCreator
         }
         return 0;
     }
-    
+
     public static boolean isQuestRequirement(final int itemid) {
         for (final MapleQuest quest : QuestDropCreator.quests) {
-            if (getItemAmountNeeded((short)quest.getId(), itemid) > 0) {
+            if (getItemAmountNeeded((short) quest.getId(), itemid) > 0) {
                 return true;
             }
         }
         return false;
     }
-    
+
     public static short getQuestID(final int itemid) {
         for (final MapleQuest quest : QuestDropCreator.quests) {
-            if (getItemAmountNeeded((short)quest.getId(), itemid) > 0) {
-                return (short)quest.getId();
+            if (getItemAmountNeeded((short) quest.getId(), itemid) > 0) {
+                return (short) quest.getId();
             }
         }
         return 0;
     }
-    
+
     public static void initializeMySQL() {
         DatabaseConnection.getConnection();
         QuestDropCreator.con = DatabaseConnection.getConnection();
     }
-    
+
     public static void loadQuests() {
-        QuestDropCreator.questData = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzPath") + "/Quest.wz"));
+        QuestDropCreator.questData = MapleDataProviderFactory
+                .getDataProvider(new File(System.getProperty("wzPath") + "/Quest.wz"));
         QuestDropCreator.requirements = QuestDropCreator.questData.getData("Check.img");
         QuestDropCreator.info = QuestDropCreator.questData.getData("QuestInfo.img");
         for (final MapleData quest : QuestDropCreator.info.getChildren()) {
             QuestDropCreator.quests.add(MapleQuest.getInstance(Integer.parseInt(quest.getName())));
         }
     }
-    
+
     public static void loadQuestItems() {
         final List<Pair<Integer, String>> items = MapleItemInformationProvider.getInstance().getAllItems();
         for (final Pair<Integer, String> item : items) {
@@ -95,7 +94,7 @@ public class QuestDropCreator
             }
         }
     }
-    
+
     public static void main(final String[] args) throws Exception {
         System.out.println("任务物品爆率更新");
         System.out.println("...");
@@ -110,8 +109,10 @@ public class QuestDropCreator
         initializeMySQL();
         System.out.println("加载信息完成.");
         try {
-            final PreparedStatement ps = QuestDropCreator.con.prepareStatement("UPDATE drop_data SET questid = ? WHERE itemid = ?");
-            final PreparedStatement psr = QuestDropCreator.con.prepareStatement("UPDATE reactordrops SET questid = ? WHERE itemid = ?");
+            final PreparedStatement ps = QuestDropCreator.con
+                    .prepareStatement("UPDATE drop_data SET questid = ? WHERE itemid = ?");
+            final PreparedStatement psr = QuestDropCreator.con
+                    .prepareStatement("UPDATE reactordrops SET questid = ? WHERE itemid = ?");
             for (final Integer itemid : QuestDropCreator.itemIDs) {
                 if (MapleItemInformationProvider.getInstance().isQuestItem(itemid)) {
                     final int questId = getQuestID(itemid);
@@ -126,14 +127,13 @@ public class QuestDropCreator
             }
             ps.close();
             psr.close();
-        }
-        catch (SQLException sqle) {
+        } catch (SQLException sqle) {
             System.out.println(sqle.getMessage());
         }
         final long timeEnd = System.currentTimeMillis() - timeStart;
-        System.out.println("更新任务爆率数据完成 耗时 " + (int)(timeEnd / 1000L) + " 秒.");
+        System.out.println("更新任务爆率数据完成 耗时 " + (int) (timeEnd / 1000L) + " 秒.");
     }
-    
+
     static {
         QuestDropCreator.monsterQueryData = "drop_data";
         QuestDropCreator.itemNameCache = new ArrayList<Pair<Integer, String>>();

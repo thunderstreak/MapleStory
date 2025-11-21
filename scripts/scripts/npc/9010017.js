@@ -1,11 +1,11 @@
-/* 
+/*
  * NPC   : Dev Doll
  * Map   : GMMAP
  */
- 
- function start() {
-	cm.sendNext("此功能已关闭。");
-	cm.dispose();
+
+function start() {
+  cm.sendNext('此功能已关闭。');
+  cm.dispose();
 }
 /*
 var status = 0;
@@ -114,4 +114,3 @@ function action(mode, type, selection) {
 	}
     }
 }*/
-

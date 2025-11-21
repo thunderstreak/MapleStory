@@ -1,10 +1,10 @@
 /* Storage
-*/
+ */
 
 function start() {
-    cm.sendStorage();
+  cm.sendStorage();
 }
 
 function action(mode, type, selection) {
-    cm.dispose();
+  cm.dispose();
 }

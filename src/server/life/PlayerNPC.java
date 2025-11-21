@@ -20,8 +20,7 @@ import java.util.Map;
 import server.maps.MapleMap;
 import tools.MaplePacketCreator;
 
-public class PlayerNPC extends MapleNPC
-{
+public class PlayerNPC extends MapleNPC {
     private Map<Byte, Integer> equips;
     private int mapid;
     private int face;
@@ -30,7 +29,7 @@ public class PlayerNPC extends MapleNPC
     private byte skin;
     private byte gender;
     private int[] pets;
-    
+
     public static void loadAll() {
         final List<PlayerNPC> toAdd = new ArrayList<PlayerNPC>();
         final Connection con = DatabaseConnection.getConnection();
@@ -42,23 +41,23 @@ public class PlayerNPC extends MapleNPC
             }
             rs.close();
             ps.close();
-        }
-        catch (Exception se) {
+        } catch (Exception se) {
             se.printStackTrace();
         }
         for (final PlayerNPC npc : toAdd) {
             npc.addToServer();
         }
     }
-    
+
     public static void updateByCharId(final MapleCharacter chr) {
         if (World.Find.findChannel(chr.getId()) > 0) {
-            for (final PlayerNPC npc : ChannelServer.getInstance(World.Find.findChannel(chr.getId())).getAllPlayerNPC()) {
+            for (final PlayerNPC npc : ChannelServer.getInstance(World.Find.findChannel(chr.getId()))
+                    .getAllPlayerNPC()) {
                 npc.update(chr);
             }
         }
     }
-    
+
     public PlayerNPC(final ResultSet rs) throws Exception {
         super(rs.getInt("ScriptId"), rs.getString("name"));
         this.equips = new HashMap<Byte, Integer>();
@@ -74,8 +73,7 @@ public class PlayerNPC extends MapleNPC
         for (int i = 0; i < 3; ++i) {
             if (pet[i] != null) {
                 this.pets[i] = Integer.parseInt(pet[i]);
-            }
-            else {
+            } else {
                 this.pets[i] = 0;
             }
         }
@@ -89,7 +87,7 @@ public class PlayerNPC extends MapleNPC
         rs2.close();
         ps.close();
     }
-    
+
     public PlayerNPC(final MapleCharacter cid, final int npc, final MapleMap map, final MapleCharacter base) {
         super(npc, cid.getName());
         this.equips = new HashMap<Byte, Integer>();
@@ -99,7 +97,7 @@ public class PlayerNPC extends MapleNPC
         this.setCoords(base.getPosition().x, base.getPosition().y, 0, base.getFH());
         this.update(cid);
     }
-    
+
     public void setCoords(final int x, final int y, final int f, final int fh) {
         this.setPosition(new Point(x, y));
         this.setCy(y);
@@ -108,19 +106,19 @@ public class PlayerNPC extends MapleNPC
         this.setF(f);
         this.setFh(fh);
     }
-    
+
     public void addToServer() {
         for (final ChannelServer cserv : ChannelServer.getAllInstances()) {
             cserv.addPlayerNPC(this);
         }
     }
-    
+
     public void removeFromServer() {
         for (final ChannelServer cserv : ChannelServer.getAllInstances()) {
             cserv.removePlayerNPC(this);
         }
     }
-    
+
     public void update(final MapleCharacter chr) {
         if (chr == null || this.charId != chr.getId()) {
             return;
@@ -136,15 +134,15 @@ public class PlayerNPC extends MapleNPC
             if (item.getPosition() < -128) {
                 continue;
             }
-            this.equips.put((byte)item.getPosition(), item.getItemId());
+            this.equips.put((byte) item.getPosition(), item.getItemId());
         }
         this.saveToDB();
     }
-    
+
     public void destroy() {
         this.destroy(false);
     }
-    
+
     public void destroy(final boolean remove) {
         final Connection con = DatabaseConnection.getConnection();
         try {
@@ -159,12 +157,11 @@ public class PlayerNPC extends MapleNPC
             if (remove) {
                 this.removeFromServer();
             }
-        }
-        catch (SQLException se) {
+        } catch (SQLException se) {
             se.printStackTrace();
         }
     }
-    
+
     public void saveToDB() {
         final Connection con = DatabaseConnection.getConnection();
         try {
@@ -173,7 +170,8 @@ public class PlayerNPC extends MapleNPC
                 return;
             }
             this.destroy();
-            PreparedStatement ps = con.prepareStatement("INSERT INTO playernpcs(name, hair, face, skin, x, y, map, charid, scriptid, foothold, dir, gender, pets) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            PreparedStatement ps = con.prepareStatement(
+                    "INSERT INTO playernpcs(name, hair, face, skin, x, y, map, charid, scriptid, foothold, dir, gender, pets) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             ps.setString(1, this.getName());
             ps.setInt(2, this.getHair());
             ps.setInt(3, this.getFace());
@@ -195,7 +193,8 @@ public class PlayerNPC extends MapleNPC
             ps.setString(13, pet[0] + "," + pet[1] + "," + pet[2]);
             ps.executeUpdate();
             ps.close();
-            ps = con.prepareStatement("INSERT INTO playernpcs_equip(npcid, charid, equipid, equippos) VALUES (?, ?, ?, ?)");
+            ps = con.prepareStatement(
+                    "INSERT INTO playernpcs_equip(npcid, charid, equipid, equippos) VALUES (?, ?, ?, ?)");
             ps.setInt(1, this.getId());
             ps.setInt(2, this.getCharId());
             for (final Map.Entry<Byte, Integer> equip : this.equips.entrySet()) {
@@ -204,78 +203,76 @@ public class PlayerNPC extends MapleNPC
                 ps.executeUpdate();
             }
             ps.close();
-        }
-        catch (SQLException se) {
+        } catch (SQLException se) {
             se.printStackTrace();
         }
     }
-    
+
     public Map<Byte, Integer> getEquips() {
         return this.equips;
     }
-    
+
     public byte getSkin() {
         return this.skin;
     }
-    
+
     public int getGender() {
         return this.gender;
     }
-    
+
     public int getFace() {
         return this.face;
     }
-    
+
     public int getHair() {
         return this.hair;
     }
-    
+
     public int getCharId() {
         return this.charId;
     }
-    
+
     public int getMapId() {
         return this.mapid;
     }
-    
+
     public void setSkin(final byte s) {
         this.skin = s;
     }
-    
+
     public void setFace(final int f) {
         this.face = f;
     }
-    
+
     public void setHair(final int h) {
         this.hair = h;
     }
-    
+
     public void setGender(final int g) {
-        this.gender = (byte)g;
+        this.gender = (byte) g;
     }
-    
+
     public int getPet(final int i) {
         return (this.pets[i] > 0) ? this.pets[i] : 0;
     }
-    
+
     public void setPets(final List<MaplePet> p) {
         for (int i = 0; i < 3; ++i) {
             if (p != null && p.size() > i && p.get(i) != null) {
                 this.pets[i] = p.get(i).getPetItemId();
-            }
-            else {
+            } else {
                 this.pets[i] = 0;
             }
         }
     }
-    
+
     @Override
     public void sendSpawnData(final MapleClient client) {
         client.getSession().write(MaplePacketCreator.spawnNPC(this, true));
         client.getSession().write(MaplePacketCreator.spawnPlayerNPC(this));
         client.getSession().write(MaplePacketCreator.spawnNPCRequestController(this, true));
     }
-    
+
     public MapleNPC getNPCFromWZ() {
         final MapleNPC npc = MapleLifeFactory.getNPC(this.getId());
         if (npc != null) {

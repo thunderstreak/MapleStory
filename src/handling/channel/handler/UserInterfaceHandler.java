@@ -4,17 +4,16 @@ import client.MapleClient;
 import scripting.EventManager;
 import scripting.NPCScriptManager;
 import tools.MaplePacketCreator;
-public class UserInterfaceHandler
-{
+
+public class UserInterfaceHandler {
     public static void CygnusSummon_NPCRequest(final MapleClient c) {
         if (c.getPlayer().getJob() == 2000) {
             NPCScriptManager.getInstance().start(c, 1202000);
-        }
-        else if (c.getPlayer().getJob() == 1000) {
+        } else if (c.getPlayer().getJob() == 1000) {
             NPCScriptManager.getInstance().start(c, 1101008);
         }
     }
-    
+
     public static void ShipObjectRequest(final int mapid, final MapleClient c) {
         int effect = 3;
         switch (mapid) {

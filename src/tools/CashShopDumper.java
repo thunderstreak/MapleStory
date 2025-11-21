@@ -25,27 +25,30 @@ import server.CashItemFactory;
 import server.CashItemInfo;
 import server.MapleItemInformationProvider;
 
-public class CashShopDumper
-{
+public class CashShopDumper {
     private static final MapleDataProvider data;
-    
+
     public static CashItemInfo.CashModInfo getModInfo(final int sn) {
         CashItemInfo.CashModInfo ret = null;
         final Connection con = DatabaseConnection.getConnection();
-        try (final PreparedStatement ps = con.prepareStatement("SELECT * FROM cashshop_modified_items WHERE serial = ?")) {
+        try (final PreparedStatement ps = con
+                .prepareStatement("SELECT * FROM cashshop_modified_items WHERE serial = ?")) {
             ps.setInt(1, sn);
             try (final ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    ret = new CashItemInfo.CashModInfo(sn, rs.getInt("discount_price"), rs.getInt("mark"), rs.getInt("showup") > 0, rs.getInt("itemid"), rs.getInt("priority"), rs.getInt("package") > 0, rs.getInt("period"), rs.getInt("gender"), rs.getInt("count"), rs.getInt("meso"), rs.getInt("unk_1"), rs.getInt("unk_2"), rs.getInt("unk_3"), rs.getInt("extra_flags"));
+                    ret = new CashItemInfo.CashModInfo(sn, rs.getInt("discount_price"), rs.getInt("mark"),
+                            rs.getInt("showup") > 0, rs.getInt("itemid"), rs.getInt("priority"),
+                            rs.getInt("package") > 0, rs.getInt("period"), rs.getInt("gender"), rs.getInt("count"),
+                            rs.getInt("meso"), rs.getInt("unk_1"), rs.getInt("unk_2"), rs.getInt("unk_3"),
+                            rs.getInt("extra_flags"));
                 }
             }
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             FilePrinter.printError("CashShopDumper.txt", ex);
         }
         return ret;
     }
-    
+
     public static void main(final String[] args) {
         final CashItemInfo.CashModInfo m = getModInfo(20000393);
         CashItemFactory.getInstance().initialize();
@@ -75,17 +78,19 @@ public class CashShopDumper
                 if (meso > 0) {
                     check = true;
                 }
-                if (MapleItemInformationProvider.getInstance().getInventoryType(itemId) == MapleInventoryType.EQUIP && !MapleItemInformationProvider.getInstance().isCashItem(itemId)) {
+                if (MapleItemInformationProvider.getInstance().getInventoryType(itemId) == MapleInventoryType.EQUIP
+                        && !MapleItemInformationProvider.getInstance().isCashItem(itemId)) {
                     check = true;
                 }
-                if (MapleItemInformationProvider.getInstance().getInventoryType(itemId) == MapleInventoryType.EQUIP && period > 0) {
+                if (MapleItemInformationProvider.getInstance().getInventoryType(itemId) == MapleInventoryType.EQUIP
+                        && period > 0) {
                     check = true;
                 }
                 if (check) {
                     System.out.println(MapleItemInformationProvider.getInstance().getName(itemId));
-                }
-                else {
-                    final PreparedStatement ps = con.prepareStatement("INSERT INTO cashshop_modified_items (serial, showup,itemid,priority,period,gender,count,meso,discount_price,mark, unk_1, unk_2, unk_3) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                } else {
+                    final PreparedStatement ps = con.prepareStatement(
+                            "INSERT INTO cashshop_modified_items (serial, showup,itemid,priority,period,gender,count,meso,discount_price,mark, unk_1, unk_2, unk_3) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                     ps.setInt(1, sn);
                     ps.setInt(2, 1);
                     ps.setInt(3, itemId);
@@ -102,8 +107,7 @@ public class CashShopDumper
                     ps.executeUpdate();
                     ps.close();
                 }
-            }
-            catch (SQLException ex) {
+            } catch (SQLException ex) {
                 FilePrinter.printError("CashShopDumper.txt", ex);
             }
         }
@@ -122,26 +126,22 @@ public class CashShopDumper
                     bw.newLine();
                 }
                 bw.close();
-            }
-            catch (FileNotFoundException ex2) {
+            } catch (FileNotFoundException ex2) {
                 FilePrinter.printError("CashShopDumper.txt", ex2);
-            }
-            catch (IOException ex3) {
+            } catch (IOException ex3) {
                 FilePrinter.printError("CashShopDumper.txt", ex3);
-            }
-            finally {
+            } finally {
                 try {
                     if (fos != null) {
                         fos.close();
                     }
-                }
-                catch (IOException ex4) {
+                } catch (IOException ex4) {
                     FilePrinter.printError("CashShopDumper.txt", ex4);
                 }
             }
         }
     }
-    
+
     static {
         data = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzPath") + "/Etc.wz"));
     }

@@ -13,26 +13,25 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class MapleMonsterInformationProvider
-{
+public class MapleMonsterInformationProvider {
     private static final MapleMonsterInformationProvider instance;
     private final Map<Integer, List<MonsterDropEntry>> drops;
     private final List<MonsterGlobalDropEntry> globaldrops;
-    
+
     public static MapleMonsterInformationProvider getInstance() {
         return MapleMonsterInformationProvider.instance;
     }
-    
+
     protected MapleMonsterInformationProvider() {
         this.drops = new HashMap<Integer, List<MonsterDropEntry>>();
         this.globaldrops = new ArrayList<MonsterGlobalDropEntry>();
         this.retrieveGlobal();
     }
-    
+
     public List<MonsterGlobalDropEntry> getGlobalDrop() {
         return this.globaldrops;
     }
-    
+
     public void retrieveGlobal() {
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -41,15 +40,15 @@ public class MapleMonsterInformationProvider
             ps = con.prepareStatement("SELECT * FROM drop_data_global WHERE chance > 0");
             rs = ps.executeQuery();
             while (rs.next()) {
-                this.globaldrops.add(new MonsterGlobalDropEntry(rs.getInt("itemid"), rs.getInt("chance"), rs.getInt("continent"), rs.getByte("dropType"), rs.getInt("minimum_quantity"), rs.getInt("maximum_quantity"), rs.getShort("questid")));
+                this.globaldrops.add(new MonsterGlobalDropEntry(rs.getInt("itemid"), rs.getInt("chance"),
+                        rs.getInt("continent"), rs.getByte("dropType"), rs.getInt("minimum_quantity"),
+                        rs.getInt("maximum_quantity"), rs.getShort("questid")));
             }
             rs.close();
             ps.close();
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             System.err.println("Error retrieving drop" + e);
-        }
-        finally {
+        } finally {
             try {
                 if (ps != null) {
                     ps.close();
@@ -57,11 +56,11 @@ public class MapleMonsterInformationProvider
                 if (rs != null) {
                     rs.close();
                 }
+            } catch (SQLException ex) {
             }
-            catch (SQLException ex) {}
         }
     }
-    
+
     public List<MonsterDropEntry> retrieveDrop(final int monsterId) {
         if (this.drops.containsKey(monsterId)) {
             return this.drops.get(monsterId);
@@ -79,7 +78,8 @@ public class MapleMonsterInformationProvider
                 if (GameConstants.getInventoryType(itemid) == MapleInventoryType.EQUIP) {
                     chance /= 3;
                 }
-                ret.add(new MonsterDropEntry(itemid, chance, rs.getInt("minimum_quantity"), rs.getInt("maximum_quantity"), rs.getShort("questid")));
+                ret.add(new MonsterDropEntry(itemid, chance, rs.getInt("minimum_quantity"),
+                        rs.getInt("maximum_quantity"), rs.getShort("questid")));
             }
             try {
                 if (ps != null) {
@@ -88,15 +88,12 @@ public class MapleMonsterInformationProvider
                 if (rs != null) {
                     rs.close();
                 }
-            }
-            catch (SQLException ignore) {
+            } catch (SQLException ignore) {
                 return ret;
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             return ret;
-        }
-        finally {
+        } finally {
             try {
                 if (ps != null) {
                     ps.close();
@@ -104,21 +101,20 @@ public class MapleMonsterInformationProvider
                 if (rs != null) {
                     rs.close();
                 }
-            }
-            catch (SQLException ignore2) {
+            } catch (SQLException ignore2) {
                 return ret;
             }
         }
         this.drops.put(monsterId, ret);
         return ret;
     }
-    
+
     public void clearDrops() {
         this.drops.clear();
         this.globaldrops.clear();
         this.retrieveGlobal();
     }
-    
+
     static {
         instance = new MapleMonsterInformationProvider();
     }

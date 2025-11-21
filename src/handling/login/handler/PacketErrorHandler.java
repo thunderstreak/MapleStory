@@ -6,8 +6,7 @@ import tools.FileoutputUtil;
 import tools.StringUtil;
 import tools.data.input.SeekableLittleEndianAccessor;
 
-public class PacketErrorHandler
-{
+public class PacketErrorHandler {
     public static void handlePacket(final SeekableLittleEndianAccessor slea, final MapleClient c) {
         if (slea.available() >= 6L) {
             slea.skip(6);
@@ -19,13 +18,15 @@ public class PacketErrorHandler
             final String op = lookupRecv(pHeader);
             String from = "";
             if (c.getPlayer() != null) {
-                from = "\r\n时间：" + FileoutputUtil.CurrentReadable_Time() + "  角色: " + c.getPlayer().getName() + "  等级(" + c.getPlayer().getLevel() + ") 职业: " + c.getPlayer().getJob() + " \r\n";
+                from = "\r\n时间：" + FileoutputUtil.CurrentReadable_Time() + "  角色: " + c.getPlayer().getName() + "  等级("
+                        + c.getPlayer().getLevel() + ") 职业: " + c.getPlayer().getJob() + " \r\n";
             }
-            final String Recv = "封包出错: \r\n" + op + " [" + pHeaderStr + "] (" + (badPacketSize - 6) + ")\r\n" + slea.toString(true);
+            final String Recv = "封包出错: \r\n" + op + " [" + pHeaderStr + "] (" + (badPacketSize - 6) + ")\r\n"
+                    + slea.toString(true);
             FileoutputUtil.packetLog("logs/封包出错.log", from + Recv);
         }
     }
-    
+
     private static String lookupRecv(final int val) {
         for (final SendPacketOpcode op : SendPacketOpcode.values()) {
             if (op.getValue() == val) {

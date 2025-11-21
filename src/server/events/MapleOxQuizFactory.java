@@ -10,30 +10,28 @@ import java.util.Map;
 import server.Randomizer;
 import tools.Pair;
 
-
-public class MapleOxQuizFactory
-{
+public class MapleOxQuizFactory {
     private static final MapleOxQuizFactory instance;
     private boolean initialized;
     private final Map<Pair<Integer, Integer>, MapleOxQuizEntry> questionCache;
-    
+
     public static MapleOxQuizFactory getInstance() {
         return MapleOxQuizFactory.instance;
     }
-    
+
     public static MapleOxQuizEntry getOxEntry(final int questionSet, final int questionId) {
         return getInstance().getOxQuizEntry(new Pair<Integer, Integer>(questionSet, questionId));
     }
-    
+
     public static MapleOxQuizEntry getOxEntry(final Pair<Integer, Integer> pair) {
         return getInstance().getOxQuizEntry(pair);
     }
-    
+
     public MapleOxQuizFactory() {
         this.initialized = false;
         this.questionCache = new HashMap<Pair<Integer, Integer>, MapleOxQuizEntry>();
     }
-    
+
     public boolean hasInitialized() {
         return this.initialized;
     }
@@ -47,7 +45,7 @@ public class MapleOxQuizFactory
             }
         }
     }
-    
+
     public void initialize() {
         if (this.initialized) {
             return;
@@ -57,18 +55,18 @@ public class MapleOxQuizFactory
             final PreparedStatement ps = con.prepareStatement("SELECT * FROM wz_oxdata");
             final ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                this.questionCache.put(new Pair<Integer, Integer>(rs.getInt("questionset"), rs.getInt("questionid")), this.get(rs));
+                this.questionCache.put(new Pair<Integer, Integer>(rs.getInt("questionset"), rs.getInt("questionid")),
+                        this.get(rs));
             }
             rs.close();
             ps.close();
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         System.out.print("Done\r");
         this.initialized = true;
     }
-    
+
     public MapleOxQuizEntry getFromSQL(final String sql) {
         MapleOxQuizEntry ret = null;
         try {
@@ -80,29 +78,30 @@ public class MapleOxQuizFactory
             }
             rs.close();
             ps.close();
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return ret;
     }
-    
+
     public MapleOxQuizEntry getOxQuizEntry(final Pair<Integer, Integer> pair) {
         MapleOxQuizEntry mooe = this.questionCache.get(pair);
         if (mooe == null) {
             if (this.initialized) {
                 return null;
             }
-            mooe = this.getFromSQL("SELECT * FROM wz_oxdata WHERE questionset = " + pair.getLeft() + " AND questionid = " + pair.getRight());
+            mooe = this.getFromSQL("SELECT * FROM wz_oxdata WHERE questionset = " + pair.getLeft()
+                    + " AND questionid = " + pair.getRight());
             this.questionCache.put(pair, mooe);
         }
         return mooe;
     }
-    
+
     private MapleOxQuizEntry get(final ResultSet rs) throws SQLException {
-        return new MapleOxQuizEntry(rs.getString("question"), rs.getString("display"), this.getAnswerByText(rs.getString("answer")), rs.getInt("questionset"), rs.getInt("questionid"));
+        return new MapleOxQuizEntry(rs.getString("question"), rs.getString("display"),
+                this.getAnswerByText(rs.getString("answer")), rs.getInt("questionset"), rs.getInt("questionid"));
     }
-    
+
     private int getAnswerByText(final String text) {
         if (text.equalsIgnoreCase("x")) {
             return 0;
@@ -112,43 +111,43 @@ public class MapleOxQuizFactory
         }
         return -1;
     }
-    
+
     static {
         instance = new MapleOxQuizFactory();
     }
-    
-    public static class MapleOxQuizEntry
-    {
+
+    public static class MapleOxQuizEntry {
         private final String question;
         private final String answerText;
         private final int answer;
         private final int questionset;
         private final int questionid;
-        
-        public MapleOxQuizEntry(final String question, final String answerText, final int answer, final int questionset, final int questionid) {
+
+        public MapleOxQuizEntry(final String question, final String answerText, final int answer, final int questionset,
+                final int questionid) {
             this.question = question;
             this.answerText = answerText;
             this.answer = answer;
             this.questionset = questionset;
             this.questionid = questionid;
         }
-        
+
         public String getQuestion() {
             return this.question;
         }
-        
+
         public String getAnswerText() {
             return this.answerText;
         }
-        
+
         public int getAnswer() {
             return this.answer;
         }
-        
+
         public int getQuestionSet() {
             return this.questionset;
         }
-        
+
         public int getQuestionId() {
             return this.questionid;
         }

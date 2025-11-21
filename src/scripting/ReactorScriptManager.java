@@ -18,39 +18,39 @@ import server.maps.MapleReactor;
 import server.maps.ReactorDropEntry;
 import tools.FileoutputUtil;
 
-public class ReactorScriptManager extends AbstractScriptManager
-{
+public class ReactorScriptManager extends AbstractScriptManager {
     private static final ReactorScriptManager instance;
     private final Map<Integer, List<ReactorDropEntry>> drops;
-    
+
     public ReactorScriptManager() {
         this.drops = new HashMap<Integer, List<ReactorDropEntry>>();
     }
-    
+
     public static ReactorScriptManager getInstance() {
         return ReactorScriptManager.instance;
     }
-    
+
     public void act(final MapleClient c, final MapleReactor reactor) {
         try {
             if (c.getPlayer().isGM()) {
                 c.getPlayer().dropMessage("[系统提示]您已经建立与reactor:" + reactor.getReactorId() + "的对话。");
             }
-            final Invocable iv = this.getInvocable("reactor"+ File.separator + reactor.getReactorId() + ".js", c);
+            final Invocable iv = this.getInvocable("reactor" + File.separator + reactor.getReactorId() + ".js", c);
             if (iv == null) {
                 return;
             }
-            final ScriptEngine scriptengine = (ScriptEngine)iv;
+            final ScriptEngine scriptengine = (ScriptEngine) iv;
             final ReactorActionManager rm = new ReactorActionManager(c, reactor);
             scriptengine.put("rm", rm);
             iv.invokeFunction("act", new Object[0]);
-        }
-        catch (Exception e) {
-            System.err.println("Error executing reactor script. ReactorID: " + reactor.getReactorId() + ", ReactorName: " + reactor.getName() + ":" + e);
-            FileoutputUtil.log(FileoutputUtil.ScriptEx_Log, "Error executing reactor script. ReactorID: " + reactor.getReactorId() + ", ReactorName: " + reactor.getName() + ":" + e);
+        } catch (Exception e) {
+            System.err.println("Error executing reactor script. ReactorID: " + reactor.getReactorId()
+                    + ", ReactorName: " + reactor.getName() + ":" + e);
+            FileoutputUtil.log(FileoutputUtil.ScriptEx_Log, "Error executing reactor script. ReactorID: "
+                    + reactor.getReactorId() + ", ReactorName: " + reactor.getName() + ":" + e);
         }
     }
-    
+
     public List<ReactorDropEntry> getDrops(final int rid) {
         List<ReactorDropEntry> ret = this.drops.get(rid);
         if (ret != null) {
@@ -76,16 +76,13 @@ public class ReactorScriptManager extends AbstractScriptManager
                 if (ps != null) {
                     ps.close();
                 }
-            }
-            catch (SQLException ignore) {
+            } catch (SQLException ignore) {
                 return ret;
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             System.err.println("Could not retrieve drops for reactor " + rid + e);
             return ret;
-        }
-        finally {
+        } finally {
             try {
                 if (rs != null) {
                     rs.close();
@@ -93,19 +90,18 @@ public class ReactorScriptManager extends AbstractScriptManager
                 if (ps != null) {
                     ps.close();
                 }
-            }
-            catch (SQLException ignore2) {
+            } catch (SQLException ignore2) {
                 return ret;
             }
         }
         this.drops.put(rid, ret);
         return ret;
     }
-    
+
     public void clearDrops() {
         this.drops.clear();
     }
-    
+
     static {
         instance = new ReactorScriptManager();
     }
