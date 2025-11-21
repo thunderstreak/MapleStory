@@ -20,9 +20,12 @@ echo "正在启动服务..."
 echo "日志文件: $LOG_FILE"
 echo "使用 ./stop.sh 可以停止服务"
 
-# 删除旧日志
-if [ -f "$LOG_FILE" ]; then
-    rm -f "$LOG_FILE"
+# 删除 logs/ 目录下的所有日志文件
+if [ -d "logs" ]; then
+    echo "正在清理 logs/ 目录下的所有日志文件..."
+    # 删除 logs/ 目录及其子目录下的所有文件（保留目录结构）
+    find logs -type f -delete 2>/dev/null || true
+    echo "日志文件清理完成"
 fi
 
 # 将启动信息输出到日志文件
