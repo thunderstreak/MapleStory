@@ -10,16 +10,16 @@ import provider.MapleDataTool;
 import tools.Pair;
 import tools.StringUtil;
 
-public class MapleReactorFactory
-{
+public class MapleReactorFactory {
     private static final MapleDataProvider data;
     private static final Map<Integer, MapleReactorStats> reactorStats;
-    
+
     public static MapleReactorStats getReactor(final int rid) {
         MapleReactorStats stats = MapleReactorFactory.reactorStats.get(rid);
         if (stats == null) {
             int infoId = rid;
-            MapleData reactorData = MapleReactorFactory.data.getData(StringUtil.getLeftPaddedStr(Integer.toString(infoId) + ".img", '0', 11));
+            MapleData reactorData = MapleReactorFactory.data
+                    .getData(StringUtil.getLeftPaddedStr(Integer.toString(infoId) + ".img", '0', 11));
             final MapleData link = reactorData.getChildByPath("info/link");
             if (link != null) {
                 infoId = MapleDataTool.getIntConvert("info/link", reactorData);
@@ -27,7 +27,8 @@ public class MapleReactorFactory
             }
             if (stats == null) {
                 stats = new MapleReactorStats();
-                reactorData = MapleReactorFactory.data.getData(StringUtil.getLeftPaddedStr(Integer.toString(infoId) + ".img", '0', 11));
+                reactorData = MapleReactorFactory.data
+                        .getData(StringUtil.getLeftPaddedStr(Integer.toString(infoId) + ".img", '0', 11));
                 if (reactorData == null) {
                     return stats;
                 }
@@ -46,7 +47,8 @@ public class MapleReactorFactory
                         Pair<Integer, Integer> reactItem = null;
                         final int type = MapleDataTool.getIntConvert("type", reactorInfoData);
                         if (type == 100) {
-                            reactItem = new Pair<Integer, Integer>(MapleDataTool.getIntConvert("0", reactorInfoData), MapleDataTool.getIntConvert("1", reactorInfoData, 1));
+                            reactItem = new Pair<Integer, Integer>(MapleDataTool.getIntConvert("0", reactorInfoData),
+                                    MapleDataTool.getIntConvert("1", reactorInfoData, 1));
                             if (!areaSet) {
                                 stats.setTL(MapleDataTool.getPoint("lt", reactorInfoData));
                                 stats.setBR(MapleDataTool.getPoint("rb", reactorInfoData));
@@ -54,10 +56,13 @@ public class MapleReactorFactory
                             }
                         }
                         foundState = true;
-                        stats.addState(i, type, reactItem, (byte)MapleDataTool.getIntConvert("state", reactorInfoData), MapleDataTool.getIntConvert("timeOut", reactorInfoData_, -1), (byte)((MapleDataTool.getIntConvert("2", reactorInfoData, 0) > 0 || reactorInfoData.getChildByPath("clickArea") != null || type == 9) ? 1 : (canTouch ? 2 : 0)));
-                    }
-                    else {
-                        stats.addState(i, 999, null, (byte)(foundState ? -1 : (i + 1)), 0, (byte)0);
+                        stats.addState(i, type, reactItem, (byte) MapleDataTool.getIntConvert("state", reactorInfoData),
+                                MapleDataTool.getIntConvert("timeOut", reactorInfoData_, -1),
+                                (byte) ((MapleDataTool.getIntConvert("2", reactorInfoData, 0) > 0
+                                        || reactorInfoData.getChildByPath("clickArea") != null || type == 9) ? 1
+                                                : (canTouch ? 2 : 0)));
+                    } else {
+                        stats.addState(i, 999, null, (byte) (foundState ? -1 : (i + 1)), 0, (byte) 0);
                     }
                     ++i;
                 }
@@ -65,14 +70,13 @@ public class MapleReactorFactory
                 if (rid != infoId) {
                     MapleReactorFactory.reactorStats.put(rid, stats);
                 }
-            }
-            else {
+            } else {
                 MapleReactorFactory.reactorStats.put(rid, stats);
             }
         }
         return stats;
     }
-    
+
     static {
         data = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzPath") + "/Reactor.wz"));
         reactorStats = new HashMap<Integer, MapleReactorStats>();

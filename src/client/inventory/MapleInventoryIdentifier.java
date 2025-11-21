@@ -6,19 +6,18 @@ import java.util.concurrent.locks.*;
 import database.*;
 import java.sql.*;
 
-public class MapleInventoryIdentifier implements Serializable
-{
+public class MapleInventoryIdentifier implements Serializable {
     private static final long serialVersionUID = 21830921831301L;
     private static final MapleInventoryIdentifier instance;
     private final AtomicInteger runningUID;
     private final ReentrantReadWriteLock rwl;
     private final Lock readLock;
     private final Lock writeLock;
-    
+
     public static int getInstance() {
         return MapleInventoryIdentifier.instance.getNextUniqueId();
     }
-    
+
     public MapleInventoryIdentifier() {
         this.rwl = new ReentrantReadWriteLock();
         this.readLock = this.rwl.readLock();
@@ -26,7 +25,7 @@ public class MapleInventoryIdentifier implements Serializable
         this.runningUID = new AtomicInteger(0);
         this.getNextUniqueId();
     }
-    
+
     public int getNextUniqueId() {
         if (this.grabRunningUID() <= 0) {
             this.setRunningUID(this.initUID());
@@ -34,21 +33,20 @@ public class MapleInventoryIdentifier implements Serializable
         this.incrementRunningUID();
         return this.grabRunningUID();
     }
-    
+
     public int grabRunningUID() {
         this.readLock.lock();
         try {
             return this.runningUID.get();
-        }
-        finally {
+        } finally {
             this.readLock.unlock();
         }
     }
-    
+
     public void incrementRunningUID() {
         this.setRunningUID(this.grabRunningUID() + 1);
     }
-    
+
     public void setRunningUID(final int rUID) {
         if (rUID < this.grabRunningUID()) {
             return;
@@ -56,12 +54,11 @@ public class MapleInventoryIdentifier implements Serializable
         this.writeLock.lock();
         try {
             this.runningUID.set(rUID);
-        }
-        finally {
+        } finally {
             this.writeLock.unlock();
         }
     }
-    
+
     public int initUID() {
         int ret = 0;
         if (this.grabRunningUID() > 0) {
@@ -103,13 +100,12 @@ public class MapleInventoryIdentifier implements Serializable
                     ret = ids[i];
                 }
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return ret;
     }
-    
+
     static {
         instance = new MapleInventoryIdentifier();
     }

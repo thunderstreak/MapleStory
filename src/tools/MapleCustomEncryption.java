@@ -1,11 +1,10 @@
 package tools;
 
-public class MapleCustomEncryption
-{
+public class MapleCustomEncryption {
     public static byte[] encryptData(final byte[] data) {
         for (int j = 0; j < 6; ++j) {
             byte remember = 0;
-            byte dataLength = (byte)(data.length & 0xFF);
+            byte dataLength = (byte) (data.length & 0xFF);
             if (j % 2 == 0) {
                 for (int i = 0; i < data.length; ++i) {
                     byte cur = data[i];
@@ -13,13 +12,12 @@ public class MapleCustomEncryption
                     cur += dataLength;
                     cur = (remember ^= cur);
                     cur = BitTools.rollRight(cur, dataLength & 0xFF);
-                    cur = (byte)(~cur & 0xFF);
+                    cur = (byte) (~cur & 0xFF);
                     cur += 72;
                     --dataLength;
                     data[i] = cur;
                 }
-            }
-            else {
+            } else {
                 for (int i = data.length - 1; i >= 0; --i) {
                     byte cur = data[i];
                     cur = BitTools.rollLeft(cur, 4);
@@ -34,17 +32,17 @@ public class MapleCustomEncryption
         }
         return data;
     }
-    
+
     public static byte[] decryptData(final byte[] data) {
         for (int j = 1; j <= 6; ++j) {
             byte remember = 0;
-            byte dataLength = (byte)(data.length & 0xFF);
+            byte dataLength = (byte) (data.length & 0xFF);
             byte nextRemember = 0;
             if (j % 2 == 0) {
                 for (int i = 0; i < data.length; ++i) {
                     byte cur = data[i];
                     cur -= 72;
-                    cur = (byte)(~cur & 0xFF);
+                    cur = (byte) (~cur & 0xFF);
                     cur = (nextRemember = BitTools.rollLeft(cur, dataLength & 0xFF));
                     cur ^= remember;
                     remember = nextRemember;
@@ -53,12 +51,11 @@ public class MapleCustomEncryption
                     data[i] = cur;
                     --dataLength;
                 }
-            }
-            else {
+            } else {
                 for (int i = data.length - 1; i >= 0; --i) {
                     byte cur = data[i];
                     cur = BitTools.rollLeft(cur, 3);
-                    cur = (nextRemember = (byte)(cur ^ 0x13));
+                    cur = (nextRemember = (byte) (cur ^ 0x13));
                     cur ^= remember;
                     remember = nextRemember;
                     cur -= dataLength;

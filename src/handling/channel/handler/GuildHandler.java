@@ -12,27 +12,26 @@ import java.util.List;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
-public class GuildHandler
-{
+public class GuildHandler {
     private static final List<Invited> invited;
     private static long nextPruneTime;
-    
+
     public static void DenyGuildRequest(final String from, final MapleClient c) {
         final MapleCharacter cfrom = c.getChannelServer().getPlayerStorage().getCharacterByName(from);
         if (cfrom != null) {
             cfrom.getClient().getSession().write(MaplePacketCreator.denyGuildInvitation(c.getPlayer().getName()));
         }
     }
-    
+
     private static boolean isGuildNameAcceptable(final String name) {
         return name.length() <= 15 && name.length() >= 3;
     }
-    
+
     private static void respawnPlayer(final MapleCharacter mc) {
         mc.getMap().broadcastMessage(mc, MaplePacketCreator.removePlayerFromMap(mc.getId(), mc), false);
         mc.getMap().broadcastMessage(mc, MaplePacketCreator.spawnPlayerMapobject(mc), false);
     }
-    
+
     public static void Guild(final SeekableLittleEndianAccessor slea, final MapleClient c) {
         if (System.currentTimeMillis() >= GuildHandler.nextPruneTime) {
             final Iterator<Invited> itr = GuildHandler.invited.iterator();
@@ -61,12 +60,12 @@ public class GuildHandler
                 }
                 final int guildId = World.Guild.createGuild(c.getPlayer().getId(), guildName);
                 if (guildId == 0) {
-                    c.getSession().write(MaplePacketCreator.genericGuildMessage((byte)28));
+                    c.getSession().write(MaplePacketCreator.genericGuildMessage((byte) 28));
                     return;
                 }
                 c.getPlayer().gainMeso(-15000000, true, false, true);
                 c.getPlayer().setGuildId(guildId);
-                c.getPlayer().setGuildRank((byte)1);
+                c.getPlayer().setGuildRank((byte) 1);
                 c.getPlayer().saveGuildStatus();
                 c.getSession().write(MaplePacketCreator.showGuildInfo(c.getPlayer()));
                 World.Guild.setGuildMemberOnline(c.getPlayer().getMGC(), true, c.getChannel());
@@ -105,7 +104,7 @@ public class GuildHandler
                     final Invited inv3 = itr2.next();
                     if (guildId == inv3.gid && name.equals(inv3.name)) {
                         c.getPlayer().setGuildId(guildId);
-                        c.getPlayer().setGuildRank((byte)5);
+                        c.getPlayer().setGuildRank((byte) 5);
                         itr2.remove();
                         final int s = World.Guild.addGuildMember(c.getPlayer().getMGC());
                         if (s == 0) {
@@ -130,7 +129,8 @@ public class GuildHandler
             case 7: {
                 final int cid = slea.readInt();
                 final String name = slea.readMapleAsciiString();
-                if (cid != c.getPlayer().getId() || !name.equals(c.getPlayer().getName()) || c.getPlayer().getGuildId() <= 0) {
+                if (cid != c.getPlayer().getId() || !name.equals(c.getPlayer().getName())
+                        || c.getPlayer().getGuildId() <= 0) {
                     return;
                 }
                 World.Guild.leaveGuild(c.getPlayer().getMGC());
@@ -161,14 +161,16 @@ public class GuildHandler
             case 14: {
                 final int cid = slea.readInt();
                 final byte newRank = slea.readByte();
-                if (newRank <= 1 || newRank > 5 || c.getPlayer().getGuildRank() > 2 || (newRank <= 2 && c.getPlayer().getGuildRank() != 1) || c.getPlayer().getGuildId() <= 0) {
+                if (newRank <= 1 || newRank > 5 || c.getPlayer().getGuildRank() > 2
+                        || (newRank <= 2 && c.getPlayer().getGuildRank() != 1) || c.getPlayer().getGuildId() <= 0) {
                     return;
                 }
                 World.Guild.changeRank(c.getPlayer().getGuildId(), cid, newRank);
                 break;
             }
             case 15: {
-                if (c.getPlayer().getGuildId() <= 0 || c.getPlayer().getGuildRank() != 1 || c.getPlayer().getMapId() != 200000301) {
+                if (c.getPlayer().getGuildId() <= 0 || c.getPlayer().getGuildRank() != 1
+                        || c.getPlayer().getMapId() != 200000301) {
                     return;
                 }
                 if (c.getPlayer().getMeso() < 5000000) {
@@ -194,30 +196,29 @@ public class GuildHandler
             }
         }
     }
-    
+
     static {
         invited = new LinkedList<Invited>();
         GuildHandler.nextPruneTime = System.currentTimeMillis() + 1200000L;
     }
-    
-    private static class Invited
-    {
+
+    private static class Invited {
         public String name;
         public int gid;
         public long expiration;
-        
+
         public Invited(final String n, final int id) {
             this.name = n.toLowerCase();
             this.gid = id;
             this.expiration = System.currentTimeMillis() + 3600000L;
         }
-        
+
         @Override
         public boolean equals(final Object other) {
             if (!(other instanceof Invited)) {
                 return false;
             }
-            final Invited oth = (Invited)other;
+            final Invited oth = (Invited) other;
             return this.gid == oth.gid && this.name.equals(oth.name);
         }
     }

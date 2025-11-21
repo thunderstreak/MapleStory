@@ -10,7 +10,8 @@ import provider.MapleDataTool;
 import tools.Pair;
 
 public class PetDataFactory {
-    private static final MapleDataProvider dataRoot = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzPath") + "/Item.wz"));
+    private static final MapleDataProvider dataRoot = MapleDataProviderFactory
+            .getDataProvider(new File(System.getProperty("wzPath") + "/Item.wz"));
 
     private static final Map<Pair<Integer, Integer>, PetCommand> petCommands = new HashMap<>();
 

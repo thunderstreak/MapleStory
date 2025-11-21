@@ -8,15 +8,14 @@ import java.util.List;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
-public class BBSHandler
-{
+public class BBSHandler {
     private static String correctLength(final String in, final int maxSize) {
         if (in.length() > maxSize) {
             return in.substring(0, maxSize);
         }
         return in;
     }
-    
+
     public static void BBSOperatopn(final SeekableLittleEndianAccessor slea, final MapleClient c) {
         if (c.getPlayer().getGuildId() <= 0) {
             return;
@@ -37,8 +36,7 @@ public class BBSHandler
                     if (!c.getPlayer().haveItem(5290000 + icon - 100, 1, false, true)) {
                         return;
                     }
-                }
-                else if (icon < 0 || icon > 2) {
+                } else if (icon < 0 || icon > 2) {
                     return;
                 }
                 if (!bEdit) {
@@ -77,14 +75,15 @@ public class BBSHandler
             }
         }
     }
-    
+
     private static void listBBSThreads(final MapleClient c, final int start) {
         if (c.getPlayer().getGuildId() <= 0) {
             return;
         }
-        c.getSession().write((Object)MaplePacketCreator.BBSThreadList(World.Guild.getBBS(c.getPlayer().getGuildId()), start));
+        c.getSession().write(
+                (Object) MaplePacketCreator.BBSThreadList(World.Guild.getBBS(c.getPlayer().getGuildId()), start));
     }
-    
+
     private static void newBBSReply(final MapleClient c, final int localthreadid, final String text) {
         if (c.getPlayer().getGuildId() <= 0) {
             return;
@@ -92,37 +91,43 @@ public class BBSHandler
         World.Guild.addBBSReply(c.getPlayer().getGuildId(), localthreadid, text, c.getPlayer().getId());
         displayThread(c, localthreadid);
     }
-    
-    private static void editBBSThread(final MapleClient c, final String title, final String text, final int icon, final int localthreadid) {
+
+    private static void editBBSThread(final MapleClient c, final String title, final String text, final int icon,
+            final int localthreadid) {
         if (c.getPlayer().getGuildId() <= 0) {
             return;
         }
-        World.Guild.editBBSThread(c.getPlayer().getGuildId(), localthreadid, title, text, icon, c.getPlayer().getId(), c.getPlayer().getGuildRank());
+        World.Guild.editBBSThread(c.getPlayer().getGuildId(), localthreadid, title, text, icon, c.getPlayer().getId(),
+                c.getPlayer().getGuildRank());
         displayThread(c, localthreadid);
     }
-    
-    private static void newBBSThread(final MapleClient c, final String title, final String text, final int icon, final boolean bNotice) {
+
+    private static void newBBSThread(final MapleClient c, final String title, final String text, final int icon,
+            final boolean bNotice) {
         if (c.getPlayer().getGuildId() <= 0) {
             return;
         }
-        displayThread(c, World.Guild.addBBSThread(c.getPlayer().getGuildId(), title, text, icon, bNotice, c.getPlayer().getId()));
+        displayThread(c, World.Guild.addBBSThread(c.getPlayer().getGuildId(), title, text, icon, bNotice,
+                c.getPlayer().getId()));
     }
-    
+
     private static void deleteBBSThread(final MapleClient c, final int localthreadid) {
         if (c.getPlayer().getGuildId() <= 0) {
             return;
         }
-        World.Guild.deleteBBSThread(c.getPlayer().getGuildId(), localthreadid, c.getPlayer().getId(), c.getPlayer().getGuildRank());
+        World.Guild.deleteBBSThread(c.getPlayer().getGuildId(), localthreadid, c.getPlayer().getId(),
+                c.getPlayer().getGuildRank());
     }
-    
+
     private static void deleteBBSReply(final MapleClient c, final int localthreadid, final int replyid) {
         if (c.getPlayer().getGuildId() <= 0) {
             return;
         }
-        World.Guild.deleteBBSReply(c.getPlayer().getGuildId(), localthreadid, replyid, c.getPlayer().getId(), c.getPlayer().getGuildRank());
+        World.Guild.deleteBBSReply(c.getPlayer().getGuildId(), localthreadid, replyid, c.getPlayer().getId(),
+                c.getPlayer().getGuildRank());
         displayThread(c, localthreadid);
     }
-    
+
     private static void displayThread(final MapleClient c, final int localthreadid) {
         if (c.getPlayer().getGuildId() <= 0) {
             return;
@@ -131,7 +136,7 @@ public class BBSHandler
         if (bbsList != null) {
             for (final MapleBBSThread t : bbsList) {
                 if (t != null && t.localthreadID == localthreadid) {
-                    c.getSession().write((Object)MaplePacketCreator.showThread(t));
+                    c.getSession().write((Object) MaplePacketCreator.showThread(t));
                 }
             }
         }

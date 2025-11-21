@@ -9,8 +9,7 @@ import java.util.List;
 import server.maps.MapleMap;
 import tools.MaplePacketCreator;
 
-public class MapleCarnivalParty
-{
+public class MapleCarnivalParty {
     private final List<Integer> members;
     private final WeakReference<MapleCharacter> leader;
     private final byte team;
@@ -18,7 +17,7 @@ public class MapleCarnivalParty
     private short availableCP;
     private short totalCP;
     private boolean winner;
-    
+
     public MapleCarnivalParty(final MapleCharacter owner, final List<MapleCharacter> members1, final byte team1) {
         this.members = new LinkedList<Integer>();
         this.availableCP = 0;
@@ -32,38 +31,38 @@ public class MapleCarnivalParty
         this.team = team1;
         this.channel = owner.getClient().getChannel();
     }
-    
+
     public MapleCharacter getLeader() {
         return this.leader.get();
     }
-    
+
     public void addCP(final MapleCharacter player, final int ammount) {
-        this.totalCP += (short)ammount;
-        this.availableCP += (short)ammount;
+        this.totalCP += (short) ammount;
+        this.availableCP += (short) ammount;
         player.addCP(ammount);
     }
-    
+
     public int getTotalCP() {
         return this.totalCP;
     }
-    
+
     public int getAvailableCP() {
         return this.availableCP;
     }
-    
+
     public void useCP(final MapleCharacter player, final int ammount) {
-        this.availableCP -= (short)ammount;
+        this.availableCP -= (short) ammount;
         player.useCP(ammount);
     }
-    
+
     public List<Integer> getMembers() {
         return this.members;
     }
-    
+
     public int getTeam() {
         return this.team;
     }
-    
+
     public void warp(final MapleMap map, final String portalname) {
         for (final int chr : this.members) {
             final MapleCharacter c = ChannelServer.getInstance(this.channel).getPlayerStorage().getCharacterById(chr);
@@ -72,7 +71,7 @@ public class MapleCarnivalParty
             }
         }
     }
-    
+
     public void warp(final MapleMap map, final int portalid) {
         for (final int chr : this.members) {
             final MapleCharacter c = ChannelServer.getInstance(this.channel).getPlayerStorage().getCharacterById(chr);
@@ -81,7 +80,7 @@ public class MapleCarnivalParty
             }
         }
     }
-    
+
     public boolean allInMap(final MapleMap map) {
         for (final int chr : this.members) {
             if (map.getCharacterById(chr) == null) {
@@ -90,7 +89,7 @@ public class MapleCarnivalParty
         }
         return true;
     }
-    
+
     public void removeMember(final MapleCharacter chr) {
         for (int i = 0; i < this.members.size(); ++i) {
             if (this.members.get(i) == chr.getId()) {
@@ -99,15 +98,15 @@ public class MapleCarnivalParty
             }
         }
     }
-    
+
     public boolean isWinner() {
         return this.winner;
     }
-    
+
     public void setWinner(final boolean status) {
         this.winner = status;
     }
-    
+
     public void displayMatchResult() {
         final String effect = this.winner ? "quest/carnival/win" : "quest/carnival/lose";
         final String sound = this.winner ? "MobCarnival/Win" : "MobCarnival/Lose";

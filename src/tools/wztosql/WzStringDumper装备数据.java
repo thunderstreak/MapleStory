@@ -9,8 +9,7 @@ import provider.MapleData;
 import provider.MapleDataProvider;
 import provider.MapleDataProviderFactory;
 
-public class WzStringDumper装备数据
-{
+public class WzStringDumper装备数据 {
     public static void main(final String[] args) throws FileNotFoundException, IOException {
         final File stringFile = MapleDataProviderFactory.fileInwzPath("string.wz");
         final MapleDataProvider stringProvider = MapleDataProviderFactory.getDataProvider(stringFile);
@@ -55,10 +54,10 @@ public class WzStringDumper装备数据
             String name = "";
             String desc = "(無描述)";
             if (nameData != null) {
-                name = (String)nameData.getData();
+                name = (String) nameData.getData();
             }
             if (descData != null) {
-                desc = (String)descData.getData();
+                desc = (String) descData.getData();
             }
             writer.println(child.getName() + " - " + name + " - " + desc);
         }
@@ -73,10 +72,10 @@ public class WzStringDumper装备数据
             String name = "";
             String desc = "(無描述)";
             if (nameData != null) {
-                name = (String)nameData.getData();
+                name = (String) nameData.getData();
             }
             if (descData != null) {
-                desc = (String)descData.getData();
+                desc = (String) descData.getData();
             }
             writer.println(child.getName() + " - " + name + " - " + desc);
         }
@@ -95,12 +94,13 @@ public class WzStringDumper装备数据
                 String name2 = "";
                 String desc2 = "(無描述)";
                 if (nameData2 != null) {
-                    name2 = (String)nameData2.getData();
+                    name2 = (String) nameData2.getData();
                 }
                 if (descData2 != null) {
-                    desc2 = (String)descData2.getData();
+                    desc2 = (String) descData2.getData();
                 }
-                eqpWriter.println("INSERT INTO `cashshop_modified_items` VALUES ('200900', '4888', '1', '1', '" + child2.getName() + "', '0', '0', '0', '2', '1', '0', '0', '0', '0', '0'");
+                eqpWriter.println("INSERT INTO `cashshop_modified_items` VALUES ('200900', '4888', '1', '1', '"
+                        + child2.getName() + "', '0', '0', '0', '2', '1', '0', '0', '0', '0', '0'");
             }
             eqpWriter.flush();
             eqpWriter.close();
@@ -115,10 +115,10 @@ public class WzStringDumper装备数据
             String name = "";
             String desc = "(無描述)";
             if (nameData != null) {
-                name = (String)nameData.getData();
+                name = (String) nameData.getData();
             }
             if (descData != null) {
-                desc = (String)descData.getData();
+                desc = (String) descData.getData();
             }
             writer.println(child.getName() + " - " + name + " - " + desc);
         }
@@ -133,10 +133,10 @@ public class WzStringDumper装备数据
             String name = "";
             String desc = "(無描述)";
             if (nameData != null) {
-                name = (String)nameData.getData();
+                name = (String) nameData.getData();
             }
             if (descData != null) {
-                desc = (String)descData.getData();
+                desc = (String) descData.getData();
             }
             writer.println(child.getName() + " - " + name + " - " + desc);
         }
@@ -151,10 +151,10 @@ public class WzStringDumper装备数据
             String name = "";
             String desc = "(無描述)";
             if (nameData != null) {
-                name = (String)nameData.getData();
+                name = (String) nameData.getData();
             }
             if (descData != null) {
-                desc = (String)descData.getData();
+                desc = (String) descData.getData();
             }
             writer.println(child.getName() + " - " + name + " - " + desc);
         }
@@ -172,10 +172,10 @@ public class WzStringDumper装备数据
                 String streetName = "(無數據名)";
                 String mapName = "(无地图名)";
                 if (streetData != null) {
-                    streetName = (String)streetData.getData();
+                    streetName = (String) streetData.getData();
                 }
                 if (mapData != null) {
-                    mapName = (String)mapData.getData();
+                    mapName = (String) mapData.getData();
                 }
                 writer.println(child3.getName() + " - " + streetName + " - " + mapName);
             }
@@ -190,7 +190,7 @@ public class WzStringDumper装备数据
             final MapleData nameData = child.getChildByPath("name");
             String name3 = "";
             if (nameData != null) {
-                name3 = (String)nameData.getData();
+                name3 = (String) nameData.getData();
             }
             writer.println(child.getName() + " - " + name3);
         }
@@ -206,10 +206,10 @@ public class WzStringDumper装备数据
             String name4 = "";
             String desc3 = "";
             if (nameData != null) {
-                name4 = (String)nameData.getData();
+                name4 = (String) nameData.getData();
             }
             if (descData != null) {
-                desc3 = (String)descData.getData();
+                desc3 = (String) descData.getData();
             }
             if (bookData == null) {
                 writer.println(child.getName() + " - " + name4 + " - " + desc3);
@@ -224,7 +224,7 @@ public class WzStringDumper装备数据
             final MapleData nameData = child.getChildByPath("name");
             String name3 = "";
             if (nameData != null) {
-                name3 = (String)nameData.getData();
+                name3 = (String) nameData.getData();
             }
             writer.println(child.getName() + " - " + name3);
         }

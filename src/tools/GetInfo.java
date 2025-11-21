@@ -16,11 +16,10 @@ public class GetInfo {
         Config();
         getConfig();
         all();
-//        System.setProperty("server_property_file_path","E:/game/2020mxd079/079sever/HuaiMS_服务端配置.properties");
-//        System.setProperty("server_property_db_path","E:/game/2020mxd079/079sever/HuaiMS_数据库配置.properties");
-//        System.setProperty("server_property_shop_path","E:/game/2020mxd079/079sever/HuaiMS_封商城道具.properties");
-//        System.setProperty("server_property_fish_path","E:/game/2020mxd079/079sever/HuaiMS_钓鱼设置.properties");
-
+        // System.setProperty("server_property_file_path","E:/game/2020mxd079/079sever/HuaiMS_服务端配置.properties");
+        // System.setProperty("server_property_db_path","E:/game/2020mxd079/079sever/HuaiMS_数据库配置.properties");
+        // System.setProperty("server_property_shop_path","E:/game/2020mxd079/079sever/HuaiMS_封商城道具.properties");
+        // System.setProperty("server_property_fish_path","E:/game/2020mxd079/079sever/HuaiMS_钓鱼设置.properties");
 
     }
 
@@ -87,11 +86,12 @@ public class GetInfo {
             String sMAC = "";
             Formatter formatter = new Formatter();
             for (int i = 0; i < mac.length; i++) {
-                sMAC = formatter.format(Locale.getDefault(), "%02X%s", new Object[] { Byte.valueOf(mac[i]), (i < mac.length - 1) ? "-" : "" }).toString();
+                sMAC = formatter.format(Locale.getDefault(), "%02X%s",
+                        new Object[] { Byte.valueOf(mac[i]), (i < mac.length - 1) ? "-" : "" }).toString();
             }
             System.out.println("IP：" + sIP);
             System.out.println("MAC：" + sMAC);
-        } catch (SocketException|UnknownHostException e) {
+        } catch (SocketException | UnknownHostException e) {
             e.printStackTrace();
         }
     }

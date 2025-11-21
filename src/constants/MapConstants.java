@@ -1,7 +1,6 @@
 package constants;
 
-public class MapConstants
-{
+public class MapConstants {
     public static boolean isStartingEventMap(final int mapid) {
         switch (mapid) {
             case 109010000:
@@ -29,7 +28,7 @@ public class MapConstants
             }
         }
     }
-    
+
     public static boolean isEventMap(final int mapid) {
         return (mapid >= 109010000 && mapid < 109050000) || (mapid > 109050001 && mapid < 109090000);
     }

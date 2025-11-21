@@ -13,8 +13,7 @@ import java.util.List;
 import server.Randomizer;
 import server.maps.MapleMapObjectType;
 
-public class GameConstants
-{
+public class GameConstants {
     public static List<MapleMapObjectType> rangedMapobjectTypes;
     private static final int[] exp;
     private static final int[] closeness;
@@ -43,80 +42,79 @@ public class GameConstants
     public static int[] superDrops;
     public static int[] owlItems;
     public static final String[] stats;
-    
+
     public static void LoadExp() {
         for (int i = 1; i <= 50; ++i) {
             if (i <= 5) {
                 GameConstants.exp[i] = i * (i * i / 2 + 15);
-            }
-            else if (i > 5 && i <= 50) {
+            } else if (i > 5 && i <= 50) {
                 GameConstants.exp[i] = i * i / 3 * (i * i / 3 + 19);
             }
         }
         for (int i = 51; i <= 200; ++i) {
-            GameConstants.exp[i] = (int)(GameConstants.exp[i - 1] * 1.0548);
+            GameConstants.exp[i] = (int) (GameConstants.exp[i - 1] * 1.0548);
         }
     }
-    
+
     public static int getExpNeededForLevel(final int level) {
         if (level < 0 || level >= GameConstants.exp.length) {
             return Integer.MAX_VALUE;
         }
         return GameConstants.exp[level];
     }
-    
+
     public static int getClosenessNeededForLevel(final int level) {
         return GameConstants.closeness[level - 1];
     }
-    
+
     public static int getMountExpNeededForLevel(final int level) {
         return GameConstants.mountexp[level - 1];
     }
-    
+
     public static int getBookLevel(final int level) {
         return 5 * level * (level + 1);
     }
-    
+
     public static int getTimelessRequiredEXP(final int level) {
         return 70 + level * 10;
     }
-    
+
     public static int getReverseRequiredEXP(final int level) {
         return 60 + level * 5;
     }
-    
+
     public static Double maxViewRangeSq() {
         return Double.POSITIVE_INFINITY;
     }
-    
+
     public static Double maxViewRangeSq_Half() {
         return Double.POSITIVE_INFINITY;
     }
-    
+
     public static boolean isJobFamily(final int baseJob, final int currentJob) {
         return currentJob >= baseJob && currentJob / 100 == baseJob / 100;
     }
-    
+
     public static boolean isKOC(final int job) {
         return job >= 1000 && job < 2000;
     }
-    
+
     public static boolean isEvan(final int job) {
         return job == 2001 || (job >= 2200 && job <= 2218);
     }
-    
+
     public static boolean isAran(final int job) {
         return job >= 2000 && job <= 2112 && job != 2001;
     }
-    
+
     public static boolean isResist(final int job) {
         return job >= 3000 && job <= 3512;
     }
-    
+
     public static boolean isAdventurer(final int job) {
         return job >= 0 && job < 1000;
     }
-    
+
     public static boolean isRecoveryIncSkill(final int id) {
         switch (id) {
             case 1110000:
@@ -132,11 +130,11 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean isLinkedAranSkill(final int id) {
         return getLinkedAranSkill(id) != id;
     }
-    
+
     public static int getLinkedAranSkill(final int id) {
         switch (id) {
             case 21110007:
@@ -170,7 +168,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static int getBOF_ForJob(final int job) {
         if (isAdventurer(job)) {
             return 12;
@@ -186,7 +184,7 @@ public class GameConstants
         }
         return 20000012;
     }
-    
+
     public static boolean isElementAmp_Skill(final int skill) {
         switch (skill) {
             case 2110001:
@@ -200,7 +198,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static int getMPEaterForJob(final int job) {
         switch (job) {
             case 210:
@@ -223,7 +221,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static int getJobShortValue(int job) {
         if (job >= 1000) {
             job -= job / 1000 * 1000;
@@ -245,7 +243,7 @@ public class GameConstants
         }
         return job;
     }
-    
+
     public static boolean isPyramidSkill(final int skill) {
         switch (skill) {
             case 1020:
@@ -260,7 +258,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean isMulungSkill(final int skill) {
         switch (skill) {
             case 1009:
@@ -285,52 +283,52 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean is飞镖道具(final int itemId) {
         return itemId / 10000 == 207;
     }
-    
+
     public static boolean is子弹道具(final int itemId) {
         return itemId / 10000 == 233;
     }
-    
+
     public static boolean isRechargable(final int itemId) {
         return is飞镖道具(itemId) || is子弹道具(itemId);
     }
-    
+
     public static boolean isOverall(final int itemId) {
         return itemId / 10000 == 105;
     }
-    
+
     public static boolean isPet(final int itemId) {
         return itemId / 10000 == 500;
     }
-    
+
     public static boolean isArrowForCrossBow(final int itemId) {
         return itemId >= 2061000 && itemId < 2062000;
     }
-    
+
     public static boolean isArrowForBow(final int itemId) {
         return itemId >= 2060000 && itemId < 2061000;
     }
-    
+
     public static boolean isMagicWeapon(final int itemId) {
         final int s = itemId / 10000;
         return s == 137 || s == 138;
     }
-    
+
     public static boolean isWeapon(final int itemId) {
         return itemId >= 1300000 && itemId < 1500000;
     }
-    
+
     public static MapleInventoryType getInventoryType(final int itemId) {
-        final byte type = (byte)(itemId / 1000000);
+        final byte type = (byte) (itemId / 1000000);
         if (type < 1 || type > 5) {
             return MapleInventoryType.UNDEFINED;
         }
         return MapleInventoryType.getByType(type);
     }
-    
+
     public static MapleWeaponType getWeaponType(final int itemId) {
         int cat = itemId / 10000;
         cat %= 100;
@@ -391,41 +389,41 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean isShield(final int itemId) {
         int cat = itemId / 10000;
         cat %= 100;
         return cat == 9;
     }
-    
+
     public static boolean isEquip(final int itemId) {
         return itemId / 1000000 == 1;
     }
-    
+
     public static boolean isCleanSlate(final int itemId) {
         return itemId / 100 == 20490;
     }
-    
+
     public static boolean isAccessoryScroll(final int itemId) {
         return itemId / 100 == 20492;
     }
-    
+
     public static boolean isChaosScroll(final int itemId) {
         return (itemId < 2049105 || itemId > 2049110) && itemId / 100 == 20491;
     }
-    
+
     public static int getChaosNumber(final int itemId) {
         return (itemId == 2049116) ? 10 : 5;
     }
-    
+
     public static boolean isEquipScroll(final int scrollId) {
         return scrollId / 100 == 20493;
     }
-    
+
     public static boolean isPotentialScroll(final int scrollId) {
         return scrollId / 100 == 20494;
     }
-    
+
     public static boolean isSpecialScroll(final int scrollId) {
         switch (scrollId) {
             case 2040727:
@@ -437,7 +435,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean isTwoHanded(final int itemId) {
         switch (getWeaponType(itemId)) {
             case AXE2H:
@@ -457,43 +455,43 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean isTownScroll(final int id) {
         return id >= 2030000 && id < 2040000;
     }
-    
+
     public static boolean isUpgradeScroll(final int id) {
         return id >= 2040000 && id < 2050000;
     }
-    
+
     public static boolean isGun(final int id) {
         return id >= 1492000 && id < 1500000;
     }
-    
+
     public static boolean isUse(final int id) {
         return id >= 2000000 && id <= 2490000;
     }
-    
+
     public static boolean isSummonSack(final int id) {
         return id / 10000 == 210;
     }
-    
+
     public static boolean isMonsterCard(final int id) {
         return id / 10000 == 238;
     }
-    
+
     public static boolean isSpecialCard(final int id) {
         return id / 1000 >= 2388;
     }
-    
+
     public static int getCardShortId(final int id) {
         return id % 10000;
     }
-    
+
     public static boolean isGem(final int id) {
         return id >= 4250000 && id <= 4251402;
     }
-    
+
     public static boolean isOtherGem(final int id) {
         switch (id) {
             case 1032062:
@@ -524,55 +522,55 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean isCustomQuest(final int id) {
         return id > 99999;
     }
-    
+
     public static int getTaxAmount(final int meso) {
         if (meso >= 100000000) {
-            return (int)Math.round(0.06 * meso);
+            return (int) Math.round(0.06 * meso);
         }
         if (meso >= 25000000) {
-            return (int)Math.round(0.05 * meso);
+            return (int) Math.round(0.05 * meso);
         }
         if (meso >= 10000000) {
-            return (int)Math.round(0.04 * meso);
+            return (int) Math.round(0.04 * meso);
         }
         if (meso >= 5000000) {
-            return (int)Math.round(0.03 * meso);
+            return (int) Math.round(0.03 * meso);
         }
         if (meso >= 1000000) {
-            return (int)Math.round(0.018 * meso);
+            return (int) Math.round(0.018 * meso);
         }
         if (meso >= 100000) {
-            return (int)Math.round(0.008 * meso);
+            return (int) Math.round(0.008 * meso);
         }
         return 0;
     }
-    
+
     public static int EntrustedStoreTax(final int meso) {
         if (meso >= 100000000) {
-            return (int)Math.round(0.03 * meso);
+            return (int) Math.round(0.03 * meso);
         }
         if (meso >= 25000000) {
-            return (int)Math.round(0.025 * meso);
+            return (int) Math.round(0.025 * meso);
         }
         if (meso >= 10000000) {
-            return (int)Math.round(0.02 * meso);
+            return (int) Math.round(0.02 * meso);
         }
         if (meso >= 5000000) {
-            return (int)Math.round(0.015 * meso);
+            return (int) Math.round(0.015 * meso);
         }
         if (meso >= 1000000) {
-            return (int)Math.round(0.009 * meso);
+            return (int) Math.round(0.009 * meso);
         }
         if (meso >= 100000) {
-            return (int)Math.round(0.004 * meso);
+            return (int) Math.round(0.004 * meso);
         }
         return 0;
     }
-    
+
     public static short getSummonAttackDelay(final int id) {
         switch (id) {
             case 2121005:
@@ -605,7 +603,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static short getAttackDelay(final int id) {
         switch (id) {
             case 4321001: {
@@ -782,7 +780,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static byte gachaponRareItem(final int id) {
         switch (id) {
             case 1022129:
@@ -907,7 +905,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean isDragonItem(final int itemId) {
         switch (itemId) {
             case 1302059:
@@ -934,7 +932,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean isReverseItem(final int itemId) {
         switch (itemId) {
             case 1002790:
@@ -982,7 +980,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean isTimelessItem(final int itemId) {
         switch (itemId) {
             case 1002776:
@@ -1037,15 +1035,15 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean isRing(final int itemId) {
         return itemId >= 1112000 && itemId < 1113000;
     }
-    
+
     public static boolean isEffectRing(final int itemid) {
         return isFriendshipRing(itemid) || isCrushRing(itemid) || isMarriageRing(itemid);
     }
-    
+
     public static boolean isFriendshipRing(final int itemId) {
         switch (itemId) {
             case 1049000:
@@ -1065,7 +1063,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean isCrushRing(final int itemId) {
         switch (itemId) {
             case 1048000:
@@ -1086,7 +1084,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static int 道具佩戴附加经验值(final int itemid) {
         switch (itemid) {
             case 1122017: {
@@ -1097,7 +1095,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static int getExpForLevel(final int i, final int itemId) {
         if (isReverseItem(itemId)) {
             return getReverseRequiredEXP(i);
@@ -1107,7 +1105,7 @@ public class GameConstants
         }
         return 0;
     }
-    
+
     public static int getMaxLevel(final int itemId) {
         if (isTimelessItem(itemId)) {
             return 5;
@@ -1156,11 +1154,11 @@ public class GameConstants
             }
         }
     }
-    
+
     public static int getStatChance() {
         return 25;
     }
-    
+
     public static MonsterStatus getStatFromWeapon(final int itemid) {
         switch (itemid) {
             case 1302109:
@@ -1202,7 +1200,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static int getXForStat(final MonsterStatus stat) {
         switch (stat) {
             case 命中: {
@@ -1216,7 +1214,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static int getSkillForStat(final MonsterStatus stat) {
         switch (stat) {
             case 命中: {
@@ -1230,7 +1228,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static int getSkillBook(final int job) {
         if (job >= 2210 && job <= 2218) {
             return job - 2209;
@@ -1256,11 +1254,11 @@ public class GameConstants
             }
         }
     }
-    
+
     public static int getSkillBookForSkill(final int skillid) {
         return getSkillBook(skillid / 10000);
     }
-    
+
     public static int getMountItem(final int sourceid) {
         switch (sourceid) {
             case 5221006: {
@@ -1506,23 +1504,23 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean isKatara(final int itemId) {
         return itemId / 10000 == 134;
     }
-    
+
     public static boolean isDagger(final int itemId) {
         return itemId / 10000 == 133;
     }
-    
+
     public static boolean isApplicableSkill(final int skil) {
         return skil < 40000000 && (skil % 10000 < 8000 || skil % 10000 > 8003);
     }
-    
+
     public static boolean isApplicableSkill_(final int skil) {
         return skil >= 90000000 || (skil % 10000 >= 8000 && skil % 10000 <= 8003);
     }
-    
+
     public static boolean isTablet(final int itemId) {
         return itemId / 1000 == 2047;
     }
@@ -1612,7 +1610,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static int getCurseTablet(final int scrollId, final int level) {
         switch (scrollId % 1000 / 100) {
             case 2: {
@@ -1698,28 +1696,32 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean isAccessory(final int itemId) {
-        return (itemId >= 1010000 && itemId < 1040000) || (itemId >= 1122000 && itemId < 1153000) || (itemId >= 1112000 && itemId < 1113000);
+        return (itemId >= 1010000 && itemId < 1040000) || (itemId >= 1122000 && itemId < 1153000)
+                || (itemId >= 1112000 && itemId < 1113000);
     }
-    
+
     public static boolean potentialIDFits(final int potentialID, final int newstate, final int i) {
         switch (newstate) {
             case 7: {
-                return (i == 0 || Randomizer.nextInt(10) == 0) ? (potentialID >= 30000) : (potentialID >= 20000 && potentialID < 30000);
+                return (i == 0 || Randomizer.nextInt(10) == 0) ? (potentialID >= 30000)
+                        : (potentialID >= 20000 && potentialID < 30000);
             }
             case 6: {
-                return (i == 0 || Randomizer.nextInt(10) == 0) ? (potentialID >= 20000 && potentialID < 30000) : (potentialID >= 10000 && potentialID < 20000);
+                return (i == 0 || Randomizer.nextInt(10) == 0) ? (potentialID >= 20000 && potentialID < 30000)
+                        : (potentialID >= 10000 && potentialID < 20000);
             }
             case 5: {
-                return (i == 0 || Randomizer.nextInt(10) == 0) ? (potentialID >= 10000 && potentialID < 20000) : (potentialID < 10000);
+                return (i == 0 || Randomizer.nextInt(10) == 0) ? (potentialID >= 10000 && potentialID < 20000)
+                        : (potentialID < 10000);
             }
             default: {
                 return false;
             }
         }
     }
-    
+
     public static boolean optionTypeFits(final int optionType, final int itemId) {
         switch (optionType) {
             case 10: {
@@ -1760,39 +1762,36 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean isMountItemAvailable(final int mountid, final int jobid) {
         if (jobid != 900 && mountid / 10000 == 190) {
             if (isKOC(jobid)) {
                 if (mountid < 1902005 || mountid > 1902007) {
                     return false;
                 }
-            }
-            else if (isAdventurer(jobid)) {
+            } else if (isAdventurer(jobid)) {
                 if (mountid < 1902000 || mountid > 1902002) {
                     return false;
                 }
-            }
-            else if (isAran(jobid)) {
+            } else if (isAran(jobid)) {
                 if (mountid < 1902015 || mountid > 1902018) {
                     return false;
                 }
-            }
-            else if (isEvan(jobid) && (mountid < 1902040 || mountid > 1902042)) {
+            } else if (isEvan(jobid) && (mountid < 1902040 || mountid > 1902042)) {
                 return false;
             }
         }
         return true;
     }
-    
+
     public static boolean isEvanDragonItem(final int itemId) {
         return itemId >= 1940000 && itemId < 1980000;
     }
-    
+
     public static boolean canScroll(final int itemId) {
         return itemId / 100000 != 19 && itemId / 100000 != 16;
     }
-    
+
     public static boolean canHammer(final int itemId) {
         switch (itemId) {
             case 1122000:
@@ -1804,7 +1803,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static int getMasterySkill(final int job) {
         if (job >= 1410 && job <= 1412) {
             return 14100000;
@@ -1817,7 +1816,7 @@ public class GameConstants
         }
         return 0;
     }
-    
+
     public static int getExpRate_Below10(final int job) {
         if (isEvan(job)) {
             return 1;
@@ -1827,11 +1826,11 @@ public class GameConstants
         }
         return 1;
     }
-    
+
     public static int getExpRate_Quest(final int level) {
         return 1;
     }
-    
+
     public static String getCashBlockedMsg(final int id) {
         switch (id) {
             case 5062000: {
@@ -1842,14 +1841,14 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean isCustomReactItem(final int rid, final int iid, final int original) {
         if (rid == 2008006) {
             return iid == Calendar.getInstance().get(7) + 4001055;
         }
         return iid == original;
     }
-    
+
     public static int getJobNumber(final int jobz) {
         final int job = jobz % 1000;
         if (job / 100 == 0) {
@@ -1860,7 +1859,7 @@ public class GameConstants
         }
         return 2 + job % 10;
     }
-    
+
     public static boolean isForceRespawn(final int mapid) {
         switch (mapid) {
             case 925100100: {
@@ -1871,7 +1870,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static int getCustomSpawnID(final int summoner, final int def) {
         switch (summoner) {
             case 9400589:
@@ -1883,7 +1882,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean canForfeit(final int questid) {
         switch (questid) {
             case 20000:
@@ -1897,11 +1896,12 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean isEventMap(final int mapid) {
-        return (mapid >= 109010000 && mapid < 109050000) || (mapid > 109050001 && mapid < 109090000) || (mapid >= 809040000 && mapid <= 809040100);
+        return (mapid >= 109010000 && mapid < 109050000) || (mapid > 109050001 && mapid < 109090000)
+                || (mapid >= 809040000 && mapid <= 809040100);
     }
-    
+
     public static boolean is豆豆装备(final int itemId) {
         switch (itemId) {
             case 1002448:
@@ -1940,14 +1940,14 @@ public class GameConstants
             }
         }
     }
-    
+
     public static int getCustomReactItem(final int rid, final int original) {
         if (rid == 2008006) {
             return Calendar.getInstance().get(7) + 4001055;
         }
         return original;
     }
-    
+
     public static boolean Summon_Skill_ID_550(final int SkillID) {
         switch (SkillID) {
             case 3121006: {
@@ -1958,7 +1958,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Summon_Skill_ID_500(final int SkillID) {
         switch (SkillID) {
             case 3221005:
@@ -1970,7 +1970,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Summon_Skill_ID_450(final int SkillID) {
         switch (SkillID) {
             case 5211002: {
@@ -1981,7 +1981,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Summon_Skill_ID_300(final int SkillID) {
         switch (SkillID) {
             case 2221005: {
@@ -1992,7 +1992,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Summon_Skill_ID_270(final int SkillID) {
         switch (SkillID) {
             case 2121005: {
@@ -2003,7 +2003,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Summon_Skill_ID_250(final int SkillID) {
         switch (SkillID) {
             case 12111004: {
@@ -2014,7 +2014,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Summon_Skill_ID_230(final int SkillID) {
         switch (SkillID) {
             case 2321003: {
@@ -2025,7 +2025,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Summon_Skill_ID_200(final int SkillID) {
         switch (SkillID) {
             case 5211001: {
@@ -2036,7 +2036,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Summon_Skill_ID_150(final int SkillID) {
         switch (SkillID) {
             case 2311006: {
@@ -2047,7 +2047,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Summon_Skill_ID_100(final int SkillID) {
         switch (SkillID) {
             case 3111005:
@@ -2059,7 +2059,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Summon_Skill_ID_40(final int SkillID) {
         switch (SkillID) {
             case 11001004:
@@ -2074,7 +2074,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static int Novice_Skill(final int skill, final MapleCharacter c, final int damage) {
         switch (skill) {
             case 1000:
@@ -2088,7 +2088,7 @@ public class GameConstants
         }
         return damage;
     }
-    
+
     public static boolean Novice_Skill(final int skill) {
         switch (skill) {
             case 1000:
@@ -2101,7 +2101,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Ares_Skill_140(final int skill) {
         switch (skill) {
             case 21000002:
@@ -2115,7 +2115,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Ares_Skill_350(final int skill) {
         switch (skill) {
             case 21100001:
@@ -2129,7 +2129,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Ares_Skill_800(final int skill) {
         switch (skill) {
             case 21100004:
@@ -2142,7 +2142,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Ares_Skill_1500(final int skill) {
         switch (skill) {
             case 21120006: {
@@ -2153,7 +2153,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Thief_Skill_270(final int skill) {
         switch (skill) {
             case 15001001:
@@ -2169,7 +2169,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Thief_Skill_420(final int skill) {
         switch (skill) {
             case 15101003:
@@ -2182,7 +2182,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Thief_Skill_650(final int skill) {
         switch (skill) {
             case 15111003: {
@@ -2193,7 +2193,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Night_Knight_Skill_220(final int skill) {
         switch (skill) {
             case 14001004:
@@ -2209,7 +2209,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Wind_Knight_Skill_160(final int skill) {
         switch (skill) {
             case 13001003:
@@ -2224,7 +2224,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Wind_Knight_Skill_550(final int skill) {
         switch (skill) {
             case 13111006:
@@ -2236,7 +2236,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Fire_Knight_Skill_140(final int skill) {
         switch (skill) {
             case 12001003:
@@ -2251,7 +2251,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Fire_Knight_Skill_500(final int skill) {
         switch (skill) {
             case 12111003: {
@@ -2262,7 +2262,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Ghost_Knight_Skill_320(final int skill) {
         switch (skill) {
             case 11001002:
@@ -2279,7 +2279,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Pirate_Skill_290(final int skill) {
         switch (skill) {
             case 5001001:
@@ -2303,7 +2303,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Pirate_Skill_420(final int skill) {
         switch (skill) {
             case 5101004:
@@ -2317,7 +2317,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Pirate_Skill_700(final int skill) {
         switch (skill) {
             case 5111006:
@@ -2330,7 +2330,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Pirate_Skill_810(final int skill) {
         switch (skill) {
             case 5121001:
@@ -2342,7 +2342,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Pirate_Skill_1200(final int skill) {
         switch (skill) {
             case 5221003: {
@@ -2353,7 +2353,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Thief_Skill_180(final int skill) {
         switch (skill) {
             case 4001334:
@@ -2371,7 +2371,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Thief_Skill_250(final int skill) {
         switch (skill) {
             case 4211004: {
@@ -2382,7 +2382,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Thief_Skill_500(final int skill) {
         switch (skill) {
             case 4211002:
@@ -2395,7 +2395,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Bowman_Skill_180(final int skill) {
         switch (skill) {
             case 3001005:
@@ -2416,7 +2416,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Bowman_Skill_260(final int skill) {
         switch (skill) {
             case 3000001:
@@ -2430,7 +2430,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Bowman_Skill_850(final int skill) {
         switch (skill) {
             case 3221001: {
@@ -2441,7 +2441,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Magician_Skill_90(final int skill) {
         switch (skill) {
             case 2001004:
@@ -2454,7 +2454,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Magician_Skill_180(final int skill) {
         switch (skill) {
             case 2101004:
@@ -2475,7 +2475,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Magician_Skill_240(final int skill) {
         switch (skill) {
             case 2121006:
@@ -2489,7 +2489,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Magician_Skill_670(final int skill) {
         switch (skill) {
             case 2121001:
@@ -2505,7 +2505,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Warrior_Skill_900(final int skill) {
         switch (skill) {
             case 1221011: {
@@ -2516,7 +2516,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Warrior_Skill_550(final int skill) {
         switch (skill) {
             case 1221009: {
@@ -2527,7 +2527,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Warrior_Skill_450(final int skill) {
         switch (skill) {
             case 1001004:
@@ -2555,7 +2555,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean Warrior_Skill_2000(final int skill) {
         switch (skill) {
             case 1111003:
@@ -2569,7 +2569,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean No_Mob(final int MobID) {
         switch (MobID) {
             case 8220003:
@@ -2654,7 +2654,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean 不检测技能(final int SkillID) {
         switch (SkillID) {
             case 1111008:
@@ -2674,14 +2674,14 @@ public class GameConstants
             }
         }
     }
-    
+
     public static int getMonsterHP(final int level) {
         if (level < 0 || level >= GameConstants.mobHpVal.length) {
             return Integer.MAX_VALUE;
         }
         return GameConstants.mobHpVal[level];
     }
-    
+
     public static boolean isMarriageRing(final int itemId) {
         switch (itemId) {
             case 1112013:
@@ -2715,7 +2715,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean isElseSkill(final int id) {
         switch (id) {
             case 1009:
@@ -2732,27 +2732,29 @@ public class GameConstants
             }
         }
     }
-    
+
     public static List<Balloon> getBalloons() {
         if (GameConstants.lBalloon.isEmpty()) {
-            GameConstants.lBalloon.add(new Balloon("["+System.getProperty("server_name")+"冒险岛]", 250, 286));
-            GameConstants.lBalloon.add(new Balloon(System.getProperty("server_name")+"冒险岛  尽情浪吧", 0, 276));
-            GameConstants.lBalloon.add(new Balloon("冒险岛"+System.getProperty("server_name")+"BY LOC 鞠婧祎", 490, 270));
+            GameConstants.lBalloon.add(new Balloon("[" + System.getProperty("server_name") + "冒险岛]", 250, 286));
+            GameConstants.lBalloon.add(new Balloon(System.getProperty("server_name") + "冒险岛  尽情浪吧", 0, 276));
+            GameConstants.lBalloon.add(new Balloon("冒险岛" + System.getProperty("server_name") + "BY LOC 鞠婧祎", 490, 270));
         }
         return GameConstants.lBalloon;
     }
-    
+
     public static boolean isFishingMap(final int mapid) {
-        return mapid == 741000200 || mapid == 741000201 || mapid == 741000202 || mapid == 741000203 || mapid == 741000204 || mapid == 741000205 || mapid == 741000206 || mapid == 741000207 || mapid == 741000208;
+        return mapid == 741000200 || mapid == 741000201 || mapid == 741000202 || mapid == 741000203
+                || mapid == 741000204 || mapid == 741000205 || mapid == 741000206 || mapid == 741000207
+                || mapid == 741000208;
     }
-    
+
     public static int getFishingTime(final boolean vip, final boolean gm) {
         final FishingConstants Fishing = new FishingConstants();
         final int FishingVIPSJ = Fishing.getFishingVIPSJ();
         final int FishingSJ = Fishing.getFishingSJ();
         return gm ? 1000 : (vip ? FishingVIPSJ : FishingSJ);
     }
-    
+
     public static int 分解的矿石() {
         final int s = Randomizer.nextInt(22);
         switch (s) {
@@ -2827,7 +2829,7 @@ public class GameConstants
             }
         }
     }
-    
+
     public static int getMountS(final int s) {
         switch (s) {
             case 1: {
@@ -3795,51 +3797,212 @@ public class GameConstants
             }
         }
     }
-    
+
     public static boolean isThrowingStar(final int itemId) {
         return itemId / 10000 == 207;
     }
-    
+
     public static boolean isBullet(final int itemId) {
         return itemId / 10000 == 233;
     }
-    
+
     public static boolean isTeamMap(final int mapid) {
-        return mapid == 109080000 || mapid == 109080001 || mapid == 109080002 || mapid == 109080003 || mapid == 109080010 || mapid == 109080011 || mapid == 109080012 || mapid == 109090300 || mapid == 109090301 || mapid == 109090302 || mapid == 109090303 || mapid == 109090304 || mapid == 910040100 || mapid == 960020100 || mapid == 960020101 || mapid == 960020102 || mapid == 960020103 || mapid == 960030100 || mapid == 689000000 || mapid == 689000010;
+        return mapid == 109080000 || mapid == 109080001 || mapid == 109080002 || mapid == 109080003
+                || mapid == 109080010 || mapid == 109080011 || mapid == 109080012 || mapid == 109090300
+                || mapid == 109090301 || mapid == 109090302 || mapid == 109090303 || mapid == 109090304
+                || mapid == 910040100 || mapid == 960020100 || mapid == 960020101 || mapid == 960020102
+                || mapid == 960020103 || mapid == 960030100 || mapid == 689000000 || mapid == 689000010;
     }
-    
+
     public static boolean is物理武器(final int itemId) {
-        return itemId != 1342069 && ((itemId >= 1300000 && itemId < 1540000) || itemId / 1000 == 1212 || itemId / 1000 == 1222 || itemId / 1000 == 1232 || itemId / 1000 == 1242 || itemId / 1000 == 1252);
+        return itemId != 1342069 && ((itemId >= 1300000 && itemId < 1540000) || itemId / 1000 == 1212
+                || itemId / 1000 == 1222 || itemId / 1000 == 1232 || itemId / 1000 == 1242 || itemId / 1000 == 1252);
     }
-    
+
     static {
-        GameConstants.rangedMapobjectTypes = Collections.unmodifiableList((List<? extends MapleMapObjectType>)Arrays.asList(MapleMapObjectType.ITEM, MapleMapObjectType.MONSTER, MapleMapObjectType.DOOR, MapleMapObjectType.REACTOR, MapleMapObjectType.SUMMON, MapleMapObjectType.NPC, MapleMapObjectType.LOVE, MapleMapObjectType.MIST));
-        exp = new int[] { 0, 15, 34, 57, 92, 135, 372, 560, 840, 1242, 1716, 2360, 3216, 4200, 5460, 7050, 8840, 11040, 13716, 16680, 20216, 24402, 28980, 34320, 40512, 47216, 54900, 63666, 73080, 83720, 95700, 108480, 122760, 138666, 155540, 174216, 194832, 216600, 240500, 266682, 294216, 324240, 356916, 391160, 428280, 468450, 510420, 555680, 604416, 655200, 709716, 748608, 789631, 832902, 878545, 926689, 977471, 1031036, 1087536, 1147132, 1209994, 1276301, 1346242, 1420016, 1497832, 1579913, 1666492, 1757815, 1854143, 1955750, 2062925, 2175973, 2295216, 2410993, 2553663, 2693603, 2841212, 2996910, 3161140, 3334370, 3517093, 3709829, 3913127, 4127566, 4353756, 4592341, 4844001, 5109452, 5389449, 5684790, 5996316, 6324914, 6671519, 7037118, 7422752, 7829518, 8258575, 8711144, 9188514, 9692044, 10223168, 10783397, 11374327, 11997640, 12655110, 13348610, 14080113, 14851703, 15665576, 16524049, 17429566, 18384706, 19392187, 20454878, 21575805, 22758159, 24005306, 25320796, 26708375, 28171993, 29715818, 31344244, 33061908, 34873700, 36784778, 38800583, 40926854, 43169645, 45535341, 48030677, 50662758, 53439077, 56367538, 59456479, 62714694, 66151459, 69776558, 73600313, 77633610, 81887931, 86375389, 91108760, 96101520, 101367883, 106922842, 112782213, 118962678, 125481832, 132358236, 139611467, 147262175, 155332142, 163844343, 172823012, 182293713, 192283408, 202820538, 213935103, 225658746, 238024845, 251068606, 264827165, 279339693, 294647508, 310794191, 327825712, 345790561, 364739883, 384727628, 405810702, 428049128, 451506220, 476248760, 502347192, 529875818, 558913012, 589541445, 621848316, 655925603, 691870326, 729784819, 769777027, 811960808, 856456260, 903390063, 952895838, 1005114529, 1060194805, 1118293480, 1179575962, 1244216724, 1312399800, 1384319309, 1460180007, 1540197871, 1624600714, 1713628833, 1807535693, 1906588648, 2011069705, 2121276324 };
-        closeness = new int[] { 0, 1, 3, 6, 14, 31, 60, 108, 181, 287, 434, 632, 891, 1224, 1642, 2161, 2793, 3557, 4467, 5542, 6801, 8263, 9950, 11882, 14084, 16578, 19391, 22547, 26074, 30000 };
-        mountexp = new int[] { 0, 6, 25, 50, 105, 134, 196, 254, 263, 315, 367, 430, 543, 587, 679, 725, 897, 1146, 1394, 1701, 2247, 2543, 2898, 3156, 3313, 3584, 3923, 4150, 4305, 4550 };
-        GameConstants.itemBlock = new int[] { 2340000, 2049100, 4001129, 2040037, 2040006, 2040007, 2040303, 2040403, 2040506, 2040507, 2040603, 2040709, 2040710, 2040711, 2040806, 2040903, 2041024, 2041025, 2043003, 2043103, 2043203, 2043303, 2043703, 2043803, 2044003, 2044103, 2044203, 2044303, 2044403, 2044503, 2044603, 2044908, 2044815, 2044019, 2044703, 1004001, 4007008, 1004002, 5152053, 5150040 };
-        GameConstants.cashBlock = new int[] { 5062000, 5650000, 5431000, 5431001, 5432000, 5450000, 5550000, 5550001, 5640000, 5530013, 5150039, 5150046, 5150054, 1812006, 5650000, 5222000, 5221001, 5220014, 5220015, 5420007, 5451000, 5210000, 5210001, 5210002, 5210003, 5210004, 5210005, 5210006, 5210007, 5210008, 5210009, 5210010, 5210011, 5211000, 5211001, 5211002, 5211003, 5211004, 5211005, 5211006, 5211007, 5211008, 5211009, 5211010, 5211011, 5211012, 5211013, 5211014, 5211015, 5211016, 5211017, 5211018, 5211019, 5211020, 5211021, 5211022, 5211023, 5211024, 5211025, 5211026, 5211027, 5211028, 5211029, 5211030, 5211031, 5211032, 5211033, 5211034, 5211035, 5211036, 5211037, 5211038, 5211039, 5211040, 5211041, 5211042, 5211043, 5211044, 5211045, 5211046, 5211047, 5211048, 5211049, 5211050, 5211051, 5211052, 5211053, 5211054, 5211055, 5211056, 5211057, 5211058, 5211059, 5211060, 5211061, 5360000, 5360001, 5360002, 5360003, 5360004, 5360005, 5360006, 5360007, 5360008, 5360009, 5360010, 5360011, 5360012, 5360013, 5360014, 5360017, 5360050, 5211050, 5360042, 5360052, 5360053, 5360050, 1112810, 1112811, 5530013, 4001431, 4001432, 4032605, 5270000, 5270001, 5270002, 5270003, 5270004, 5270005, 5270006, 9102328, 9102329, 9102330, 9102331, 9102332, 9102333 };
+        GameConstants.rangedMapobjectTypes = Collections.unmodifiableList(
+                (List<? extends MapleMapObjectType>) Arrays.asList(MapleMapObjectType.ITEM, MapleMapObjectType.MONSTER,
+                        MapleMapObjectType.DOOR, MapleMapObjectType.REACTOR, MapleMapObjectType.SUMMON,
+                        MapleMapObjectType.NPC, MapleMapObjectType.LOVE, MapleMapObjectType.MIST));
+        exp = new int[] { 0, 15, 34, 57, 92, 135, 372, 560, 840, 1242, 1716, 2360, 3216, 4200, 5460, 7050, 8840, 11040,
+                13716, 16680, 20216, 24402, 28980, 34320, 40512, 47216, 54900, 63666, 73080, 83720, 95700, 108480,
+                122760, 138666, 155540, 174216, 194832, 216600, 240500, 266682, 294216, 324240, 356916, 391160, 428280,
+                468450, 510420, 555680, 604416, 655200, 709716, 748608, 789631, 832902, 878545, 926689, 977471, 1031036,
+                1087536, 1147132, 1209994, 1276301, 1346242, 1420016, 1497832, 1579913, 1666492, 1757815, 1854143,
+                1955750, 2062925, 2175973, 2295216, 2410993, 2553663, 2693603, 2841212, 2996910, 3161140, 3334370,
+                3517093, 3709829, 3913127, 4127566, 4353756, 4592341, 4844001, 5109452, 5389449, 5684790, 5996316,
+                6324914, 6671519, 7037118, 7422752, 7829518, 8258575, 8711144, 9188514, 9692044, 10223168, 10783397,
+                11374327, 11997640, 12655110, 13348610, 14080113, 14851703, 15665576, 16524049, 17429566, 18384706,
+                19392187, 20454878, 21575805, 22758159, 24005306, 25320796, 26708375, 28171993, 29715818, 31344244,
+                33061908, 34873700, 36784778, 38800583, 40926854, 43169645, 45535341, 48030677, 50662758, 53439077,
+                56367538, 59456479, 62714694, 66151459, 69776558, 73600313, 77633610, 81887931, 86375389, 91108760,
+                96101520, 101367883, 106922842, 112782213, 118962678, 125481832, 132358236, 139611467, 147262175,
+                155332142, 163844343, 172823012, 182293713, 192283408, 202820538, 213935103, 225658746, 238024845,
+                251068606, 264827165, 279339693, 294647508, 310794191, 327825712, 345790561, 364739883, 384727628,
+                405810702, 428049128, 451506220, 476248760, 502347192, 529875818, 558913012, 589541445, 621848316,
+                655925603, 691870326, 729784819, 769777027, 811960808, 856456260, 903390063, 952895838, 1005114529,
+                1060194805, 1118293480, 1179575962, 1244216724, 1312399800, 1384319309, 1460180007, 1540197871,
+                1624600714, 1713628833, 1807535693, 1906588648, 2011069705, 2121276324 };
+        closeness = new int[] { 0, 1, 3, 6, 14, 31, 60, 108, 181, 287, 434, 632, 891, 1224, 1642, 2161, 2793, 3557,
+                4467, 5542, 6801, 8263, 9950, 11882, 14084, 16578, 19391, 22547, 26074, 30000 };
+        mountexp = new int[] { 0, 6, 25, 50, 105, 134, 196, 254, 263, 315, 367, 430, 543, 587, 679, 725, 897, 1146,
+                1394, 1701, 2247, 2543, 2898, 3156, 3313, 3584, 3923, 4150, 4305, 4550 };
+        GameConstants.itemBlock = new int[] { 2340000, 2049100, 4001129, 2040037, 2040006, 2040007, 2040303, 2040403,
+                2040506, 2040507, 2040603, 2040709, 2040710, 2040711, 2040806, 2040903, 2041024, 2041025, 2043003,
+                2043103, 2043203, 2043303, 2043703, 2043803, 2044003, 2044103, 2044203, 2044303, 2044403, 2044503,
+                2044603, 2044908, 2044815, 2044019, 2044703, 1004001, 4007008, 1004002, 5152053, 5150040 };
+        GameConstants.cashBlock = new int[] { 5062000, 5650000, 5431000, 5431001, 5432000, 5450000, 5550000, 5550001,
+                5640000, 5530013, 5150039, 5150046, 5150054, 1812006, 5650000, 5222000, 5221001, 5220014, 5220015,
+                5420007, 5451000, 5210000, 5210001, 5210002, 5210003, 5210004, 5210005, 5210006, 5210007, 5210008,
+                5210009, 5210010, 5210011, 5211000, 5211001, 5211002, 5211003, 5211004, 5211005, 5211006, 5211007,
+                5211008, 5211009, 5211010, 5211011, 5211012, 5211013, 5211014, 5211015, 5211016, 5211017, 5211018,
+                5211019, 5211020, 5211021, 5211022, 5211023, 5211024, 5211025, 5211026, 5211027, 5211028, 5211029,
+                5211030, 5211031, 5211032, 5211033, 5211034, 5211035, 5211036, 5211037, 5211038, 5211039, 5211040,
+                5211041, 5211042, 5211043, 5211044, 5211045, 5211046, 5211047, 5211048, 5211049, 5211050, 5211051,
+                5211052, 5211053, 5211054, 5211055, 5211056, 5211057, 5211058, 5211059, 5211060, 5211061, 5360000,
+                5360001, 5360002, 5360003, 5360004, 5360005, 5360006, 5360007, 5360008, 5360009, 5360010, 5360011,
+                5360012, 5360013, 5360014, 5360017, 5360050, 5211050, 5360042, 5360052, 5360053, 5360050, 1112810,
+                1112811, 5530013, 4001431, 4001432, 4032605, 5270000, 5270001, 5270002, 5270003, 5270004, 5270005,
+                5270006, 9102328, 9102329, 9102330, 9102331, 9102332, 9102333 };
         GameConstants.OMOK_SCORE = 122200;
         GameConstants.MATCH_SCORE = 122210;
         GameConstants.blockedSkills = new int[] { 4341003 };
         GameConstants.MASTER = "%&HYGEomgLOL";
         GameConstants.RESERVED = new String[] { "Rental" };
-        mobHpVal = new int[] { 0, 15, 20, 25, 35, 50, 65, 80, 95, 110, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 405, 435, 465, 495, 525, 580, 650, 720, 790, 900, 990, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100, 2200, 2300, 2400, 2520, 2640, 2760, 2880, 3000, 3200, 3400, 3600, 3800, 4000, 4300, 4600, 4900, 5200, 5500, 5900, 6300, 6700, 7100, 7500, 8000, 8500, 9000, 9500, 10000, 11000, 12000, 13000, 14000, 15000, 17000, 19000, 21000, 23000, 25000, 27000, 29000, 31000, 33000, 35000, 37000, 39000, 41000, 43000, 45000, 47000, 49000, 51000, 53000, 55000, 57000, 59000, 61000, 63000, 65000, 67000, 69000, 71000, 73000, 75000, 77000, 79000, 81000, 83000, 85000, 89000, 91000, 93000, 95000, 97000, 99000, 101000, 103000, 105000, 107000, 109000, 111000, 113000, 115000, 118000, 120000, 125000, 130000, 135000, 140000, 145000, 150000, 155000, 160000, 165000, 170000, 175000, 180000, 185000, 190000, 195000, 200000, 205000, 210000, 215000, 220000, 225000, 230000, 235000, 240000, 250000, 260000, 270000, 280000, 290000, 300000, 310000, 320000, 330000, 340000, 350000, 360000, 370000, 380000, 390000, 400000, 410000, 420000, 430000, 440000, 450000, 460000, 470000, 480000, 490000, 500000, 510000, 520000, 530000, 550000, 570000, 590000, 610000, 630000, 650000, 670000, 690000, 710000, 730000, 750000, 770000, 790000, 810000, 830000, 850000, 870000, 890000, 910000 };
+        mobHpVal = new int[] { 0, 15, 20, 25, 35, 50, 65, 80, 95, 110, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350,
+                375, 405, 435, 465, 495, 525, 580, 650, 720, 790, 900, 990, 1100, 1200, 1300, 1400, 1500, 1600, 1700,
+                1800, 1900, 2000, 2100, 2200, 2300, 2400, 2520, 2640, 2760, 2880, 3000, 3200, 3400, 3600, 3800, 4000,
+                4300, 4600, 4900, 5200, 5500, 5900, 6300, 6700, 7100, 7500, 8000, 8500, 9000, 9500, 10000, 11000, 12000,
+                13000, 14000, 15000, 17000, 19000, 21000, 23000, 25000, 27000, 29000, 31000, 33000, 35000, 37000, 39000,
+                41000, 43000, 45000, 47000, 49000, 51000, 53000, 55000, 57000, 59000, 61000, 63000, 65000, 67000, 69000,
+                71000, 73000, 75000, 77000, 79000, 81000, 83000, 85000, 89000, 91000, 93000, 95000, 97000, 99000,
+                101000, 103000, 105000, 107000, 109000, 111000, 113000, 115000, 118000, 120000, 125000, 130000, 135000,
+                140000, 145000, 150000, 155000, 160000, 165000, 170000, 175000, 180000, 185000, 190000, 195000, 200000,
+                205000, 210000, 215000, 220000, 225000, 230000, 235000, 240000, 250000, 260000, 270000, 280000, 290000,
+                300000, 310000, 320000, 330000, 340000, 350000, 360000, 370000, 380000, 390000, 400000, 410000, 420000,
+                430000, 440000, 450000, 460000, 470000, 480000, 490000, 500000, 510000, 520000, 530000, 550000, 570000,
+                590000, 610000, 630000, 650000, 670000, 690000, 710000, 730000, 750000, 770000, 790000, 810000, 830000,
+                850000, 870000, 890000, 910000 };
         GameConstants.lBalloon = new ArrayList<Balloon>();
         GameConstants.game = 0;
-        GameConstants.goldrewards = new int[] { 3010013, 30, 3010014, 30, 3010018, 30, 3010019, 30, 3010021, 30, 3010025, 30, 3010028, 30, 3010044, 30, 3010036, 30, 3010049, 30, 3010110, 30, 3010131, 30, 1022129, 30, 3012001, 30, 3012002, 30, 3012003, 30, 3010024, 30, 3010026, 30, 3010034, 30, 3010035, 30, 3010043, 30, 3010051, 30, 3010052, 30, 3010054, 30, 3010057, 30, 3010058, 30, 3010063, 30, 3010068, 30, 3010069, 30, 3010071, 30, 3010075, 30, 3010079, 30, 3010085, 30, 3010096, 30, 3010099, 30, 3010109, 30, 3010129, 30, 3010139, 30, 3010140, 30, 3010147, 30, 3010149, 30, 3010151, 30, 3010169, 30, 3010172, 30, 3010175, 30, 3010193, 30, 3010195, 30, 3010289, 30, 3010293, 30, 3010403, 30, 3010410, 30, 3010411, 30, 3010412, 30, 3010428, 30, 3010437, 30, 3010438, 30, 3010453, 30, 3010454, 30, 3010462, 30, 3010494, 30, 3010505, 30, 3010515, 30, 3010609, 30, 3010622, 30, 3010632, 30, 3010633, 30, 3010659, 30, 3010716, 30, 3010729, 30, 3010730, 30, 3010733, 30, 3010738, 30, 3010739, 30, 3010753, 30, 3010767, 30, 3010760, 30, 3010879, 30, 3010937, 30, 3010938, 30, 3010939, 30, 3010946, 30, 3012007, 30, 3012008, 30, 3012011, 30, 3012022, 30, 3015053, 30, 3015120, 30, 3015264, 30, 3015158, 30, 3010029, 30, 3010030, 30, 3010031, 30, 3010032, 30, 3010033, 30, 3010037, 30, 3010073, 30, 3010012, 30, 3010038, 30, 3010040, 30, 3010041, 30, 3010045, 30, 3010046, 30, 3010047, 30, 3010048, 30, 3010050, 30, 3010077, 30, 3010095, 30, 3010094, 30, 3010098, 30, 4001226, 30, 4001227, 30, 4001228, 30, 4001229, 30, 4001230, 30, 3010106, 30, 2040000, 80, 2040012, 80, 2040013, 80, 2040026, 80, 2040200, 80, 2040201, 80, 2040205, 80, 2040206, 80, 2040313, 80, 2040314, 80, 2040318, 80, 2040323, 80, 2040502, 80, 2040534, 80, 2040801, 80, 2040802, 80, 2040803, 80, 2040804, 80, 2040805, 80, 2040821, 80, 2040822, 80, 2041201, 80, 2041202, 80, 2041203, 80, 2041206, 80, 2041207, 80, 2041208, 80, 2044001, 80, 2044002, 80, 2044006, 80, 2044007, 80, 2044300, 80, 2044301, 80, 2044302, 80, 2044306, 80, 2044307, 80, 2044400, 80, 2044401, 80, 2044402, 80, 2044406, 80, 2044407, 80, 2044506, 80, 2044507, 80, 2044607, 80, 2044707, 80, 4011000, 81, 4011001, 81, 4011002, 81, 4011003, 81, 4011004, 81, 4011005, 81, 4011006, 81, 4011008, 81, 4020000, 81, 4020001, 81, 4020002, 81, 4020003, 81, 4020004, 81, 4020005, 81, 4020006, 81, 4020007, 81, 4020008, 81, 4021000, 81, 4021001, 81, 4021002, 81, 4021003, 81, 4021004, 81, 4021005, 81, 4021006, 81, 4021007, 81, 4021008, 81, 4004000, 81, 4004001, 81, 4004002, 81, 4004003, 81, 4004004, 81, 4005000, 81, 4005001, 81, 4005002, 81, 4005003, 81, 4005004, 81, 4007000, 81, 4007001, 81, 4007002, 81, 4007003, 81, 4007004, 81, 4007005, 81, 4007006, 81, 4007007, 81, 4010000, 81, 4010001, 81, 4010002, 81, 4010003, 81, 4010004, 81, 4010005, 81, 4010006, 81, 2000007, 70, 2000008, 70, 2000009, 70, 2000010, 70, 2000011, 70, 2000012, 70, 2000015, 70, 2000016, 70, 2000017, 70, 2000018, 70, 2000019, 70, 2001000, 70, 2001001, 70, 2001002, 70, 2002000, 70, 2002001, 70, 2002002, 70, 2002004, 70, 2002005, 70, 2002006, 70, 2002007, 70, 2002008, 70, 2002009, 70, 2002010, 70, 4310059, 70, 4310100, 80 };
-        GameConstants.silverrewards = new int[] { 2040000, 90, 2040001, 90, 2040002, 90, 2040003, 90, 2040004, 90, 2040005, 90, 2040008, 90, 2040009, 90, 2040010, 90, 2040011, 90, 2040012, 90, 2040013, 90, 2040014, 90, 2040015, 90, 2040017, 90, 2040018, 90, 2040019, 90, 2040021, 90, 2040024, 90, 2040025, 90, 2040027, 90, 2040028, 90, 2040029, 90, 2040030, 90, 2040100, 90, 2040101, 90, 2040103, 90, 2040104, 90, 2040105, 90, 2040106, 90, 2040108, 90, 2040109, 90, 2040201, 90, 2040203, 90, 2040204, 90, 2040206, 90, 2040208, 90, 2040209, 90, 2040300, 90, 2040301, 90, 2040304, 90, 2040305, 90, 2040306, 90, 2040307, 90, 2040308, 90, 2040309, 90, 2040310, 90, 2040311, 90, 2040312, 90, 2040313, 90, 2040316, 90, 2040317, 90, 2040319, 90, 2040320, 90, 2040321, 90, 2040322, 90, 2040324, 90, 2040325, 90, 2040326, 90, 2040327, 90, 2040328, 90, 2040400, 90, 2040401, 90, 2040402, 90, 2040404, 90, 2040405, 90, 2040406, 90, 2040407, 90, 2040408, 90, 2040409, 90, 2040410, 90, 2040411, 90, 2040413, 90, 2040414, 90, 2040415, 90, 2040416, 90, 2040417, 90, 2040418, 90, 2040420, 90, 2040421, 90, 2040423, 90, 2040424, 90, 2040425, 90, 2040426, 90, 2040500, 90, 2040501, 90, 2040503, 90, 2040504, 90, 2040505, 90, 2040508, 90, 2040509, 90, 2040510, 90, 2040511, 90, 2040512, 90, 2040513, 90, 2040515, 90, 2040516, 90, 2040518, 90, 2040519, 90, 2040520, 90, 2040521, 90, 2040522, 90, 2040524, 90, 2040525, 90, 2040526, 90, 2040528, 90, 2040530, 90, 2040531, 90, 2040532, 90, 2040533, 90, 2040600, 90, 2040601, 90, 2040602, 90, 2040604, 90, 2040605, 90, 2040606, 90, 2040607, 90, 2040608, 90, 2040609, 90, 2040610, 90, 2040611, 90, 2040613, 90, 2040614, 90, 2040615, 90, 2040616, 90, 2040617, 90, 2040618, 90, 2040619, 90, 2040620, 90, 2040621, 90, 2040622, 90, 2040623, 90, 2040624, 90, 2040625, 90, 2040626, 90, 2040700, 90, 2040701, 90, 2040703, 90, 2040704, 90, 2040706, 90, 2040707, 90, 2040708, 90, 2040712, 90, 2040713, 90, 2040714, 90, 2040715, 90, 2040716, 90, 2040717, 90, 2040720, 90, 2040722, 90, 2040800, 90, 2040801, 90, 2040803, 90, 2040804, 90, 2040808, 90, 2040809, 90, 2040810, 90, 2040811, 90, 2040812, 90, 2040813, 90, 2040814, 90, 2040815, 90, 2040817, 90, 2040818, 90, 2040823, 90, 2040824, 90, 2040825, 90, 2040900, 90, 2040901, 90, 2040902, 90, 2040904, 90, 2040905, 90, 2040906, 90, 2040907, 90, 2040908, 90, 2040909, 90, 2040910, 90, 2040911, 90, 2040914, 90, 2040916, 90, 2040917, 90, 2040919, 90, 2040920, 90, 2040921, 90, 2040922, 90, 2040923, 90, 2040924, 90, 2040926, 90, 2040927, 90, 2040928, 90, 2040929, 90, 2040930, 90, 2040931, 90, 2040932, 90, 2041000, 90, 2041001, 90, 2041002, 90, 2041003, 90, 2041004, 90, 2041005, 90, 2041006, 90, 2041007, 90, 2041008, 90, 2041009, 90, 2041010, 90, 2041012, 90, 2041013, 90, 2041015, 90, 2041016, 90, 2041018, 90, 2041019, 90, 2041021, 90, 2041022, 90, 2041026, 90, 2041027, 90, 2041028, 90, 2041029, 90, 2041030, 90, 2041031, 90, 2041032, 90, 2041033, 90, 2041034, 90, 2041035, 90, 2041036, 90, 2041037, 90, 2041038, 90, 2041039, 90, 2041040, 90, 2041041, 90, 2041042, 90, 2041043, 90, 2041044, 90, 2041045, 90, 2041046, 90, 2041047, 90, 2041048, 90, 2041050, 90, 2041052, 90, 2041054, 90, 2041056, 90, 2041202, 90, 2041203, 90, 2041204, 90, 2041205, 90, 2041207, 90, 2041208, 90, 2041209, 90, 2041210, 90, 2041301, 90, 2041304, 90, 2041307, 90, 2041310, 90, 2043000, 90, 2043001, 90, 2043004, 90, 2043005, 90, 2043006, 90, 2043007, 90, 2043009, 90, 2043010, 90, 2043011, 90, 2043015, 90, 2043016, 90, 2043017, 90, 2043018, 90, 2043024, 90, 2043100, 90, 2043101, 90, 2043104, 90, 2043105, 90, 2043106, 90, 2043110, 90, 2043111, 90, 2043112, 90, 2043113, 90, 2043118, 90, 2043200, 90, 2043201, 90, 2043204, 90, 2043205, 90, 2043206, 90, 2043210, 90, 2043211, 90, 2043212, 90, 2043213, 90, 2043218, 90, 2043300, 90, 2043301, 90, 2043304, 90, 2043305, 90, 2043306, 90, 2043700, 90, 2043701, 90, 2043704, 90, 2043705, 90, 2043706, 90, 2043800, 90, 2043801, 90, 2043804, 90, 2043805, 90, 2043806, 90, 2044000, 90, 2044001, 90, 2044004, 90, 2044005, 90, 2044006, 90, 2044010, 90, 2044011, 90, 2044012, 90, 2044013, 90, 2044026, 90, 2044100, 90, 2044101, 90, 2044104, 90, 2044105, 90, 2044106, 90, 2044110, 90, 2044111, 90, 2044112, 90, 2044113, 90, 2044118, 90, 2044200, 90, 2044201, 90, 2044204, 90, 2044205, 90, 2044206, 90, 2044210, 90, 2044211, 90, 2044212, 90, 2044213, 90, 2044218, 90, 2044300, 90, 2044301, 90, 2044304, 90, 2044305, 90, 2044306, 90, 2044310, 90, 2044311, 90, 2044312, 90, 2044313, 90, 2044318, 90, 2044400, 90, 2044401, 90, 2044404, 90, 2044405, 90, 2044406, 90, 2044410, 90, 2044411, 90, 2044412, 90, 2044413, 90, 2044418, 90, 2044500, 90, 2044501, 90, 2044504, 90, 2044505, 90, 2044506, 90, 2044600, 90, 2044601, 90, 2044604, 90, 2044605, 90, 2044606, 90, 2044700, 90, 2044701, 90, 2044704, 90, 2044705, 90, 2044706, 90, 2044800, 90, 2044801, 90, 2044803, 90, 2044804, 90, 2044805, 90, 2044806, 90, 2044807, 90, 2044808, 90, 2044811, 90, 2044813, 90, 2044900, 90, 2044901, 90, 2044903, 90, 2044904, 90, 2044906, 90 };
-        GameConstants.eventCommonReward = new int[] { 0, 40, 1, 10, 4031019, 5, 4280000, 3, 4280001, 4, 5490000, 3, 5490001, 4 };
-        GameConstants.eventUncommonReward = new int[] { 2, 4, 3, 4, 5160000, 5, 5160001, 5, 5160002, 5, 5160003, 5, 5160004, 5, 5160005, 5, 5160006, 5, 5160007, 5, 5160008, 5, 5160009, 5, 5160010, 5, 5160011, 5, 5160012, 5, 5160013, 5, 5240017, 5, 5240000, 5, 4080000, 5, 4080001, 5, 4080002, 5, 4080003, 5, 4080004, 5, 4080005, 5, 4080006, 5, 4080007, 5, 4080008, 5, 4080009, 5, 4080010, 5, 4080011, 5, 4080100, 5, 4031019, 5, 5121003, 5, 5150000, 5, 5150001, 5, 5150002, 1, 5150003, 1, 5150004, 1, 5150005, 2, 5150006, 2, 5150007, 2, 5150008, 2, 5150009, 14, 2022459, 5, 2022460, 5, 2022461, 5, 2022462, 5, 2022463, 5, 2450000, 2, 5152000, 5, 5152001, 5 };
-        GameConstants.eventRareReward = new int[] { 4031019, 5, 2049100, 5, 2049401, 10, 2049301, 20, 2049400, 3, 2340000, 1, 3010130, 5, 3010131, 5, 3010132, 5, 3010133, 5, 3010136, 5, 3010116, 5, 3010117, 5, 3010118, 5, 1112405, 1, 1112413, 1, 1112414, 1, 2040211, 1, 2040212, 1, 2049000, 2, 2049001, 2, 2049002, 2, 2049003, 2, 1012058, 2, 1012059, 2, 1012060, 2, 1012061, 2 };
-        GameConstants.eventSuperReward = new int[] { 4031019, 5, 2022121, 10, 4031307, 50, 3010127, 10, 3010128, 10, 3010137, 10, 2049300, 10, 1012139, 10, 1012140, 10, 1012141, 10 };
-        GameConstants.fishingReward = new int[] { 4031627, 1, 4031628, 1, 4031630, 1, 4031631, 1, 4031632, 1, 4031633, 1, 4031634, 1, 4031635, 1, 4031636, 1, 4031637, 1, 4031638, 1, 4031639, 1, 4031640, 1, 4031641, 1, 4031642, 1, 4031643, 1, 4031644, 1, 4031645, 1, 4031646, 1, 4031647, 1, 4031648, 1, 4031629, 1, 2022468, 1, 2022468, 1, 2022468, 1, 2022468, 1, 2022468, 1, 2022468, 1 };
+        GameConstants.goldrewards = new int[] { 3010013, 30, 3010014, 30, 3010018, 30, 3010019, 30, 3010021, 30,
+                3010025, 30, 3010028, 30, 3010044, 30, 3010036, 30, 3010049, 30, 3010110, 30, 3010131, 30, 1022129, 30,
+                3012001, 30, 3012002, 30, 3012003, 30, 3010024, 30, 3010026, 30, 3010034, 30, 3010035, 30, 3010043, 30,
+                3010051, 30, 3010052, 30, 3010054, 30, 3010057, 30, 3010058, 30, 3010063, 30, 3010068, 30, 3010069, 30,
+                3010071, 30, 3010075, 30, 3010079, 30, 3010085, 30, 3010096, 30, 3010099, 30, 3010109, 30, 3010129, 30,
+                3010139, 30, 3010140, 30, 3010147, 30, 3010149, 30, 3010151, 30, 3010169, 30, 3010172, 30, 3010175, 30,
+                3010193, 30, 3010195, 30, 3010289, 30, 3010293, 30, 3010403, 30, 3010410, 30, 3010411, 30, 3010412, 30,
+                3010428, 30, 3010437, 30, 3010438, 30, 3010453, 30, 3010454, 30, 3010462, 30, 3010494, 30, 3010505, 30,
+                3010515, 30, 3010609, 30, 3010622, 30, 3010632, 30, 3010633, 30, 3010659, 30, 3010716, 30, 3010729, 30,
+                3010730, 30, 3010733, 30, 3010738, 30, 3010739, 30, 3010753, 30, 3010767, 30, 3010760, 30, 3010879, 30,
+                3010937, 30, 3010938, 30, 3010939, 30, 3010946, 30, 3012007, 30, 3012008, 30, 3012011, 30, 3012022, 30,
+                3015053, 30, 3015120, 30, 3015264, 30, 3015158, 30, 3010029, 30, 3010030, 30, 3010031, 30, 3010032, 30,
+                3010033, 30, 3010037, 30, 3010073, 30, 3010012, 30, 3010038, 30, 3010040, 30, 3010041, 30, 3010045, 30,
+                3010046, 30, 3010047, 30, 3010048, 30, 3010050, 30, 3010077, 30, 3010095, 30, 3010094, 30, 3010098, 30,
+                4001226, 30, 4001227, 30, 4001228, 30, 4001229, 30, 4001230, 30, 3010106, 30, 2040000, 80, 2040012, 80,
+                2040013, 80, 2040026, 80, 2040200, 80, 2040201, 80, 2040205, 80, 2040206, 80, 2040313, 80, 2040314, 80,
+                2040318, 80, 2040323, 80, 2040502, 80, 2040534, 80, 2040801, 80, 2040802, 80, 2040803, 80, 2040804, 80,
+                2040805, 80, 2040821, 80, 2040822, 80, 2041201, 80, 2041202, 80, 2041203, 80, 2041206, 80, 2041207, 80,
+                2041208, 80, 2044001, 80, 2044002, 80, 2044006, 80, 2044007, 80, 2044300, 80, 2044301, 80, 2044302, 80,
+                2044306, 80, 2044307, 80, 2044400, 80, 2044401, 80, 2044402, 80, 2044406, 80, 2044407, 80, 2044506, 80,
+                2044507, 80, 2044607, 80, 2044707, 80, 4011000, 81, 4011001, 81, 4011002, 81, 4011003, 81, 4011004, 81,
+                4011005, 81, 4011006, 81, 4011008, 81, 4020000, 81, 4020001, 81, 4020002, 81, 4020003, 81, 4020004, 81,
+                4020005, 81, 4020006, 81, 4020007, 81, 4020008, 81, 4021000, 81, 4021001, 81, 4021002, 81, 4021003, 81,
+                4021004, 81, 4021005, 81, 4021006, 81, 4021007, 81, 4021008, 81, 4004000, 81, 4004001, 81, 4004002, 81,
+                4004003, 81, 4004004, 81, 4005000, 81, 4005001, 81, 4005002, 81, 4005003, 81, 4005004, 81, 4007000, 81,
+                4007001, 81, 4007002, 81, 4007003, 81, 4007004, 81, 4007005, 81, 4007006, 81, 4007007, 81, 4010000, 81,
+                4010001, 81, 4010002, 81, 4010003, 81, 4010004, 81, 4010005, 81, 4010006, 81, 2000007, 70, 2000008, 70,
+                2000009, 70, 2000010, 70, 2000011, 70, 2000012, 70, 2000015, 70, 2000016, 70, 2000017, 70, 2000018, 70,
+                2000019, 70, 2001000, 70, 2001001, 70, 2001002, 70, 2002000, 70, 2002001, 70, 2002002, 70, 2002004, 70,
+                2002005, 70, 2002006, 70, 2002007, 70, 2002008, 70, 2002009, 70, 2002010, 70, 4310059, 70, 4310100,
+                80 };
+        GameConstants.silverrewards = new int[] { 2040000, 90, 2040001, 90, 2040002, 90, 2040003, 90, 2040004, 90,
+                2040005, 90, 2040008, 90, 2040009, 90, 2040010, 90, 2040011, 90, 2040012, 90, 2040013, 90, 2040014, 90,
+                2040015, 90, 2040017, 90, 2040018, 90, 2040019, 90, 2040021, 90, 2040024, 90, 2040025, 90, 2040027, 90,
+                2040028, 90, 2040029, 90, 2040030, 90, 2040100, 90, 2040101, 90, 2040103, 90, 2040104, 90, 2040105, 90,
+                2040106, 90, 2040108, 90, 2040109, 90, 2040201, 90, 2040203, 90, 2040204, 90, 2040206, 90, 2040208, 90,
+                2040209, 90, 2040300, 90, 2040301, 90, 2040304, 90, 2040305, 90, 2040306, 90, 2040307, 90, 2040308, 90,
+                2040309, 90, 2040310, 90, 2040311, 90, 2040312, 90, 2040313, 90, 2040316, 90, 2040317, 90, 2040319, 90,
+                2040320, 90, 2040321, 90, 2040322, 90, 2040324, 90, 2040325, 90, 2040326, 90, 2040327, 90, 2040328, 90,
+                2040400, 90, 2040401, 90, 2040402, 90, 2040404, 90, 2040405, 90, 2040406, 90, 2040407, 90, 2040408, 90,
+                2040409, 90, 2040410, 90, 2040411, 90, 2040413, 90, 2040414, 90, 2040415, 90, 2040416, 90, 2040417, 90,
+                2040418, 90, 2040420, 90, 2040421, 90, 2040423, 90, 2040424, 90, 2040425, 90, 2040426, 90, 2040500, 90,
+                2040501, 90, 2040503, 90, 2040504, 90, 2040505, 90, 2040508, 90, 2040509, 90, 2040510, 90, 2040511, 90,
+                2040512, 90, 2040513, 90, 2040515, 90, 2040516, 90, 2040518, 90, 2040519, 90, 2040520, 90, 2040521, 90,
+                2040522, 90, 2040524, 90, 2040525, 90, 2040526, 90, 2040528, 90, 2040530, 90, 2040531, 90, 2040532, 90,
+                2040533, 90, 2040600, 90, 2040601, 90, 2040602, 90, 2040604, 90, 2040605, 90, 2040606, 90, 2040607, 90,
+                2040608, 90, 2040609, 90, 2040610, 90, 2040611, 90, 2040613, 90, 2040614, 90, 2040615, 90, 2040616, 90,
+                2040617, 90, 2040618, 90, 2040619, 90, 2040620, 90, 2040621, 90, 2040622, 90, 2040623, 90, 2040624, 90,
+                2040625, 90, 2040626, 90, 2040700, 90, 2040701, 90, 2040703, 90, 2040704, 90, 2040706, 90, 2040707, 90,
+                2040708, 90, 2040712, 90, 2040713, 90, 2040714, 90, 2040715, 90, 2040716, 90, 2040717, 90, 2040720, 90,
+                2040722, 90, 2040800, 90, 2040801, 90, 2040803, 90, 2040804, 90, 2040808, 90, 2040809, 90, 2040810, 90,
+                2040811, 90, 2040812, 90, 2040813, 90, 2040814, 90, 2040815, 90, 2040817, 90, 2040818, 90, 2040823, 90,
+                2040824, 90, 2040825, 90, 2040900, 90, 2040901, 90, 2040902, 90, 2040904, 90, 2040905, 90, 2040906, 90,
+                2040907, 90, 2040908, 90, 2040909, 90, 2040910, 90, 2040911, 90, 2040914, 90, 2040916, 90, 2040917, 90,
+                2040919, 90, 2040920, 90, 2040921, 90, 2040922, 90, 2040923, 90, 2040924, 90, 2040926, 90, 2040927, 90,
+                2040928, 90, 2040929, 90, 2040930, 90, 2040931, 90, 2040932, 90, 2041000, 90, 2041001, 90, 2041002, 90,
+                2041003, 90, 2041004, 90, 2041005, 90, 2041006, 90, 2041007, 90, 2041008, 90, 2041009, 90, 2041010, 90,
+                2041012, 90, 2041013, 90, 2041015, 90, 2041016, 90, 2041018, 90, 2041019, 90, 2041021, 90, 2041022, 90,
+                2041026, 90, 2041027, 90, 2041028, 90, 2041029, 90, 2041030, 90, 2041031, 90, 2041032, 90, 2041033, 90,
+                2041034, 90, 2041035, 90, 2041036, 90, 2041037, 90, 2041038, 90, 2041039, 90, 2041040, 90, 2041041, 90,
+                2041042, 90, 2041043, 90, 2041044, 90, 2041045, 90, 2041046, 90, 2041047, 90, 2041048, 90, 2041050, 90,
+                2041052, 90, 2041054, 90, 2041056, 90, 2041202, 90, 2041203, 90, 2041204, 90, 2041205, 90, 2041207, 90,
+                2041208, 90, 2041209, 90, 2041210, 90, 2041301, 90, 2041304, 90, 2041307, 90, 2041310, 90, 2043000, 90,
+                2043001, 90, 2043004, 90, 2043005, 90, 2043006, 90, 2043007, 90, 2043009, 90, 2043010, 90, 2043011, 90,
+                2043015, 90, 2043016, 90, 2043017, 90, 2043018, 90, 2043024, 90, 2043100, 90, 2043101, 90, 2043104, 90,
+                2043105, 90, 2043106, 90, 2043110, 90, 2043111, 90, 2043112, 90, 2043113, 90, 2043118, 90, 2043200, 90,
+                2043201, 90, 2043204, 90, 2043205, 90, 2043206, 90, 2043210, 90, 2043211, 90, 2043212, 90, 2043213, 90,
+                2043218, 90, 2043300, 90, 2043301, 90, 2043304, 90, 2043305, 90, 2043306, 90, 2043700, 90, 2043701, 90,
+                2043704, 90, 2043705, 90, 2043706, 90, 2043800, 90, 2043801, 90, 2043804, 90, 2043805, 90, 2043806, 90,
+                2044000, 90, 2044001, 90, 2044004, 90, 2044005, 90, 2044006, 90, 2044010, 90, 2044011, 90, 2044012, 90,
+                2044013, 90, 2044026, 90, 2044100, 90, 2044101, 90, 2044104, 90, 2044105, 90, 2044106, 90, 2044110, 90,
+                2044111, 90, 2044112, 90, 2044113, 90, 2044118, 90, 2044200, 90, 2044201, 90, 2044204, 90, 2044205, 90,
+                2044206, 90, 2044210, 90, 2044211, 90, 2044212, 90, 2044213, 90, 2044218, 90, 2044300, 90, 2044301, 90,
+                2044304, 90, 2044305, 90, 2044306, 90, 2044310, 90, 2044311, 90, 2044312, 90, 2044313, 90, 2044318, 90,
+                2044400, 90, 2044401, 90, 2044404, 90, 2044405, 90, 2044406, 90, 2044410, 90, 2044411, 90, 2044412, 90,
+                2044413, 90, 2044418, 90, 2044500, 90, 2044501, 90, 2044504, 90, 2044505, 90, 2044506, 90, 2044600, 90,
+                2044601, 90, 2044604, 90, 2044605, 90, 2044606, 90, 2044700, 90, 2044701, 90, 2044704, 90, 2044705, 90,
+                2044706, 90, 2044800, 90, 2044801, 90, 2044803, 90, 2044804, 90, 2044805, 90, 2044806, 90, 2044807, 90,
+                2044808, 90, 2044811, 90, 2044813, 90, 2044900, 90, 2044901, 90, 2044903, 90, 2044904, 90, 2044906,
+                90 };
+        GameConstants.eventCommonReward = new int[] { 0, 40, 1, 10, 4031019, 5, 4280000, 3, 4280001, 4, 5490000, 3,
+                5490001, 4 };
+        GameConstants.eventUncommonReward = new int[] { 2, 4, 3, 4, 5160000, 5, 5160001, 5, 5160002, 5, 5160003, 5,
+                5160004, 5, 5160005, 5, 5160006, 5, 5160007, 5, 5160008, 5, 5160009, 5, 5160010, 5, 5160011, 5, 5160012,
+                5, 5160013, 5, 5240017, 5, 5240000, 5, 4080000, 5, 4080001, 5, 4080002, 5, 4080003, 5, 4080004, 5,
+                4080005, 5, 4080006, 5, 4080007, 5, 4080008, 5, 4080009, 5, 4080010, 5, 4080011, 5, 4080100, 5, 4031019,
+                5, 5121003, 5, 5150000, 5, 5150001, 5, 5150002, 1, 5150003, 1, 5150004, 1, 5150005, 2, 5150006, 2,
+                5150007, 2, 5150008, 2, 5150009, 14, 2022459, 5, 2022460, 5, 2022461, 5, 2022462, 5, 2022463, 5,
+                2450000, 2, 5152000, 5, 5152001, 5 };
+        GameConstants.eventRareReward = new int[] { 4031019, 5, 2049100, 5, 2049401, 10, 2049301, 20, 2049400, 3,
+                2340000, 1, 3010130, 5, 3010131, 5, 3010132, 5, 3010133, 5, 3010136, 5, 3010116, 5, 3010117, 5, 3010118,
+                5, 1112405, 1, 1112413, 1, 1112414, 1, 2040211, 1, 2040212, 1, 2049000, 2, 2049001, 2, 2049002, 2,
+                2049003, 2, 1012058, 2, 1012059, 2, 1012060, 2, 1012061, 2 };
+        GameConstants.eventSuperReward = new int[] { 4031019, 5, 2022121, 10, 4031307, 50, 3010127, 10, 3010128, 10,
+                3010137, 10, 2049300, 10, 1012139, 10, 1012140, 10, 1012141, 10 };
+        GameConstants.fishingReward = new int[] { 4031627, 1, 4031628, 1, 4031630, 1, 4031631, 1, 4031632, 1, 4031633,
+                1, 4031634, 1, 4031635, 1, 4031636, 1, 4031637, 1, 4031638, 1, 4031639, 1, 4031640, 1, 4031641, 1,
+                4031642, 1, 4031643, 1, 4031644, 1, 4031645, 1, 4031646, 1, 4031647, 1, 4031648, 1, 4031629, 1, 2022468,
+                1, 2022468, 1, 2022468, 1, 2022468, 1, 2022468, 1, 2022468, 1 };
         GameConstants.Equipments_Bonus = new int[] { 1122017 };
-        GameConstants.blockedMaps = new int[] { 109050000, 280030000, 240060200, 280090000, 280030001, 240060201, 950101100, 950101010 };
-        GameConstants.normalDrops = new int[] { 4001009, 4001010, 4001011, 4001012, 4001013, 4001014, 4001021, 4001038, 4001039, 4001040, 4001041, 4001042, 4001043, 4001038, 4001039, 4001040, 4001041, 4001042, 4001043, 4001038, 4001039, 4001040, 4001041, 4001042, 4001043, 4000164, 2000000, 2000003, 2000004, 2000005, 4000019, 4000000, 4000016, 4000006, 2100121, 4000029, 4000064, 5110000, 4000306, 4032181, 4006001, 4006000, 2050004, 3994102, 3994103, 3994104, 3994105, 2430007, 4000164, 2000000, 2000003, 2000004, 2000005, 4000019, 4000000, 4000016, 4000006, 2100121, 4000029, 4000064, 5110000, 4000306, 4032181, 4006001, 4006000, 2050004, 3994102, 3994103, 3994104, 3994105, 2430007, 4000164, 2000000, 2000003, 2000004, 2000005, 4000019, 4000000, 4000016, 4000006, 2100121, 4000029, 4000064, 5110000, 4000306, 4032181, 4006001, 4006000, 2050004, 3994102, 3994103, 3994104, 3994105, 2430007 };
+        GameConstants.blockedMaps = new int[] { 109050000, 280030000, 240060200, 280090000, 280030001, 240060201,
+                950101100, 950101010 };
+        GameConstants.normalDrops = new int[] { 4001009, 4001010, 4001011, 4001012, 4001013, 4001014, 4001021, 4001038,
+                4001039, 4001040, 4001041, 4001042, 4001043, 4001038, 4001039, 4001040, 4001041, 4001042, 4001043,
+                4001038, 4001039, 4001040, 4001041, 4001042, 4001043, 4000164, 2000000, 2000003, 2000004, 2000005,
+                4000019, 4000000, 4000016, 4000006, 2100121, 4000029, 4000064, 5110000, 4000306, 4032181, 4006001,
+                4006000, 2050004, 3994102, 3994103, 3994104, 3994105, 2430007, 4000164, 2000000, 2000003, 2000004,
+                2000005, 4000019, 4000000, 4000016, 4000006, 2100121, 4000029, 4000064, 5110000, 4000306, 4032181,
+                4006001, 4006000, 2050004, 3994102, 3994103, 3994104, 3994105, 2430007, 4000164, 2000000, 2000003,
+                2000004, 2000005, 4000019, 4000000, 4000016, 4000006, 2100121, 4000029, 4000064, 5110000, 4000306,
+                4032181, 4006001, 4006000, 2050004, 3994102, 3994103, 3994104, 3994105, 2430007 };
         GameConstants.rareDrops = new int[] { 2049100, 2049301, 2049401, 2022326, 2022193, 2049000, 2049001, 2049002 };
         GameConstants.superDrops = new int[] { 2040804, 2049400, 2049100 };
-        GameConstants.owlItems = new int[] { 1082002, 2070005, 2070006, 1022047, 1102041, 2044705, 2340000, 2040017, 1092030, 2040804 };
-        stats = new String[] { "tuc", "reqLevel", "reqJob", "reqSTR", "reqDEX", "reqINT", "reqLUK", "reqPOP", "cash", "cursed", "success", "setItemID", "equipTradeBlock", "durability", "randOption", "randStat", "masterLevel", "reqSkillLevel", "elemDefault", "incRMAS", "incRMAF", "incRMAI", "incRMAL", "canLevel", "skill", "charmEXP" };
+        GameConstants.owlItems = new int[] { 1082002, 2070005, 2070006, 1022047, 1102041, 2044705, 2340000, 2040017,
+                1092030, 2040804 };
+        stats = new String[] { "tuc", "reqLevel", "reqJob", "reqSTR", "reqDEX", "reqINT", "reqLUK", "reqPOP", "cash",
+                "cursed", "success", "setItemID", "equipTradeBlock", "durability", "randOption", "randStat",
+                "masterLevel", "reqSkillLevel", "elemDefault", "incRMAS", "incRMAF", "incRMAI", "incRMAL", "canLevel",
+                "skill", "charmEXP" };
     }
 }

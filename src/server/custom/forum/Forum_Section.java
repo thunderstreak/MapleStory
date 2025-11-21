@@ -8,44 +8,43 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import tools.FileoutputUtil;
 
-public class Forum_Section
-{
+public class Forum_Section {
     private int Id;
     private String Name;
     private static ArrayList<Forum_Section> AllSection;
-    
+
     public Forum_Section() {
     }
-    
+
     public Forum_Section(final int id, final String name) {
         this.Id = id;
         this.Name = name;
     }
-    
+
     public static ArrayList<Forum_Section> getAllSection() {
         return Forum_Section.AllSection;
     }
-    
+
     public static void setAllSection(final ArrayList<Forum_Section> allSection) {
         Forum_Section.AllSection = allSection;
     }
-    
+
     public int getId() {
         return this.Id;
     }
-    
+
     public void setId(final int id) {
         this.Id = id;
     }
-    
+
     public String getName() {
         return this.Name;
     }
-    
+
     public void setName(final String name) {
         this.Name = name;
     }
-    
+
     public static ArrayList<Forum_Section> loadAllSection() {
         final Connection con = DatabaseConnection.getConnection();
         try {
@@ -60,13 +59,12 @@ public class Forum_Section
             ps.close();
             Forum_Thread.loadAllThread();
             return Forum_Section.AllSection;
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             FileoutputUtil.outputFileError("logs/数据库异常.txt", ex);
             return null;
         }
     }
-    
+
     public static boolean addSection(final String name) {
         final Connection con = DatabaseConnection.getConnection();
         try {
@@ -81,13 +79,12 @@ public class Forum_Section
             ps.close();
             Forum_Section.AllSection.add(getSectionByNameToSql(name));
             return true;
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             FileoutputUtil.outputFileError("logs/数据库异常.txt", ex);
             return false;
         }
     }
-    
+
     public static boolean deleteSection(final int id) {
         final Connection con = DatabaseConnection.getConnection();
         try {
@@ -107,13 +104,12 @@ public class Forum_Section
             ps.executeUpdate();
             ps.close();
             return true;
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             FileoutputUtil.outputFileError("logs/数据库异常.txt", ex);
             return false;
         }
     }
-    
+
     public static Forum_Section getSectionById(final int id) {
         final ArrayList<Forum_Section> allSection = getAllSection();
         for (final Forum_Section fs : allSection) {
@@ -123,7 +119,7 @@ public class Forum_Section
         }
         return null;
     }
-    
+
     public static Forum_Section getSectionByIdToSql(final int id) {
         String name = "";
         final Connection con = DatabaseConnection.getConnection();
@@ -135,13 +131,12 @@ public class Forum_Section
                 name = rs.getString("name");
             }
             return new Forum_Section(id, name);
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             FileoutputUtil.outputFileError("logs/数据库异常.txt", ex);
             return null;
         }
     }
-    
+
     public static Forum_Section getSectionByName(final String name) {
         final ArrayList<Forum_Section> allSection = getAllSection();
         for (final Forum_Section fs : allSection) {
@@ -151,7 +146,7 @@ public class Forum_Section
         }
         return null;
     }
-    
+
     public static Forum_Section getSectionByNameToSql(final String name) {
         int id = 0;
         final Connection con = DatabaseConnection.getConnection();
@@ -163,13 +158,12 @@ public class Forum_Section
                 id = rs.getInt("id");
             }
             return new Forum_Section(id, name);
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             FileoutputUtil.outputFileError("logs/数据库异常.txt", ex);
             return null;
         }
     }
-    
+
     static {
         Forum_Section.AllSection = new ArrayList<Forum_Section>();
     }

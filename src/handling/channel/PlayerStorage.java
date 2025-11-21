@@ -17,8 +17,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import server.Timer;
 
-public class PlayerStorage
-{
+public class PlayerStorage {
     private final ReentrantReadWriteLock mutex;
     private final Lock rL;
     private final Lock wL;
@@ -29,7 +28,7 @@ public class PlayerStorage
     private final Map<Integer, MapleCharacter> idToChar;
     private final Map<Integer, CharacterTransfer> PendingCharacter;
     private final int channel;
-    
+
     public PlayerStorage(final int channel) {
         this.mutex = new ReentrantReadWriteLock();
         this.rL = this.mutex.readLock();
@@ -43,80 +42,73 @@ public class PlayerStorage
         this.channel = channel;
         Timer.PingTimer.getInstance().schedule(new PersistingTask(), 900000L);
     }
-    
+
     public Collection<MapleCharacter> getAllCharacters() {
         this.rL.lock();
         try {
-            return Collections.unmodifiableCollection((Collection<? extends MapleCharacter>)this.idToChar.values());
-        }
-        finally {
+            return Collections.unmodifiableCollection((Collection<? extends MapleCharacter>) this.idToChar.values());
+        } finally {
             this.rL.unlock();
         }
     }
-    
+
     public void registerPlayer(final MapleCharacter chr) {
         this.wL.lock();
         try {
             this.nameToChar.put(chr.getName().toLowerCase(), chr);
             this.idToChar.put(chr.getId(), chr);
-        }
-        finally {
+        } finally {
             this.wL.unlock();
         }
         World.Find.register(chr.getId(), chr.getName(), this.channel);
     }
-    
+
     public void registerPendingPlayer(final CharacterTransfer chr, final int playerid) {
         this.wL2.lock();
         try {
             this.PendingCharacter.put(playerid, chr);
-        }
-        finally {
+        } finally {
             this.wL2.unlock();
         }
     }
-    
+
     public void deregisterPlayer(final MapleCharacter chr) {
         this.wL.lock();
         try {
             this.nameToChar.remove(chr.getName().toLowerCase());
             this.idToChar.remove(chr.getId());
-        }
-        finally {
+        } finally {
             this.wL.unlock();
         }
         World.Find.forceDeregister(chr.getId(), chr.getName());
     }
-    
+
     public void deregisterPlayer(final int idz, final String namez) {
         this.wL.lock();
         try {
             this.nameToChar.remove(namez.toLowerCase());
             this.idToChar.remove(idz);
-        }
-        finally {
+        } finally {
             this.wL.unlock();
         }
         World.Find.forceDeregister(idz, namez);
     }
-    
+
     public void deregisterPendingPlayer(final int charid) {
         this.wL2.lock();
         try {
             this.PendingCharacter.remove(charid);
-        }
-        finally {
+        } finally {
             this.wL2.unlock();
         }
     }
-    
+
     public CharacterTransfer getPendingCharacter(final int charid) {
         this.rL2.lock();
         CharacterTransfer toreturn;
         try {
             toreturn = this.PendingCharacter.get(charid);
-        }
-        finally {
+        } finally {
             this.rL2.unlock();
         }
         if (toreturn != null) {
@@ -124,51 +116,50 @@ public class PlayerStorage
         }
         return toreturn;
     }
-    
+
     public MapleCharacter getCharacterByName(final String name) {
         this.rL.lock();
         try {
             return this.nameToChar.get(name.toLowerCase());
-        }
-        finally {
+        } finally {
             this.rL.unlock();
         }
     }
-    
+
     public MapleCharacter getCharacterById(final int id) {
         this.rL.lock();
         try {
             return this.idToChar.get(id);
-        }
-        finally {
+        } finally {
             this.rL.unlock();
         }
     }
-    
+
     public int getConnectedClients() {
         return this.idToChar.size();
     }
-    
+
     public List<CheaterData> getCheaters() {
         final List<CheaterData> cheaters = new ArrayList<CheaterData>();
         this.rL.lock();
         try {
             for (final MapleCharacter chr : this.nameToChar.values()) {
                 if (chr.getCheatTracker().getPoints() > 0) {
-                    cheaters.add(new CheaterData(chr.getCheatTracker().getPoints(), MapleCharacterUtil.makeMapleReadable(chr.getName()) + " (" + chr.getCheatTracker().getPoints() + ") " + chr.getCheatTracker().getSummary()));
+                    cheaters.add(new CheaterData(chr.getCheatTracker().getPoints(),
+                            MapleCharacterUtil.makeMapleReadable(chr.getName()) + " ("
+                                    + chr.getCheatTracker().getPoints() + ") " + chr.getCheatTracker().getSummary()));
                 }
             }
-        }
-        finally {
+        } finally {
             this.rL.unlock();
         }
         return cheaters;
     }
-    
+
     public void disconnectAll() {
         this.disconnectAll(false);
     }
-    
+
     public void disconnectAll(final boolean checkGM) {
         this.wL.lock();
         try {
@@ -182,12 +173,11 @@ public class PlayerStorage
                     itr.remove();
                 }
             }
-        }
-        finally {
+        } finally {
             this.wL.unlock();
         }
     }
-    
+
     public String getOnlinePlayers(final boolean byGM) {
         final StringBuilder sb = new StringBuilder();
         if (byGM) {
@@ -198,12 +188,10 @@ public class PlayerStorage
                     sb.append(MapleCharacterUtil.makeMapleReadable(itr.next().getName()));
                     sb.append(", ");
                 }
-            }
-            finally {
+            } finally {
                 this.rL.unlock();
             }
-        }
-        else {
+        } else {
             this.rL.lock();
             try {
                 for (final MapleCharacter chr : this.nameToChar.values()) {
@@ -212,14 +200,13 @@ public class PlayerStorage
                         sb.append(", ");
                     }
                 }
-            }
-            finally {
+            } finally {
                 this.rL.unlock();
             }
         }
         return sb.toString();
     }
-    
+
     public void broadcastPacket(final MaplePacket data) {
         this.rL.lock();
         try {
@@ -227,12 +214,11 @@ public class PlayerStorage
             while (itr.hasNext()) {
                 itr.next().getClient().getSession().write(data);
             }
-        }
-        finally {
+        } finally {
             this.rL.unlock();
         }
     }
-    
+
     public void broadcastSmegaPacket(final MaplePacket data) {
         this.rL.lock();
         try {
@@ -241,12 +227,11 @@ public class PlayerStorage
                     chr.getClient().getSession().write(data);
                 }
             }
-        }
-        finally {
+        } finally {
             this.rL.unlock();
         }
     }
-    
+
     public void broadcastGMPacket(final MaplePacket data) {
         this.rL.lock();
         try {
@@ -255,34 +240,32 @@ public class PlayerStorage
                     chr.getClient().getSession().write(data);
                 }
             }
-        }
-        finally {
+        } finally {
             this.rL.unlock();
         }
     }
-    
+
     public List<MapleCharacter> getAllCharactersThreadSafe() {
         final List<MapleCharacter> ret = new ArrayList<MapleCharacter>();
         ret.addAll(this.getAllCharacters());
         return ret;
     }
-    
-    public class PersistingTask implements Runnable
-    {
+
+    public class PersistingTask implements Runnable {
         @Override
         public void run() {
             PlayerStorage.this.wL2.lock();
             try {
                 final long currenttime = System.currentTimeMillis();
-                final Iterator<Map.Entry<Integer, CharacterTransfer>> itr = PlayerStorage.this.PendingCharacter.entrySet().iterator();
+                final Iterator<Map.Entry<Integer, CharacterTransfer>> itr = PlayerStorage.this.PendingCharacter
+                        .entrySet().iterator();
                 while (itr.hasNext()) {
                     if (currenttime - itr.next().getValue().TranferTime > 40000L) {
                         itr.remove();
                     }
                 }
                 Timer.PingTimer.getInstance().schedule(new PersistingTask(), 900000L);
-            }
-            finally {
+            } finally {
                 PlayerStorage.this.wL2.unlock();
             }
         }

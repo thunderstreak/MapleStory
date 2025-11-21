@@ -14,22 +14,21 @@ import provider.MapleDataProviderFactory;
 import provider.MapleDataTool;
 import tools.StringUtil;
 
-public class DumpNpcNames
-{
+public class DumpNpcNames {
     private final Connection con;
     private static final Map<Integer, String> npcNames;
-    
+
     public DumpNpcNames() {
         this.con = DatabaseConnection.getConnection();
     }
-    
+
     public static void main(final String[] args) throws SQLException {
         System.out.println("Dumping npc name data.");
         final DumpNpcNames dump = new DumpNpcNames();
         dump.dumpNpcNameData();
         System.out.println("Dump complete.");
     }
-    
+
     public void dumpNpcNameData() throws SQLException {
         final File dataFile = new File(System.getProperty("wzPath") + "/Npc.wz");
         final File strDataFile = new File(System.getProperty("wzPath") + "/String.wz");
@@ -51,25 +50,25 @@ public class DumpNpcNames
                     continue;
                 }
                 DumpNpcNames.npcNames.put(nid, name);
+            } catch (NullPointerException ex2) {
+            } catch (RuntimeException ex3) {
             }
-            catch (NullPointerException ex2) {}
-            catch (RuntimeException ex3) {}
         }
         for (final int key : DumpNpcNames.npcNames.keySet()) {
             try {
-                try (final PreparedStatement ps2 = this.con.prepareStatement("INSERT INTO `wz_npcnamedata` (`npc`, `name`) VALUES (?, ?)")) {
+                try (final PreparedStatement ps2 = this.con
+                        .prepareStatement("INSERT INTO `wz_npcnamedata` (`npc`, `name`) VALUES (?, ?)")) {
                     ps2.setInt(1, key);
                     ps2.setString(2, DumpNpcNames.npcNames.get(key));
                     ps2.execute();
                 }
                 System.out.println("key: " + key + " name: " + DumpNpcNames.npcNames.get(key));
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 System.out.println("Failed to save key " + key);
             }
         }
     }
-    
+
     static {
         npcNames = new HashMap<Integer, String>();
     }

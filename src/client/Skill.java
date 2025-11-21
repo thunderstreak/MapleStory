@@ -8,8 +8,7 @@ import provider.MapleDataTool;
 import server.MapleStatEffect;
 import server.life.Element;
 
-public class Skill implements ISkill
-{
+public class Skill implements ISkill {
     private String name;
     private final List<MapleStatEffect> effects;
     private Element element;
@@ -22,7 +21,7 @@ public class Skill implements ISkill
     private boolean invisible;
     private boolean chargeskill;
     private boolean timeLimited;
-    
+
     public static Skill loadFromData(final int id, final MapleData data) {
         final Skill ret = new Skill(id);
         boolean isBuff = false;
@@ -30,8 +29,7 @@ public class Skill implements ISkill
         final String elem = MapleDataTool.getString("elemAttr", data, null);
         if (elem != null) {
             ret.element = Element.getFromChar(elem.charAt(0));
-        }
-        else {
+        } else {
             ret.element = Element.NEUTRAL;
         }
         ret.invisible = (MapleDataTool.getInt("invisible", data, 0) > 0);
@@ -42,8 +40,7 @@ public class Skill implements ISkill
             if (skillType == 2) {
                 isBuff = true;
             }
-        }
-        else {
+        } else {
             final MapleData action_ = data.getChildByPath("action");
             final MapleData hit = data.getChildByPath("hit");
             final MapleData ball = data.getChildByPath("ball");
@@ -51,8 +48,7 @@ public class Skill implements ISkill
             if (action_ == null) {
                 if (data.getChildByPath("prepare/action") != null) {
                     action = true;
-                }
-                else {
+                } else {
                     switch (id) {
                         case 3101005:
                         case 4221001:
@@ -63,8 +59,7 @@ public class Skill implements ISkill
                         }
                     }
                 }
-            }
-            else {
+            } else {
                 action = true;
             }
             ret.action = action;
@@ -123,13 +118,14 @@ public class Skill implements ISkill
         }
         ret.chargeskill = (data.getChildByPath("keydown") != null);
         for (final MapleData level : data.getChildByPath("level")) {
-            ret.effects.add(MapleStatEffect.loadSkillEffectFromData(level, id, isBuff, Byte.parseByte(level.getName())));
+            ret.effects
+                    .add(MapleStatEffect.loadSkillEffectFromData(level, id, isBuff, Byte.parseByte(level.getName())));
         }
         final MapleData reqDataRoot = data.getChildByPath("req");
         if (reqDataRoot != null) {
             for (final MapleData reqData : reqDataRoot.getChildren()) {
                 ret.requiredSkill = Integer.parseInt(reqData.getName());
-                ret.level = (byte)MapleDataTool.getInt(reqData, 1);
+                ret.level = (byte) MapleDataTool.getInt(reqData, 1);
             }
         }
         ret.animationTime = 0;
@@ -141,27 +137,27 @@ public class Skill implements ISkill
         }
         return ret;
     }
-    
+
     public Skill(final int id) {
         this.name = "";
         this.effects = new ArrayList<MapleStatEffect>();
         this.id = id;
     }
-    
+
     public void setName(final String name) {
         this.name = name;
     }
-    
+
     @Override
     public int getId() {
         return this.id;
     }
-    
+
     @Override
     public String getName() {
         return this.name;
     }
-    
+
     @Override
     public MapleStatEffect getEffect(final int level) {
         if (this.effects.size() < level) {
@@ -169,62 +165,68 @@ public class Skill implements ISkill
                 return this.effects.get(this.effects.size() - 1);
             }
             return null;
-        }
-        else {
+        } else {
             if (level <= 0) {
                 return this.effects.get(0);
             }
             return this.effects.get(level - 1);
         }
     }
-    
+
     @Override
     public boolean getAction() {
         return this.action;
     }
-    
+
     @Override
     public boolean isChargeSkill() {
         return this.chargeskill;
     }
-    
+
     @Override
     public boolean isInvisible() {
         return this.invisible;
     }
-    
+
     @Override
     public boolean hasRequiredSkill() {
         return this.level > 0;
     }
-    
+
     @Override
     public int getRequiredSkillLevel() {
         return this.level;
     }
-    
+
     @Override
     public int getRequiredSkillId() {
         return this.requiredSkill;
     }
-    
+
     @Override
     public byte getMaxLevel() {
-        return (byte)this.effects.size();
+        return (byte) this.effects.size();
     }
-    
+
     @Override
     public boolean canBeLearnedBy(final int job) {
         final int jid = job;
         final int skillForJob = this.id / 10000;
-        return (skillForJob == 2001 && GameConstants.isEvan(job)) || (jid / 100 == skillForJob / 100 && jid / 1000 == skillForJob / 1000 && (!GameConstants.isAdventurer(skillForJob) || GameConstants.isAdventurer(job)) && (!GameConstants.isKOC(skillForJob) || GameConstants.isKOC(job)) && (!GameConstants.isAran(skillForJob) || GameConstants.isAran(job)) && (!GameConstants.isEvan(skillForJob) || GameConstants.isEvan(job)) && (!GameConstants.isResist(skillForJob) || GameConstants.isResist(job)) && skillForJob / 10 % 10 <= jid / 10 % 10 && skillForJob % 10 <= jid % 10);
+        return (skillForJob == 2001 && GameConstants.isEvan(job))
+                || (jid / 100 == skillForJob / 100 && jid / 1000 == skillForJob / 1000
+                        && (!GameConstants.isAdventurer(skillForJob) || GameConstants.isAdventurer(job))
+                        && (!GameConstants.isKOC(skillForJob) || GameConstants.isKOC(job))
+                        && (!GameConstants.isAran(skillForJob) || GameConstants.isAran(job))
+                        && (!GameConstants.isEvan(skillForJob) || GameConstants.isEvan(job))
+                        && (!GameConstants.isResist(skillForJob) || GameConstants.isResist(job))
+                        && skillForJob / 10 % 10 <= jid / 10 % 10 && skillForJob % 10 <= jid % 10);
     }
-    
+
     @Override
     public boolean isTimeLimited() {
         return this.timeLimited;
     }
-    
+
     @Override
     public boolean isFourthJob() {
         if (this.id / 10000 >= 2212 && this.id / 10000 < 3000) {
@@ -235,22 +237,22 @@ public class Skill implements ISkill
         }
         return this.id / 10000 % 10 == 2;
     }
-    
+
     @Override
     public Element getElement() {
         return this.element;
     }
-    
+
     @Override
     public int getAnimationTime() {
         return this.animationTime;
     }
-    
+
     @Override
     public int getMasterLevel() {
         return this.masterLevel;
     }
-    
+
     @Override
     public boolean isBeginnerSkill() {
         final int jobId = this.id / 10000;

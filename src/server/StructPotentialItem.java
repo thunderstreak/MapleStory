@@ -1,7 +1,6 @@
 package server;
 
-public class StructPotentialItem
-{
+public class StructPotentialItem {
     public byte incSTR;
     public byte incDEX;
     public byte incINT;
@@ -54,7 +53,7 @@ public class StructPotentialItem
     public int optionType;
     public int reqLevel;
     public String face;
-    
+
     @Override
     public String toString() {
         final StringBuilder ret = new StringBuilder();

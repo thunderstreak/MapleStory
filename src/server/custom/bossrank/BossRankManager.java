@@ -11,15 +11,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-public class BossRankManager
-{
+
+public class BossRankManager {
     public static BossRankManager getInstance() {
         return InstanceHolder.instance;
     }
-    
+
     private BossRankManager() {
     }
-    
+
     public Map<String, BossRankInfo> getInfoMap(final int cid) {
         final Map<String, BossRankInfo> info_map = new HashMap<String, BossRankInfo>();
         final Connection con1 = DatabaseConnection.getConnection();
@@ -38,8 +38,7 @@ public class BossRankManager
                 info.setCount(rs.getInt("count"));
                 info_map.put(info.getBossname(), info);
             }
-        }
-        catch (Exception Ex) {
+        } catch (Exception Ex) {
             Ex.printStackTrace();
             try {
                 if (rs != null) {
@@ -48,12 +47,10 @@ public class BossRankManager
                 if (ps != null) {
                     ps.close();
                 }
-            }
-            catch (SQLException ex) {
+            } catch (SQLException ex) {
                 Logger.getLogger(BossRankManager.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }
-        finally {
+        } finally {
             try {
                 if (rs != null) {
                     rs.close();
@@ -61,14 +58,13 @@ public class BossRankManager
                 if (ps != null) {
                     ps.close();
                 }
-            }
-            catch (SQLException ex2) {
+            } catch (SQLException ex2) {
                 Logger.getLogger(BossRankManager.class.getName()).log(Level.SEVERE, null, ex2);
             }
         }
         return info_map;
     }
-    
+
     public BossRankInfo getInfo(final int cid, final String bossname) {
         BossRankInfo info = null;
         final Connection con1 = DatabaseConnection.getConnection();
@@ -87,8 +83,7 @@ public class BossRankManager
                 info.setPoints(rs.getInt("points"));
                 info.setCount(rs.getInt("count"));
             }
-        }
-        catch (Exception Ex) {
+        } catch (Exception Ex) {
             Ex.printStackTrace();
             try {
                 if (rs != null) {
@@ -97,12 +92,10 @@ public class BossRankManager
                 if (ps != null) {
                     ps.close();
                 }
-            }
-            catch (SQLException ex) {
+            } catch (SQLException ex) {
                 Logger.getLogger(BossRankManager.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }
-        finally {
+        } finally {
             try {
                 if (rs != null) {
                     rs.close();
@@ -110,14 +103,13 @@ public class BossRankManager
                 if (ps != null) {
                     ps.close();
                 }
-            }
-            catch (SQLException ex2) {
+            } catch (SQLException ex2) {
                 Logger.getLogger(BossRankManager.class.getName()).log(Level.SEVERE, null, ex2);
             }
         }
         return info;
     }
-    
+
     public int setLog(final int cid, final String cname, final String bossname, final byte type, final int update) {
         int ret = -1;
         BossRankInfo info = this.getInfo(cid, bossname);
@@ -156,7 +148,7 @@ public class BossRankManager
         this.update(info);
         return ret;
     }
-    
+
     public void update(final BossRankInfo info) {
         if (info == null) {
             return;
@@ -170,30 +162,26 @@ public class BossRankManager
             ps.setInt(3, info.getCid());
             ps.setString(4, info.getBossname());
             ps.executeUpdate();
-        }
-        catch (Exception Ex) {
+        } catch (Exception Ex) {
             Ex.printStackTrace();
             if (ps != null) {
                 try {
                     ps.close();
-                }
-                catch (SQLException ex) {
+                } catch (SQLException ex) {
                     Logger.getLogger(BossRankManager.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-        }
-        finally {
+        } finally {
             if (ps != null) {
                 try {
                     ps.close();
-                }
-                catch (SQLException ex2) {
+                } catch (SQLException ex2) {
                     Logger.getLogger(BossRankManager.class.getName()).log(Level.SEVERE, null, ex2);
                 }
             }
         }
     }
-    
+
     public void add(final BossRankInfo info) {
         if (info == null) {
             return;
@@ -208,30 +196,26 @@ public class BossRankManager
             ps.setInt(4, info.getPoints());
             ps.setInt(5, info.getCount());
             ps.executeUpdate();
-        }
-        catch (Exception Ex) {
+        } catch (Exception Ex) {
             Ex.printStackTrace();
             if (ps != null) {
                 try {
                     ps.close();
-                }
-                catch (SQLException ex) {
+                } catch (SQLException ex) {
                     Logger.getLogger(BossRankManager.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-        }
-        finally {
+        } finally {
             if (ps != null) {
                 try {
                     ps.close();
-                }
-                catch (SQLException ex2) {
+                } catch (SQLException ex2) {
                     Logger.getLogger(BossRankManager.class.getName()).log(Level.SEVERE, null, ex2);
                 }
             }
         }
     }
-    
+
     public List<BossRankInfo> getRank(final String bossname, final int type) {
         final List<BossRankInfo> list = new LinkedList<BossRankInfo>();
         final Connection con = DatabaseConnection.getConnection();
@@ -240,15 +224,18 @@ public class BossRankManager
         try {
             switch (type) {
                 case 1: {
-                    ps = con.prepareStatement("SELECT * FROM bossrank WHERE bossname = ? ORDER BY points DESC LIMIT 100");
+                    ps = con.prepareStatement(
+                            "SELECT * FROM bossrank WHERE bossname = ? ORDER BY points DESC LIMIT 100");
                     break;
                 }
                 case 2: {
-                    ps = con.prepareStatement("SELECT * FROM bossrank WHERE bossname = ? ORDER BY count DESC LIMIT 100");
+                    ps = con.prepareStatement(
+                            "SELECT * FROM bossrank WHERE bossname = ? ORDER BY count DESC LIMIT 100");
                     break;
                 }
                 default: {
-                    ps = con.prepareStatement("SELECT * FROM bossrank WHERE bossname = ? ORDER BY points DESC LIMIT 100");
+                    ps = con.prepareStatement(
+                            "SELECT * FROM bossrank WHERE bossname = ? ORDER BY points DESC LIMIT 100");
                     break;
                 }
             }
@@ -263,8 +250,7 @@ public class BossRankManager
                 info.setCount(rs.getInt("count"));
                 list.add(info);
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
             try {
                 if (rs != null) {
@@ -273,12 +259,10 @@ public class BossRankManager
                 if (ps != null) {
                     ps.close();
                 }
-            }
-            catch (SQLException ex) {
+            } catch (SQLException ex) {
                 Logger.getLogger(BossRankManager.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }
-        finally {
+        } finally {
             try {
                 if (rs != null) {
                     rs.close();
@@ -286,18 +270,16 @@ public class BossRankManager
                 if (ps != null) {
                     ps.close();
                 }
-            }
-            catch (SQLException ex2) {
+            } catch (SQLException ex2) {
                 Logger.getLogger(BossRankManager.class.getName()).log(Level.SEVERE, null, ex2);
             }
         }
         return list;
     }
-    
-    private static class InstanceHolder
-    {
+
+    private static class InstanceHolder {
         public static final BossRankManager instance;
-        
+
         static {
             instance = new BossRankManager();
         }

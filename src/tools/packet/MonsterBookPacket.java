@@ -5,8 +5,7 @@ import handling.MaplePacket;
 import handling.SendPacketOpcode;
 import tools.data.output.MaplePacketLittleEndianWriter;
 
-public class MonsterBookPacket
-{
+public class MonsterBookPacket {
     public static MaplePacket addCard(final boolean full, final int cardid, final int level) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         if (ServerConstants.调试输出封包) {
@@ -17,8 +16,7 @@ public class MonsterBookPacket
             mplew.write(1);
             mplew.writeInt(cardid);
             mplew.writeInt(level);
-        }
-        else {
+        } else {
             mplew.write(0);
         }
         if (ServerConstants.PACKET_ERROR_OFF) {
@@ -27,7 +25,7 @@ public class MonsterBookPacket
         }
         return mplew.getPacket();
     }
-    
+
     public static MaplePacket showGainCard(final int itemid) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         if (ServerConstants.调试输出封包) {
@@ -41,7 +39,7 @@ public class MonsterBookPacket
         }
         return mplew.getPacket();
     }
-    
+
     public static MaplePacket showForeginCardEffect(final int id) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         if (ServerConstants.调试输出封包) {
@@ -56,7 +54,7 @@ public class MonsterBookPacket
         }
         return mplew.getPacket();
     }
-    
+
     public static MaplePacket changeCover(final int cardid) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         if (ServerConstants.调试输出封包) {

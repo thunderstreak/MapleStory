@@ -12,7 +12,7 @@ public enum MapleInventoryType {
     byte type;
 
     MapleInventoryType(int type) {
-        this.type = (byte)type;
+        this.type = (byte) type;
     }
 
     public byte getType() {
@@ -20,7 +20,7 @@ public enum MapleInventoryType {
     }
 
     public short getBitfieldEncoding() {
-        return (short)(2 << this.type);
+        return (short) (2 << this.type);
     }
 
     public static MapleInventoryType getByType(byte type) {

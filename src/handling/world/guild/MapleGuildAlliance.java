@@ -12,8 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import tools.MaplePacketCreator;
 
-public class MapleGuildAlliance implements Serializable
-{
+public class MapleGuildAlliance implements Serializable {
     public static long serialVersionUID;
     public static int CHANGE_CAPACITY_COST;
     private int[] guilds;
@@ -23,7 +22,7 @@ public class MapleGuildAlliance implements Serializable
     private String name;
     private String notice;
     private String[] ranks;
-    
+
     public static Collection<MapleGuildAlliance> loadAll() {
         final Collection<MapleGuildAlliance> ret = new ArrayList<MapleGuildAlliance>();
         try {
@@ -38,14 +37,13 @@ public class MapleGuildAlliance implements Serializable
             }
             rs.close();
             ps.close();
-        }
-        catch (SQLException se) {
+        } catch (SQLException se) {
             System.err.println("unable to read guild information from sql");
             se.printStackTrace();
         }
         return ret;
     }
-    
+
     public static int createToDb(final int leaderId, final String name, final int guild1, final int guild2) {
         int ret = -1;
         if (name.length() > 12) {
@@ -75,14 +73,13 @@ public class MapleGuildAlliance implements Serializable
             }
             rs.close();
             ps.close();
-        }
-        catch (SQLException SE) {
+        } catch (SQLException SE) {
             System.err.println("SQL THROW");
             SE.printStackTrace();
         }
         return ret;
     }
-    
+
     public MapleGuildAlliance(final int id) {
         this.guilds = new int[5];
         this.ranks = new String[5];
@@ -108,13 +105,12 @@ public class MapleGuildAlliance implements Serializable
             this.notice = rs.getString("notice");
             rs.close();
             ps.close();
-        }
-        catch (SQLException se) {
+        } catch (SQLException se) {
             System.err.println("unable to read guild information from sql");
             se.printStackTrace();
         }
     }
-    
+
     public int getNoGuilds() {
         int ret = 0;
         for (int i = 0; i < this.capacity; ++i) {
@@ -124,12 +120,13 @@ public class MapleGuildAlliance implements Serializable
         }
         return ret;
     }
-    
+
     public boolean deleteAlliance() {
         try {
             final Connection con = DatabaseConnection.getConnection();
             for (int i = 0; i < this.getNoGuilds(); ++i) {
-                final PreparedStatement ps = con.prepareStatement("UPDATE characters SET alliancerank = 5 WHERE guildid = ?");
+                final PreparedStatement ps = con
+                        .prepareStatement("UPDATE characters SET alliancerank = 5 WHERE guildid = ?");
                 ps.setInt(1, this.guilds[i]);
                 ps.execute();
                 ps.close();
@@ -138,22 +135,21 @@ public class MapleGuildAlliance implements Serializable
             ps.setInt(1, this.allianceid);
             ps.execute();
             ps.close();
-        }
-        catch (SQLException SE) {
+        } catch (SQLException SE) {
             System.err.println("SQL THROW" + SE);
             return false;
         }
         return true;
     }
-    
+
     public void broadcast(final MaplePacket packet) {
         this.broadcast(packet, -1, GAOp.NONE, false);
     }
-    
+
     public void broadcast(final MaplePacket packet, final int exception) {
         this.broadcast(packet, exception, GAOp.NONE, false);
     }
-    
+
     public void broadcast(final MaplePacket packet, final int exceptionId, final GAOp op, final boolean expelled) {
         if (null != op) {
             switch (op) {
@@ -172,7 +168,7 @@ public class MapleGuildAlliance implements Serializable
             }
         }
     }
-    
+
     public boolean disband() {
         final boolean ret = this.deleteAlliance();
         if (ret) {
@@ -180,11 +176,12 @@ public class MapleGuildAlliance implements Serializable
         }
         return ret;
     }
-    
+
     public void saveToDb() {
         final Connection con = DatabaseConnection.getConnection();
         try {
-            final PreparedStatement ps = con.prepareStatement("UPDATE alliances set guild1 = ?, guild2 = ?, guild3 = ?, guild4 = ?, guild5 = ?, rank1 = ?, rank2 = ?, rank3 = ?, rank4 = ?, rank5 = ?, capacity = ?, leaderid = ?, notice = ? where id = ?");
+            final PreparedStatement ps = con.prepareStatement(
+                    "UPDATE alliances set guild1 = ?, guild2 = ?, guild3 = ?, guild4 = ?, guild5 = ?, rank1 = ?, rank2 = ?, rank3 = ?, rank4 = ?, rank5 = ?, capacity = ?, leaderid = ?, notice = ? where id = ?");
             for (int i = 0; i < 5; ++i) {
                 ps.setInt(i + 1, (this.guilds[i] < 0) ? 0 : this.guilds[i]);
                 ps.setString(i + 6, this.ranks[i]);
@@ -195,54 +192,53 @@ public class MapleGuildAlliance implements Serializable
             ps.setInt(14, this.allianceid);
             ps.executeUpdate();
             ps.close();
-        }
-        catch (SQLException SE) {
+        } catch (SQLException SE) {
             System.err.println("SQL THROW");
             SE.printStackTrace();
         }
     }
-    
+
     public void setRank(final String[] ranks) {
         this.ranks = ranks;
         this.broadcast(MaplePacketCreator.getAllianceUpdate(this));
         this.saveToDb();
     }
-    
+
     public String getRank(final int rank) {
         return this.ranks[rank - 1];
     }
-    
+
     public String[] getRanks() {
         return this.ranks;
     }
-    
+
     public String getNotice() {
         return this.notice;
     }
-    
+
     public void setNotice(final String newNotice) {
         this.notice = newNotice;
         this.broadcast(MaplePacketCreator.getAllianceUpdate(this));
         this.broadcast(MaplePacketCreator.serverNotice(5, "聯盟公告事項 : " + newNotice));
         this.saveToDb();
     }
-    
+
     public int getGuildId(final int i) {
         return this.guilds[i];
     }
-    
+
     public int getId() {
         return this.allianceid;
     }
-    
+
     public String getName() {
         return this.name;
     }
-    
+
     public int getCapacity() {
         return this.capacity;
     }
-    
+
     public boolean setCapacity() {
         if (this.capacity >= 5) {
             return false;
@@ -252,7 +248,7 @@ public class MapleGuildAlliance implements Serializable
         this.saveToDb();
         return true;
     }
-    
+
     public boolean addGuild(final int guildid) {
         if (this.getNoGuilds() >= this.getCapacity()) {
             return false;
@@ -262,7 +258,7 @@ public class MapleGuildAlliance implements Serializable
         this.broadcast(null, guildid, GAOp.NEWGUILD, false);
         return true;
     }
-    
+
     public boolean removeGuild(final int guildid, final boolean expelled) {
         int i = 0;
         while (i < this.getNoGuilds()) {
@@ -277,8 +273,7 @@ public class MapleGuildAlliance implements Serializable
                             }
                         }
                     }
-                }
-                else {
+                } else {
                     this.guilds[i] = -1;
                 }
                 if (i == 0) {
@@ -288,18 +283,17 @@ public class MapleGuildAlliance implements Serializable
                 this.broadcast(MaplePacketCreator.getGuildAlliance(this));
                 this.saveToDb();
                 return true;
-            }
-            else {
+            } else {
                 ++i;
             }
         }
         return false;
     }
-    
+
     public int getLeaderId() {
         return this.leaderid;
     }
-    
+
     public boolean setLeaderId(final int c) {
         if (this.leaderid == c) {
             return false;
@@ -318,11 +312,9 @@ public class MapleGuildAlliance implements Serializable
                     g_.changeARank(c, 1);
                     g = i;
                     leaderName = newLead.getName();
-                }
-                else if (oldLead != null && oldLead.getGuildRank() == 1 && oldLead.getAllianceRank() == 1) {
+                } else if (oldLead != null && oldLead.getGuildRank() == 1 && oldLead.getAllianceRank() == 1) {
                     g_.changeARank(this.leaderid, 2);
-                }
-                else if (oldLead != null || newLead != null) {
+                } else if (oldLead != null || newLead != null) {
                     return false;
                 }
             }
@@ -344,7 +336,7 @@ public class MapleGuildAlliance implements Serializable
         this.saveToDb();
         return true;
     }
-    
+
     public boolean changeAllianceRank(final int cid, final int change) {
         if (this.leaderid == cid || change < 0 || change > 1) {
             return false;
@@ -364,16 +356,15 @@ public class MapleGuildAlliance implements Serializable
         }
         return false;
     }
-    
+
     static {
         MapleGuildAlliance.serialVersionUID = 24081985245L;
         MapleGuildAlliance.CHANGE_CAPACITY_COST = 10000000;
     }
-    
-    private enum GAOp
-    {
-        NONE, 
-        DISBAND, 
+
+    private enum GAOp {
+        NONE,
+        DISBAND,
         NEWGUILD;
     }
 }

@@ -1,13 +1,12 @@
 package server.life;
 
-public enum ElementalEffectiveness
-{
-    正常, 
-    免疫, 
-    增强, 
-    虚弱, 
+public enum ElementalEffectiveness {
+    正常,
+    免疫,
+    增强,
+    虚弱,
     NEUTRAL;
-    
+
     public static ElementalEffectiveness getByNumber(final int num) {
         switch (num) {
             case 1: {

@@ -9,24 +9,23 @@ import java.sql.SQLException;
 import java.util.Set;
 import tools.MaplePacketCreator;
 
-public class ShutdownServer implements Runnable
-{
+public class ShutdownServer implements Runnable {
     private static final ShutdownServer instance;
     public static boolean running;
     public int mode;
-    
+
     public ShutdownServer() {
         this.mode = 0;
     }
-    
+
     public static ShutdownServer getInstance() {
         return ShutdownServer.instance;
     }
-    
+
     public void shutdown() {
         this.run();
     }
-    
+
     @Override
     public void run() {
         Timer.WorldTimer.getInstance().stop();
@@ -45,14 +44,14 @@ public class ShutdownServer implements Runnable
             World.Guild.save();
             World.Alliance.save();
             World.Family.save();
+        } catch (Exception ex) {
         }
-        catch (Exception ex) {}
         World.Broadcast.broadcastMessage(MaplePacketCreator.serverNotice(0, " 游戏服务器将关闭维护，请玩家安全下线..."));
         for (final ChannelServer cs : ChannelServer.getAllInstances()) {
             try {
                 cs.setServerMessage("游戏服务器将关闭维护，请玩家安全下线...");
+            } catch (Exception ex2) {
             }
-            catch (Exception ex2) {}
         }
         final Set<Integer> channels = ChannelServer.getAllInstance();
         for (final Integer channel : channels) {
@@ -61,8 +60,7 @@ public class ShutdownServer implements Runnable
                 cs2.saveAll();
                 cs2.setFinishShutdown();
                 cs2.shutdown();
-            }
-            catch (Exception e2) {
+            } catch (Exception e2) {
                 System.out.println("频道" + String.valueOf(channel) + " 关闭错误.");
             }
         }
@@ -71,28 +69,27 @@ public class ShutdownServer implements Runnable
         try {
             LoginServer.shutdown();
             System.out.println("登录伺服器关闭完成...");
+        } catch (Exception ex3) {
         }
-        catch (Exception ex3) {}
         try {
             CashShopServer.shutdown();
             System.out.println("商城伺服器关闭完成...");
+        } catch (Exception ex4) {
         }
-        catch (Exception ex4) {}
         try {
             DatabaseConnection.closeAll();
+        } catch (SQLException ex5) {
         }
-        catch (SQLException ex5) {}
         Timer.PingTimer.getInstance().stop();
         System.out.println("服务端关闭事件 2 已完成.");
         try {
             Thread.sleep(1000L);
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             System.out.println("关闭服务端错误 - 2" + e);
         }
         System.exit(0);
     }
-    
+
     static {
         instance = new ShutdownServer();
         ShutdownServer.running = false;

@@ -7,9 +7,9 @@ import handling.SendPacketOpcode;
 import server.MapleCarnivalParty;
 import tools.data.output.MaplePacketLittleEndianWriter;
 
-public class MonsterCarnivalPacket
-{
-    public static MaplePacket startMonsterCarnival(final MapleCharacter chr, final int enemyavailable, final int enemytotal) {
+public class MonsterCarnivalPacket {
+    public static MaplePacket startMonsterCarnival(final MapleCharacter chr, final int enemyavailable,
+            final int enemytotal) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         if (ServerConstants.调试输出封包) {
             System.out.println("startMonsterCarnival--------------------");
@@ -31,7 +31,7 @@ public class MonsterCarnivalPacket
         }
         return mplew.getPacket();
     }
-    
+
     public static MaplePacket playerDiedMessage(final String name, final int lostCP, final int team) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         if (ServerConstants.调试输出封包) {
@@ -47,7 +47,7 @@ public class MonsterCarnivalPacket
         }
         return mplew.getPacket();
     }
-    
+
     public static MaplePacket CPUpdate(final boolean party, final int curCP, final int totalCP, final int team) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         if (ServerConstants.调试输出封包) {
@@ -55,8 +55,7 @@ public class MonsterCarnivalPacket
         }
         if (!party) {
             mplew.writeShort(SendPacketOpcode.MONSTER_CARNIVAL_OBTAINED_CP.getValue());
-        }
-        else {
+        } else {
             mplew.writeShort(SendPacketOpcode.MONSTER_CARNIVAL_PARTY_CP.getValue());
             mplew.write(team);
         }
@@ -68,7 +67,7 @@ public class MonsterCarnivalPacket
         }
         return mplew.getPacket();
     }
-    
+
     public static MaplePacket playerSummoned(final String name, final int tab, final int number) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         if (ServerConstants.调试输出封包) {

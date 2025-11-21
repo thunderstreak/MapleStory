@@ -1,5 +1,4 @@
 package server;
 
-public class RankingWorker
-{
+public class RankingWorker {
 }

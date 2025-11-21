@@ -31,26 +31,26 @@ import tools.Pair;
 import tools.data.input.SeekableLittleEndianAccessor;
 import tools.packet.MTSCSPacket;
 
-public class CashShopOperation
-{
+public class CashShopOperation {
     public static void LeaveCS(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
         final String[] socket = c.getChannelServer().getIP().split(":");
         CashShopServer.getPlayerStorageMTS().deregisterPlayer(chr);
         CashShopServer.getPlayerStorage().deregisterPlayer(chr);
         final String ip = c.getSessionIPAddress();
-        LoginServer.putLoginAuth(chr.getId(), ip.substring(ip.indexOf(47) + 1, ip.length()), c.getTempIP(), c.getChannel());
+        LoginServer.putLoginAuth(chr.getId(), ip.substring(ip.indexOf(47) + 1, ip.length()), c.getTempIP(),
+                c.getChannel());
         c.updateLoginState(1, ip);
         try {
             chr.saveToDB(false, true);
             c.setReceiving(false);
             World.ChannelChange_Data(new CharacterTransfer(chr), chr.getId(), c.getChannel());
-            c.getSession().write(MaplePacketCreator.getChannelChange(InetAddress.getByName(socket[0]), Integer.parseInt(ChannelServer.getInstance(c.getChannel()).getIP().split(":")[1])));
-        }
-        catch (NumberFormatException | UnknownHostException ex2) {
+            c.getSession().write(MaplePacketCreator.getChannelChange(InetAddress.getByName(socket[0]),
+                    Integer.parseInt(ChannelServer.getInstance(c.getChannel()).getIP().split(":")[1])));
+        } catch (NumberFormatException | UnknownHostException ex2) {
             throw new RuntimeException(ex2);
         }
     }
-    
+
     public static void EnterCS(final int playerid, final MapleClient c) {
         CharacterTransfer transfer = CashShopServer.getPlayerStorage().getPendingCharacter(playerid);
         boolean mts = false;
@@ -67,7 +67,8 @@ public class CashShopOperation
         c.setAccID(chr.getAccountID());
         final int state = c.getLoginState();
         boolean allowLogin = false;
-        if ((state == MapleClient.LOGIN_SERVER_TRANSITION || state == MapleClient.CHANGE_CHANNEL) && !World.isCharacterListConnected(c.loadCharacterNames(c.getWorld()))) {
+        if ((state == MapleClient.LOGIN_SERVER_TRANSITION || state == MapleClient.CHANGE_CHANNEL)
+                && !World.isCharacterListConnected(c.loadCharacterNames(c.getWorld()))) {
             allowLogin = true;
         }
         if (!allowLogin) {
@@ -80,48 +81,44 @@ public class CashShopOperation
             CashShopServer.getPlayerStorage().registerPlayer(chr);
             c.getSession().write(MTSCSPacket.warpCS(c));
             CSUpdate(c);
-        }
-        else {
+        } else {
             CashShopServer.getPlayerStorage().registerPlayer(chr);
             c.getSession().write(MTSCSPacket.warpCSS(c));
             CSUpdate(c);
         }
     }
-    
+
     public static void CSUpdate(final MapleClient c) {
         c.sendPacket(MTSCSPacket.showCashInventory(c));
         c.getSession().write(MTSCSPacket.sendWishList(c.getPlayer(), false));
         c.getSession().write(MTSCSPacket.showNXMapleTokens(c.getPlayer()));
         c.getSession().write(MTSCSPacket.getCSGifts(c));
     }
-    
+
     public static void TouchingCashShop(final MapleClient c) {
         c.getSession().write(MTSCSPacket.showNXMapleTokens(c.getPlayer()));
     }
-    
+
     public static void CouponCode(final String code, final MapleClient c) {
         boolean validcode = false;
         int type = -1;
         int item = -1;
         try {
             validcode = MapleCharacterUtil.getNXCodeValid(code.toUpperCase(), validcode);
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         if (validcode) {
             try {
                 type = MapleCharacterUtil.getNXCodeType(code);
                 item = MapleCharacterUtil.getNXCodeItem(code);
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 e.printStackTrace();
             }
             if (type != 4) {
                 try {
                     MapleCharacterUtil.setNXCodeUsed(c.getPlayer().getName(), code);
-                }
-                catch (SQLException e) {
+                } catch (SQLException e) {
                     e.printStackTrace();
                 }
             }
@@ -142,7 +139,7 @@ public class CashShopOperation
                         doCSPackets(c);
                         return;
                     }
-                    final byte slot = MapleInventoryManipulator.addId(c, itez.getId(), (short)1, "", (byte)0);
+                    final byte slot = MapleInventoryManipulator.addId(c, itez.getId(), (short) 1, "", (byte) 0);
                     if (slot <= -1) {
                         c.getSession().write(MTSCSPacket.sendCSFail(0));
                         doCSPackets(c);
@@ -163,14 +160,14 @@ public class CashShopOperation
                 }
             }
             c.getSession().write(MTSCSPacket.showCouponRedeemedItem(itemz, mesos, maplePoints, c));
-        }
-        else {
+        } else {
             c.getSession().write(MTSCSPacket.sendCSFail(validcode ? 165 : 167));
         }
         doCSPackets(c);
     }
-    
-    public static void BuyCashItem(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
+
+    public static void BuyCashItem(final SeekableLittleEndianAccessor slea, final MapleClient c,
+            final MapleCharacter chr) {
         final OtherSettings item_id = new OtherSettings();
         final String[] itembp_id = item_id.getItempb_id();
         final String[] itemjy_id = item_id.getItemjy_id();
@@ -200,12 +197,14 @@ public class CashShopOperation
                 }
                 if (item != null && chr.getCSPoints(useNX) >= item.getPrice()) {
                     if (!ii.isCash(item.getId())) {
-                        if (c.getPlayer().getInventory(GameConstants.getInventoryType(item.getId())).getNextFreeSlot() < 0) {
+                        if (c.getPlayer().getInventory(GameConstants.getInventoryType(item.getId()))
+                                .getNextFreeSlot() < 0) {
                             chr.dropMessage(1, "背包没空位了！");
                             doCSPackets(c);
                             return;
                         }
-                        final byte pos = MapleInventoryManipulator.addId(c, item.getId(), (short)item.getCount(), null, item.getPeriod(), (byte)0);
+                        final byte pos = MapleInventoryManipulator.addId(c, item.getId(), (short) item.getCount(), null,
+                                item.getPeriod(), (byte) 0);
                         if (pos < 0) {
                             chr.dropMessage(1, "背包坐标出错！\r\n可能是背包没空位了！");
                             doCSPackets(c);
@@ -213,8 +212,7 @@ public class CashShopOperation
                         }
                         chr.modifyCSPoints(useNX, -item.getPrice(), false);
                         chr.dropMessage(1, "购买成功！\r\n物品自动放入了背包！");
-                    }
-                    else {
+                    } else {
                         chr.modifyCSPoints(useNX, -item.getPrice(), false);
                         if (item.getPrice() < 100) {
                             c.getPlayer().dropMessage(1, "价格低于100点卷的物品是禁止购买的.");
@@ -222,7 +220,8 @@ public class CashShopOperation
                             return;
                         }
                         final IItem itemz = chr.getCashInventory().toItem(item);
-                        if (itemz != null && itemz.getUniqueId() > 0 && itemz.getItemId() == item.getId() && itemz.getQuantity() == item.getCount()) {
+                        if (itemz != null && itemz.getUniqueId() > 0 && itemz.getItemId() == item.getId()
+                                && itemz.getQuantity() == item.getCount()) {
                             if (useNX == 1) {
                                 byte flag = itemz.getFlag();
                                 boolean 交易 = true;
@@ -233,23 +232,20 @@ public class CashShopOperation
                                 }
                                 if (交易) {
                                     if (itemz.getType() == MapleInventoryType.EQUIP.getType()) {
-                                        flag |= (byte)ItemFlag.KARMA_EQ.getValue();
-                                    }
-                                    else {
-                                        flag |= (byte)ItemFlag.KARMA_USE.getValue();
+                                        flag |= (byte) ItemFlag.KARMA_EQ.getValue();
+                                    } else {
+                                        flag |= (byte) ItemFlag.KARMA_USE.getValue();
                                     }
                                     itemz.setFlag(flag);
                                 }
                             }
                             chr.getCashInventory().addToInventory(itemz);
                             c.getSession().write(MTSCSPacket.showBoughtCSItem(itemz, item.getSN(), c.getAccID()));
-                        }
-                        else {
+                        } else {
                             c.getSession().write(MTSCSPacket.sendCSFail(0));
                         }
                     }
-                }
-                else {
+                } else {
                     c.getSession().write(MTSCSPacket.sendCSFail(0));
                 }
                 c.getSession().write(MTSCSPacket.showNXMapleTokens(c.getPlayer()));
@@ -272,18 +268,22 @@ public class CashShopOperation
                     doCSPackets(c);
                     return;
                 }
-                if (itemz2 == null || itemz2.getUniqueId() <= 0 || itemz2.getItemId() != item2.getId() || itemz2.getQuantity() != item2.getCount()) {
+                if (itemz2 == null || itemz2.getUniqueId() <= 0 || itemz2.getItemId() != item2.getId()
+                        || itemz2.getQuantity() != item2.getCount()) {
                     c.getPlayer().dropMessage(1, "这个物品是禁止购买的.");
                     doCSPackets(c);
                     break;
                 }
-                if (item2 == null || c.getPlayer().getCSPoints(type) < item2.getPrice() || message.length() > 73 || message.length() < 1) {
+                if (item2 == null || c.getPlayer().getCSPoints(type) < item2.getPrice() || message.length() > 73
+                        || message.length() < 1) {
                     c.getSession().write(MTSCSPacket.sendCSFail(0));
                     doCSPackets(c);
                     return;
                 }
-                final Pair<Integer, Pair<Integer, Integer>> info = MapleCharacterUtil.getInfoByName(recipient, c.getPlayer().getWorld());
-                if (info == null || info.getLeft() <= 0 || info.getLeft() == c.getPlayer().getId() || info.getRight().getLeft() == c.getAccID()) {
+                final Pair<Integer, Pair<Integer, Integer>> info = MapleCharacterUtil.getInfoByName(recipient,
+                        c.getPlayer().getWorld());
+                if (info == null || info.getLeft() <= 0 || info.getLeft() == c.getPlayer().getId()
+                        || info.getRight().getLeft() == c.getAccID()) {
                     c.getSession().write(MTSCSPacket.sendCSFail(162));
                     doCSPackets(c);
                     return;
@@ -293,7 +293,8 @@ public class CashShopOperation
                     doCSPackets(c);
                     return;
                 }
-                c.getPlayer().getCashInventory().gift(info.getLeft(), c.getPlayer().getName(), message, item2.getSN(), MapleInventoryIdentifier.getInstance());
+                c.getPlayer().getCashInventory().gift(info.getLeft(), c.getPlayer().getName(), message, item2.getSN(),
+                        MapleInventoryIdentifier.getInstance());
                 c.getPlayer().modifyCSPoints(type, -item2.getPrice(), false);
                 c.getSession().write(MTSCSPacket.sendGift(item2.getId(), item2.getCount(), recipient));
                 break;
@@ -347,12 +348,11 @@ public class CashShopOperation
                     }
                     if (chr.getCSPoints(yue) >= 1100 && chr.getInventory(type2).getSlotLimit() < 96) {
                         chr.modifyCSPoints(yue, -1100, false);
-                        chr.getInventory(type2).addSlot((byte)8);
+                        chr.getInventory(type2).addSlot((byte) 8);
                         chr.dropMessage(1, "扩充" + snCS3 + "成功，当前栏位: " + chr.getInventory(type2).getSlotLimit() + " 个。");
                         RefreshCashShop(c);
                         chr.getStorage().saveToDB();
-                    }
-                    else {
+                    } else {
                         chr.dropMessage(1, "扩充" + snCS3 + "失败，点卷余额不足或者栏位已超过上限。");
                     }
                     break;
@@ -360,12 +360,11 @@ public class CashShopOperation
                 final MapleInventoryType type3 = MapleInventoryType.getByType(slea.readByte());
                 if (chr.getCSPoints(yue) >= 600 && chr.getInventory(type3).getSlotLimit() < 96) {
                     chr.modifyCSPoints(yue, -600, false);
-                    chr.getInventory(type3).addSlot((byte)4);
+                    chr.getInventory(type3).addSlot((byte) 4);
                     chr.dropMessage(1, "背包已增加到 " + chr.getInventory(type3).getSlotLimit() + " 个。");
                     RefreshCashShop(c);
                     chr.getStorage().saveToDB();
-                }
-                else {
+                } else {
                     chr.dropMessage(1, "扩充失败，点卷余额不足或者栏位已达到上限。");
                     c.getSession().write(MTSCSPacket.sendCSFail(164));
                 }
@@ -374,9 +373,10 @@ public class CashShopOperation
             case 7: {
                 final int yue = slea.readByte() + 1;
                 final int youhuijia2 = (slea.readByte() > 0) ? 2 : 1;
-                if (chr.getCSPoints(yue) >= ((youhuijia2 == 2) ? 1100 : 600) && chr.getStorage().getSlots() < 97 - 4 * youhuijia2) {
+                if (chr.getCSPoints(yue) >= ((youhuijia2 == 2) ? 1100 : 600)
+                        && chr.getStorage().getSlots() < 97 - 4 * youhuijia2) {
                     chr.modifyCSPoints(yue, (youhuijia2 == 2) ? -1100 : -600, false);
-                    chr.getStorage().increaseSlots((byte)(4 * youhuijia2));
+                    chr.getStorage().increaseSlots((byte) (4 * youhuijia2));
                     chr.getStorage().saveToDB();
                     chr.dropMessage(1, "仓库扩充成功，当前栏位: " + chr.getStorage().getSlots() + " 个。");
                     RefreshCashShop(c);
@@ -392,7 +392,8 @@ public class CashShopOperation
                 if (slots >= LoginServer.getMaxCharacters()) {
                     chr.dropMessage(1, "角色列表已满无法增加！");
                 }
-                if (item2 == null || c.getPlayer().getCSPoints(useNX2) < item2.getPrice() || slots > LoginServer.getMaxCharacters()) {
+                if (item2 == null || c.getPlayer().getCSPoints(useNX2) < item2.getPrice()
+                        || slots > LoginServer.getMaxCharacters()) {
                     c.getSession().write(MTSCSPacket.sendCSFail(0));
                     doCSPackets(c);
                     return;
@@ -413,9 +414,10 @@ public class CashShopOperation
                 final byte type4 = slea.readByte();
                 final byte unknown = slea.readByte();
                 final IItem item3 = c.getPlayer().getCashInventory().findByCashId(uniqueid);
-                if (item3 != null && item3.getQuantity() > 0 && MapleInventoryManipulator.checkSpace(c, item3.getItemId(), item3.getQuantity(), item3.getOwner())) {
+                if (item3 != null && item3.getQuantity() > 0 && MapleInventoryManipulator.checkSpace(c,
+                        item3.getItemId(), item3.getQuantity(), item3.getOwner())) {
                     final IItem item_ = item3.copy();
-                    final byte slot = (byte)MapleInventoryManipulator.addbyItem(c, item_, true);
+                    final byte slot = (byte) MapleInventoryManipulator.addbyItem(c, item_, true);
                     if (slot >= 0) {
                         if (item_.getPet() != null) {
                             item_.getPet().setInventoryPosition(type4);
@@ -423,8 +425,7 @@ public class CashShopOperation
                         }
                         c.getPlayer().getCashInventory().removeFromInventory(item3);
                         c.getSession().write(MTSCSPacket.confirmFromCSInventory(item_, type4));
-                    }
-                    else {
+                    } else {
                         c.getSession().write(MaplePacketCreator.serverNotice(1, "您的包裹已满."));
                     }
                     break;
@@ -433,22 +434,22 @@ public class CashShopOperation
                 break;
             }
             case 14: {
-                final int uniqueid = (int)slea.readLong();
+                final int uniqueid = (int) slea.readLong();
                 final MapleInventoryType type5 = MapleInventoryType.getByType(slea.readByte());
                 final IItem item4 = c.getPlayer().getInventory(type5).findByUniqueId(uniqueid);
-                if (item4 != null && item4.getQuantity() > 0 && item4.getUniqueId() > 0 && c.getPlayer().getCashInventory().getItemsSize() < 100) {
+                if (item4 != null && item4.getQuantity() > 0 && item4.getUniqueId() > 0
+                        && c.getPlayer().getCashInventory().getItemsSize() < 100) {
                     final IItem item_2 = item4.copy();
                     c.getPlayer().getInventory(type5).removeItem(item4.getPosition(), item4.getQuantity(), false);
                     final int sn = CashItemFactory.getInstance().getItemSN(item_2.getItemId());
                     if (item_2.getPet() != null) {
                         c.getPlayer().removePet(item_2.getPet());
                     }
-                    item_2.setPosition((short)0);
+                    item_2.setPosition((short) 0);
                     item_2.setGMLog("购物商场购买: " + FileoutputUtil.CurrentReadable_Time());
                     c.getPlayer().getCashInventory().addToInventory(item_2);
                     c.sendPacket(MTSCSPacket.confirmToCSInventory(item4, c.getAccID(), sn));
-                }
-                else {
+                } else {
                     c.sendPacket(MTSCSPacket.sendCSFail(177));
                 }
                 RefreshCashShop(c);
@@ -471,7 +472,8 @@ public class CashShopOperation
                         return;
                     }
                 }
-                if (item2 == null || !GameConstants.isEffectRing(item2.getId()) || c.getPlayer().getCSPoints(1) < item2.getPrice() || msg.length() > 73 || msg.length() < 1) {
+                if (item2 == null || !GameConstants.isEffectRing(item2.getId())
+                        || c.getPlayer().getCSPoints(1) < item2.getPrice() || msg.length() > 73 || msg.length() < 1) {
                     chr.dropMessage(1, "购买戒指错误：\r\n你没有足够的点卷或者该物品不存在。。");
                     doCSPackets(c);
                     return;
@@ -486,8 +488,10 @@ public class CashShopOperation
                     doCSPackets(c);
                     return;
                 }
-                if (item2.getPrice() == 2990) {}
-                final Pair<Integer, Pair<Integer, Integer>> info2 = MapleCharacterUtil.getInfoByName(partnerName, c.getPlayer().getWorld());
+                if (item2.getPrice() == 2990) {
+                }
+                final Pair<Integer, Pair<Integer, Integer>> info2 = MapleCharacterUtil.getInfoByName(partnerName,
+                        c.getPlayer().getWorld());
                 if (info2 == null || info2.getLeft() <= 0 || info2.getLeft() == c.getPlayer().getId()) {
                     chr.dropMessage(1, "购买戒指错误：D\r\n请联系GM！。");
                     doCSPackets(c);
@@ -503,7 +507,8 @@ public class CashShopOperation
                     doCSPackets(c);
                     return;
                 }
-                final int err = MapleRing.createRing(item2.getId(), c.getPlayer(), partnerName, msg, info2.getLeft(), item2.getSN());
+                final int err = MapleRing.createRing(item2.getId(), c.getPlayer(), partnerName, msg, info2.getLeft(),
+                        item2.getSN());
                 if (err != 1) {
                     chr.dropMessage(1, "购买戒指错误：G\r\n请联系GM！。");
                     doCSPackets(c);
@@ -514,7 +519,8 @@ public class CashShopOperation
                 chr.sendNote(partnerName, partnerName + " 您已收到" + chr.getName() + "送给您的礼物，请进入现金商城查看！");
                 final int chz = World.Find.findChannel(partnerName);
                 if (chz > 0) {
-                    final MapleCharacter receiver = ChannelServer.getInstance(chz).getPlayerStorage().getCharacterByName(partnerName);
+                    final MapleCharacter receiver = ChannelServer.getInstance(chz).getPlayerStorage()
+                            .getCharacterByName(partnerName);
                     if (receiver != null) {
                         receiver.showNote();
                     }
@@ -565,9 +571,11 @@ public class CashShopOperation
                 final Map<Integer, IItem> ccz = new HashMap<Integer, IItem>();
                 for (final CashItemInfo i2 : ccc) {
                     for (final int iz : GameConstants.cashBlock) {
-                        if (i2.getId() == iz) {}
+                        if (i2.getId() == iz) {
+                        }
                     }
-                    final IItem itemz4 = chr.getCashInventory().toItem(i2, chr, MapleInventoryManipulator.getUniqueId(i2.getId(), null), "");
+                    final IItem itemz4 = chr.getCashInventory().toItem(i2, chr,
+                            MapleInventoryManipulator.getUniqueId(i2.getId(), null), "");
                     if (itemz4 != null && itemz4.getUniqueId() > 0) {
                         if (itemz4.getItemId() != i2.getId()) {
                             continue;
@@ -586,18 +594,15 @@ public class CashShopOperation
                     c.getPlayer().modifyCSPoints(1, -500);
                     c.getPlayer().modifyCSPoints(2, 500);
                     c.getSession().write(MaplePacketCreator.serverNotice(1, "兑换500抵用卷成功"));
-                }
-                else if (snCS3 == 50200032 && c.getPlayer().getCSPoints(1) >= 1000) {
+                } else if (snCS3 == 50200032 && c.getPlayer().getCSPoints(1) >= 1000) {
                     c.getPlayer().modifyCSPoints(1, -1000);
                     c.getPlayer().modifyCSPoints(2, 1000);
                     c.getSession().write(MaplePacketCreator.serverNotice(1, "兑换抵1000用卷成功"));
-                }
-                else if (snCS3 == 50200033 && c.getPlayer().getCSPoints(1) >= 5000) {
+                } else if (snCS3 == 50200033 && c.getPlayer().getCSPoints(1) >= 5000) {
                     c.getPlayer().modifyCSPoints(1, -5000);
                     c.getPlayer().modifyCSPoints(2, 5000);
                     c.getSession().write(MaplePacketCreator.serverNotice(1, "兑换5000抵用卷成功"));
-                }
-                else {
+                } else {
                     c.getSession().write(MaplePacketCreator.serverNotice(1, "没有找到这个道具的信息！\r\n或者你点卷不足无法兑换！"));
                 }
                 c.getSession().write(MTSCSPacket.enableCSorMTS());
@@ -637,14 +642,16 @@ public class CashShopOperation
                         return;
                     }
                 }
-                final byte pos2 = MapleInventoryManipulator.addId(c, item2.getId(), (short)item2.getCount(), null, (byte)0);
+                final byte pos2 = MapleInventoryManipulator.addId(c, item2.getId(), (short) item2.getCount(), null,
+                        (byte) 0);
                 if (pos2 < 0) {
                     c.getSession().write(MTSCSPacket.sendCSFail(177));
                     doCSPackets(c);
                     return;
                 }
                 chr.gainMeso(-item2.getPrice(), false);
-                c.getSession().write(MTSCSPacket.showBoughtCSQuestItem(item2.getPrice(), (short)item2.getCount(), pos2, item2.getId()));
+                c.getSession().write(MTSCSPacket.showBoughtCSQuestItem(item2.getPrice(), (short) item2.getCount(), pos2,
+                        item2.getId()));
                 break;
             }
             default: {
@@ -654,7 +661,7 @@ public class CashShopOperation
         }
         doCSPackets(c);
     }
-    
+
     private static MapleInventoryType getInventoryType(final int id) {
         switch (id) {
             case 50200075: {
@@ -671,14 +678,14 @@ public class CashShopOperation
             }
         }
     }
-    
+
     private static void RefreshCashShop(final MapleClient c) {
         c.sendPacket(MTSCSPacket.showCashInventory(c));
         c.sendPacket(MTSCSPacket.showNXMapleTokens(c.getPlayer()));
         c.sendPacket(MTSCSPacket.enableCSUse());
         c.getPlayer().getCashInventory().checkExpire(c);
     }
-    
+
     private static void doCSPackets(final MapleClient c) {
         c.getSession().write(MTSCSPacket.getCSInventory(c));
         c.getSession().write(MTSCSPacket.enableCSorMTS());

@@ -9,17 +9,16 @@ import server.maps.MapleMap;
 import tools.MaplePacketCreator;
 import tools.Pair;
 
-public class MapleOxQuiz extends MapleEvent
-{
+public class MapleOxQuiz extends MapleEvent {
     private ScheduledFuture<?> oxSchedule;
     private ScheduledFuture<?> oxSchedule2;
     private int timesAsked;
-    
+
     public MapleOxQuiz(final int channel, final int[] mapid) {
         super(channel, mapid);
         this.timesAsked = 0;
     }
-    
+
     private void resetSchedule() {
         if (this.oxSchedule != null) {
             this.oxSchedule.cancel(false);
@@ -30,14 +29,14 @@ public class MapleOxQuiz extends MapleEvent
             this.oxSchedule2 = null;
         }
     }
-    
+
     @Override
     public void onMapLoad(final MapleCharacter chr) {
         if (chr.getMapId() == this.mapid[0] && !chr.isGM()) {
             chr.canTalk(false);
         }
     }
-    
+
     @Override
     public void reset() {
         super.reset();
@@ -45,23 +44,23 @@ public class MapleOxQuiz extends MapleEvent
         this.resetSchedule();
         this.timesAsked = 0;
     }
-    
+
     @Override
     public void unreset() {
         super.unreset();
         this.getMap(0).getPortal("join00").setPortalState(true);
         this.resetSchedule();
     }
-    
+
     @Override
     public void startEvent() {
         this.sendQuestion();
     }
-    
+
     public void sendQuestion() {
         this.sendQuestion(this.getMap(0));
     }
-    
+
     public void sendQuestion(final MapleMap toSend) {
         if (this.oxSchedule2 != null) {
             this.oxSchedule2.cancel(false);
@@ -87,8 +86,10 @@ public class MapleOxQuiz extends MapleEvent
                     }
                     return;
                 }
-                final Map.Entry<Pair<Integer, Integer>, MapleOxQuizFactory.MapleOxQuizEntry> question = MapleOxQuizFactory.getInstance().grabRandomQuestion();
-                toSend.broadcastMessage(MaplePacketCreator.showOXQuiz(question.getKey().left, question.getKey().right, true));
+                final Map.Entry<Pair<Integer, Integer>, MapleOxQuizFactory.MapleOxQuizEntry> question = MapleOxQuizFactory
+                        .getInstance().grabRandomQuestion();
+                toSend.broadcastMessage(
+                        MaplePacketCreator.showOXQuiz(question.getKey().left, question.getKey().right, true));
                 toSend.broadcastMessage(MaplePacketCreator.getClock(12));
                 if (MapleOxQuiz.this.oxSchedule != null) {
                     MapleOxQuiz.this.oxSchedule.cancel(false);
@@ -96,15 +97,15 @@ public class MapleOxQuiz extends MapleEvent
                 MapleOxQuiz.this.oxSchedule = Timer.EventTimer.getInstance().schedule(new Runnable() {
                     @Override
                     public void run() {
-                        toSend.broadcastMessage(MaplePacketCreator.showOXQuiz((int)question.getKey().left, (int)question.getKey().right, false));
+                        toSend.broadcastMessage(MaplePacketCreator.showOXQuiz((int) question.getKey().left,
+                                (int) question.getKey().right, false));
                         MapleOxQuiz.this.timesAsked++;
                         for (final MapleCharacter chr : toSend.getCharactersThreadsafe()) {
                             if (chr != null && !chr.isGM() && chr.isAlive()) {
                                 if (!MapleOxQuiz.this.isCorrectAnswer(chr, question.getValue().getAnswer())) {
                                     chr.getStat().setHp(0);
                                     chr.updateSingleStat(MapleStat.HP, 0);
-                                }
-                                else {
+                                } else {
                                     chr.gainExp(3000, true, true, false);
                                 }
                             }
@@ -115,7 +116,7 @@ public class MapleOxQuiz extends MapleEvent
             }
         }, 10000L);
     }
-    
+
     private boolean isCorrectAnswer(final MapleCharacter chr, final int answer) {
         final double x = chr.getPosition().getX();
         final double y = chr.getPosition().getY();

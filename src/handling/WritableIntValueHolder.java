@@ -1,8 +1,7 @@
 package handling;
 
-public interface WritableIntValueHolder
-{
+public interface WritableIntValueHolder {
     short getValue();
-    
+
     void setValue(final short p0);
 }

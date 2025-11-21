@@ -16,7 +16,8 @@ public class CommandProcessor {
     private static HashMap<String, CommandObject> commands;
     private static HashMap<Integer, ArrayList<String>> commandList;
 
-    private static void sendDisplayMessage(final MapleClient c, final String msg, final ServerConstants.CommandType type) {
+    private static void sendDisplayMessage(final MapleClient c, final String msg,
+            final ServerConstants.CommandType type) {
         if (c.getPlayer() == null) {
             return;
         }
@@ -32,9 +33,13 @@ public class CommandProcessor {
         }
     }
 
-    public static boolean processCommand(final MapleClient c, final String line, final ServerConstants.CommandType type) {
-        if (line.charAt(0) != ServerConstants.PlayerGMRank.NORMAL.getCommandPrefix()) {//管理员命令
-            if (c.getPlayer().getGMLevel() > ServerConstants.PlayerGMRank.NORMAL.getLevel() && (line.charAt(0) == ServerConstants.PlayerGMRank.GM.getCommandPrefix() || line.charAt(0) == ServerConstants.PlayerGMRank.ADMIN.getCommandPrefix() || line.charAt(0) == ServerConstants.PlayerGMRank.INTERN.getCommandPrefix())) {
+    public static boolean processCommand(final MapleClient c, final String line,
+            final ServerConstants.CommandType type) {
+        if (line.charAt(0) != ServerConstants.PlayerGMRank.NORMAL.getCommandPrefix()) {// 管理员命令
+            if (c.getPlayer().getGMLevel() > ServerConstants.PlayerGMRank.NORMAL.getLevel()
+                    && (line.charAt(0) == ServerConstants.PlayerGMRank.GM.getCommandPrefix()
+                            || line.charAt(0) == ServerConstants.PlayerGMRank.ADMIN.getCommandPrefix()
+                            || line.charAt(0) == ServerConstants.PlayerGMRank.INTERN.getCommandPrefix())) {
                 final String[] splitted = line.split(" ");
                 splitted[0] = splitted[0].toLowerCase();
                 if (line.charAt(0) == '!') {
@@ -60,7 +65,7 @@ public class CommandProcessor {
                 }
             }
             return false;
-        } else {//普通玩家命令
+        } else {// 普通玩家命令
             final String[] splitted = line.split(" ");
             splitted[0] = splitted[0].toLowerCase();
             final CommandObject co = CommandProcessor.commands.get(splitted[0]);
@@ -83,7 +88,8 @@ public class CommandProcessor {
     private static void logGMCommandToDB(final MapleCharacter player, final String command) {
         PreparedStatement ps = null;
         try {
-            ps = DatabaseConnection.getConnection().prepareStatement("INSERT INTO gmlog (cid, name, command, mapid, ip) VALUES (?, ?, ?, ?, ?)");
+            ps = DatabaseConnection.getConnection()
+                    .prepareStatement("INSERT INTO gmlog (cid, name, command, mapid, ip) VALUES (?, ?, ?, ?, ?)");
             ps.setInt(1, player.getId());
             ps.setString(2, player.getName());
             ps.setString(3, command);
@@ -123,10 +129,12 @@ public class CommandProcessor {
         CommandProcessor.commands = new HashMap<String, CommandObject>();
         CommandProcessor.commandList = new HashMap<Integer, ArrayList<String>>();
         final Class[] array;
-        final Class[] CommandFiles = array = new Class[]{PlayerCommand.class, GMCommand.class, InternCommand.class, AdminCommand.class};
+        final Class[] CommandFiles = array = new Class[] { PlayerCommand.class, GMCommand.class, InternCommand.class,
+                AdminCommand.class };
         for (final Class clasz : array) {
             try {
-                final ServerConstants.PlayerGMRank rankNeeded = (ServerConstants.PlayerGMRank) clasz.getMethod("getPlayerLevelRequired", (Class[]) new Class[0]).invoke(null, (Object[]) null);
+                final ServerConstants.PlayerGMRank rankNeeded = (ServerConstants.PlayerGMRank) clasz
+                        .getMethod("getPlayerLevelRequired", (Class[]) new Class[0]).invoke(null, (Object[]) null);
                 final Class[] a = clasz.getDeclaredClasses();
                 final ArrayList<String> cL = new ArrayList<String>();
                 for (final Class c : a) {
@@ -141,17 +149,23 @@ public class CommandProcessor {
                             }
                             if (o instanceof CommandExecute && enabled) {
                                 cL.add(rankNeeded.getCommandPrefix() + c.getSimpleName().toLowerCase());
-                                CommandProcessor.commands.put(rankNeeded.getCommandPrefix() + c.getSimpleName().toLowerCase(), new CommandObject(rankNeeded.getCommandPrefix() + c.getSimpleName().toLowerCase(), (CommandExecute) o, rankNeeded.getLevel()));
+                                CommandProcessor.commands.put(
+                                        rankNeeded.getCommandPrefix() + c.getSimpleName().toLowerCase(),
+                                        new CommandObject(
+                                                rankNeeded.getCommandPrefix() + c.getSimpleName().toLowerCase(),
+                                                (CommandExecute) o, rankNeeded.getLevel()));
                             }
                         }
-                    } catch (IllegalAccessException | IllegalArgumentException | InstantiationException | SecurityException ex6) {
+                    } catch (IllegalAccessException | IllegalArgumentException | InstantiationException
+                            | SecurityException ex6) {
                         ex6.printStackTrace();
                         FileoutputUtil.outputFileError(FileoutputUtil.ScriptEx_Log, ex6);
                     }
                 }
                 Collections.sort(cL);
                 CommandProcessor.commandList.put(rankNeeded.getLevel(), cL);
-            } catch (IllegalAccessException | IllegalArgumentException | NoSuchMethodException | SecurityException | InvocationTargetException ex7) {
+            } catch (IllegalAccessException | IllegalArgumentException | NoSuchMethodException | SecurityException
+                    | InvocationTargetException ex7) {
                 ex7.printStackTrace();
                 FileoutputUtil.outputFileError(FileoutputUtil.ScriptEx_Log, ex7);
             }

@@ -12,8 +12,7 @@ import server.life.MapleMonster;
 import server.life.MobSkill;
 import tools.MaplePacketCreator;
 
-public class MapleMist extends AbstractMapleMapObject
-{
+public class MapleMist extends AbstractMapleMapObject {
     private Rectangle mistPosition;
     private MapleStatEffect source;
     private MobSkill skill;
@@ -22,7 +21,7 @@ public class MapleMist extends AbstractMapleMapObject
     private int skilllevel;
     private int isPoisonMist;
     private int ownerId;
-    
+
     public MapleMist(final Rectangle mistPosition, final MapleMonster mob, final MobSkill skill) {
         this.mistPosition = mistPosition;
         this.ownerId = mob.getId();
@@ -32,7 +31,7 @@ public class MapleMist extends AbstractMapleMapObject
         this.isPoisonMist = 0;
         this.skillDelay = 0;
     }
-    
+
     public MapleMist(final Rectangle mistPosition, final MapleCharacter owner, final MapleStatEffect source) {
         this.mistPosition = mistPosition;
         this.ownerId = owner.getId();
@@ -57,7 +56,7 @@ public class MapleMist extends AbstractMapleMapObject
             }
         }
     }
-    
+
     public MapleMist(final Rectangle mistPosition, final MapleCharacter owner) {
         this.mistPosition = mistPosition;
         this.ownerId = owner.getId();
@@ -67,71 +66,71 @@ public class MapleMist extends AbstractMapleMapObject
         this.isPoisonMist = 0;
         this.skillDelay = 8;
     }
-    
+
     @Override
     public MapleMapObjectType getType() {
         return MapleMapObjectType.MIST;
     }
-    
+
     @Override
     public Point getPosition() {
         return this.mistPosition.getLocation();
     }
-    
+
     public ISkill getSourceSkill() {
         return SkillFactory.getSkill(this.source.getSourceId());
     }
-    
+
     public boolean isMobMist() {
         return this.isMobMist;
     }
-    
+
     public int isPoisonMist() {
         return this.isPoisonMist;
     }
-    
+
     public int getSkillDelay() {
         return this.skillDelay;
     }
-    
+
     public int getSkillLevel() {
         return this.skilllevel;
     }
-    
+
     public int getOwnerId() {
         return this.ownerId;
     }
-    
+
     public MobSkill getMobSkill() {
         return this.skill;
     }
-    
+
     public Rectangle getBox() {
         return this.mistPosition;
     }
-    
+
     public MapleStatEffect getSource() {
         return this.source;
     }
-    
+
     @Override
     public void setPosition(final Point position) {
     }
-    
+
     public MaplePacket fakeSpawnData(final int level) {
         return MaplePacketCreator.spawnMist(this);
     }
-    
+
     @Override
     public void sendSpawnData(final MapleClient c) {
-        c.getSession().write((Object)MaplePacketCreator.spawnMist(this));
+        c.getSession().write((Object) MaplePacketCreator.spawnMist(this));
     }
-    
+
     @Override
     public void sendDestroyData(final MapleClient c) {
-        c.getSession().write((Object)MaplePacketCreator.removeMist(this.getObjectId(), false));
+        c.getSession().write((Object) MaplePacketCreator.removeMist(this.getObjectId(), false));
     }
-    
+
     public boolean makeChanceResult() {
         return this.source.makeChanceResult();
     }

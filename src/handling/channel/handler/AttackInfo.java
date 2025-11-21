@@ -9,8 +9,7 @@ import java.util.List;
 import server.MapleStatEffect;
 import tools.AttackPair;
 
-public class AttackInfo
-{
+public class AttackInfo {
     public int skill;
     public int charge;
     public int lastAttackTickCount;
@@ -28,12 +27,12 @@ public class AttackInfo
     public byte unk;
     public boolean real;
     public boolean isCloseRangeAttack;
-    
+
     public AttackInfo() {
         this.real = true;
         this.isCloseRangeAttack = false;
     }
-    
+
     public MapleStatEffect getAttackEffect(final MapleCharacter chr, int skillLevel, final ISkill skill_) {
         if (GameConstants.isMulungSkill(this.skill) || GameConstants.isPyramidSkill(this.skill)) {
             skillLevel = 1;
@@ -46,8 +45,7 @@ public class AttackInfo
                 return null;
             }
             return skillLink.getEffect(skillLevel);
-        }
-        else {
+        } else {
             if (this.display > 80 && !skill_.getAction()) {
                 return null;
             }

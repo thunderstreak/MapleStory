@@ -13,8 +13,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class DatabaseConnection
-{
+public class DatabaseConnection {
     private static final HashMap<Integer, ConWrapper> connections;
     private static final ReentrantLock lock;
     private static String dbDriver;
@@ -31,10 +30,10 @@ public class DatabaseConnection
     public static int EXECUTE_FAILED;
     public static int RETURN_GENERATED_KEYS;
     public static int NO_GENERATED_KEYS;
-    
+
     public static Connection getConnection() {
         final Thread cThread = Thread.currentThread();
-        final int threadID = (int)cThread.getId();
+        final int threadID = (int) cThread.getId();
         ConWrapper ret = DatabaseConnection.connections.get(threadID);
         if (ret == null) {
             final Connection retCon = connectToDB();
@@ -44,7 +43,7 @@ public class DatabaseConnection
         }
         return ret.getConnection();
     }
-    
+
     private static long getWaitTimeout(final Connection con) {
         Statement stmt = null;
         ResultSet rs = null;
@@ -55,60 +54,54 @@ public class DatabaseConnection
                 return Math.max(1000, rs.getInt(2) * 1000 - 1000);
             }
             return -1L;
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             final long n = -1L;
             if (stmt != null) {
                 try {
                     stmt.close();
-                }
-                catch (SQLException ex2) {}
-                finally {
+                } catch (SQLException ex2) {
+                } finally {
                     if (rs != null) {
                         try {
                             rs.close();
+                        } catch (SQLException ex3) {
                         }
-                        catch (SQLException ex3) {}
                     }
                 }
             }
             return n;
-        }
-        finally {
+        } finally {
             if (stmt != null) {
                 try {
                     stmt.close();
-                }
-                catch (SQLException ex4) {
+                } catch (SQLException ex4) {
                     if (rs != null) {
                         try {
                             rs.close();
+                        } catch (SQLException ex5) {
                         }
-                        catch (SQLException ex5) {}
                     }
-                }
-                finally {
+                } finally {
                     if (rs != null) {
                         try {
                             rs.close();
+                        } catch (SQLException ex6) {
                         }
-                        catch (SQLException ex6) {}
                     }
                 }
             }
         }
     }
-    
+
     private static Connection connectToDB() {
         if (!DatabaseConnection.propsInited) {
             try {
                 String path = System.getProperty("server_property_db_path");
-//                System.out.println("load db pro"+path);
+                // System.out.println("load db pro"+path);
                 final FileReader fR = new FileReader(path);
                 DatabaseConnection.dbProps.load(fR);
                 fR.close();
-            }
-            catch (IOException ex) {
+            } catch (IOException ex) {
                 throw new DatabaseException(ex);
             }
             DatabaseConnection.dbDriver = DatabaseConnection.dbProps.getProperty("driverClassName");
@@ -116,45 +109,44 @@ public class DatabaseConnection
             DatabaseConnection.dbUser = DatabaseConnection.dbProps.getProperty("username");
             DatabaseConnection.dbPass = DatabaseConnection.dbProps.getProperty("password");
             try {
-                DatabaseConnection.connectionTimeOut = Long.parseLong(DatabaseConnection.dbProps.getProperty("timeout"));
-            }
-            catch (NumberFormatException e2) {
+                DatabaseConnection.connectionTimeOut = Long
+                        .parseLong(DatabaseConnection.dbProps.getProperty("timeout"));
+            } catch (NumberFormatException e2) {
                 System.out.println("[DB信息] 无法读取超时信息，使用默认值: " + DatabaseConnection.connectionTimeOut + " ");
             }
         }
         try {
             Class.forName(DatabaseConnection.dbDriver);
-        }
-        catch (ClassNotFoundException e3) {
+        } catch (ClassNotFoundException e3) {
             System.out.println("[DB信息] 找不到JDBC驱动程序。");
         }
         try {
-            final Connection con = DriverManager.getConnection(DatabaseConnection.dbUrl, DatabaseConnection.dbUser, DatabaseConnection.dbPass);
+            final Connection con = DriverManager.getConnection(DatabaseConnection.dbUrl, DatabaseConnection.dbUser,
+                    DatabaseConnection.dbPass);
             if (!DatabaseConnection.propsInited) {
                 final long timeout = getWaitTimeout(con);
                 if (timeout == -1L) {
-                    System.out.println("[DB信息] 无法读取 Wait_Timeout, using " + DatabaseConnection.connectionTimeOut + " instead.");
-                }
-                else {
+                    System.out.println(
+                            "[DB信息] 无法读取 Wait_Timeout, using " + DatabaseConnection.connectionTimeOut + " instead.");
+                } else {
                     DatabaseConnection.connectionTimeOut = timeout;
                     System.out.println("数据库正在加载.请稍等....");
                 }
                 DatabaseConnection.propsInited = true;
             }
             return con;
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new DatabaseException(e);
         }
     }
-    
+
     public static void closeAll() throws SQLException {
         for (final ConWrapper con : DatabaseConnection.connections.values()) {
             con.connection.close();
         }
         DatabaseConnection.connections.clear();
     }
-    
+
     public static void closeTimeout() {
         int i = 0;
         DatabaseConnection.lock.lock();
@@ -166,12 +158,11 @@ public class DatabaseConnection
                     ++i;
                 }
             }
-        }
-        finally {
+        } finally {
             DatabaseConnection.lock.unlock();
         }
     }
-    
+
     static {
         connections = new HashMap<Integer, ConWrapper>();
         lock = new ReentrantLock();
@@ -186,51 +177,49 @@ public class DatabaseConnection
         DatabaseConnection.RETURN_GENERATED_KEYS = 1;
         DatabaseConnection.NO_GENERATED_KEYS = 2;
     }
-    
-    public static class ConWrapper
-    {
+
+    public static class ConWrapper {
         private final int tid;
         private long lastAccessTime;
         private Connection connection;
         private int id;
-        
+
         public ConWrapper(final int tid, final Connection con) {
             this.lastAccessTime = 0L;
             this.tid = tid;
             this.connection = con;
         }
-        
+
         public Connection getConnection() {
             if (this.expiredConnection()) {
                 System.out.println("[DB信息] 连接 " + this.id + " 已经超时.重新连接...");
                 try {
                     this.connection.close();
+                } catch (SQLException ex) {
                 }
-                catch (SQLException ex) {}
                 this.connection = connectToDB();
             }
             this.lastAccessTime = System.currentTimeMillis();
             return this.connection;
         }
-        
+
         public boolean expiredConnection() {
             if (this.lastAccessTime == 0L) {
                 return false;
             }
             try {
-                return System.currentTimeMillis() - this.lastAccessTime >= DatabaseConnection.connectionTimeOut || this.connection.isClosed();
-            }
-            catch (SQLException ex) {
+                return System.currentTimeMillis() - this.lastAccessTime >= DatabaseConnection.connectionTimeOut
+                        || this.connection.isClosed();
+            } catch (SQLException ex) {
                 return true;
             }
         }
-        
+
         public boolean close() {
             boolean ret = false;
             if (this.connection == null) {
                 ret = false;
-            }
-            else {
+            } else {
                 try {
                     DatabaseConnection.lock.lock();
                     try {
@@ -243,18 +232,15 @@ public class DatabaseConnection
                             try {
                                 this.connection.close();
                                 ret = true;
-                            }
-                            catch (SQLException e) {
+                            } catch (SQLException e) {
                                 ret = false;
                             }
                         }
                         DatabaseConnection.connections.remove(this.tid);
-                    }
-                    finally {
+                    } finally {
                         DatabaseConnection.lock.unlock();
                     }
-                }
-                catch (SQLException ex) {
+                } catch (SQLException ex) {
                     ret = false;
                 }
             }

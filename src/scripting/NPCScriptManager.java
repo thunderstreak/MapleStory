@@ -17,7 +17,6 @@ public class NPCScriptManager extends AbstractScriptManager {
     private final Map<MapleClient, NPCConversationManager> mapleClientNPCConversationManagerMap = new WeakHashMap<>();
     private static final NPCScriptManager npcScriptManager = new NPCScriptManager();
 
-
     public static final NPCScriptManager getInstance() {
         return NPCScriptManager.npcScriptManager;
     }
@@ -40,9 +39,9 @@ public class NPCScriptManager extends AbstractScriptManager {
             if (!this.mapleClientNPCConversationManagerMap.containsKey(c)) {
                 Invocable iv;
                 if (wh == 0) {
-                    iv = this.getInvocable("npc"+ File.separator + npc + ".js", c, true);
+                    iv = this.getInvocable("npc" + File.separator + npc + ".js", c, true);
                 } else {
-                    iv = this.getInvocable("npc"+File.separator + npc + "_" + wh + ".js", c, true);
+                    iv = this.getInvocable("npc" + File.separator + npc + "_" + wh + ".js", c, true);
                 }
                 ScriptEngine scriptengine = (ScriptEngine) iv;
                 NPCConversationManager cm;
@@ -88,7 +87,8 @@ public class NPCScriptManager extends AbstractScriptManager {
             if (c.getPlayer().isGM()) {
                 c.getPlayer().dropMessage("[系統提示] NPC " + npc + "_" + wh + "腳本錯誤 " + e + "");
             }
-            FileoutputUtil.log(FileoutputUtil.ScriptEx_Log, "Error executing NPC script, NPC ID : " + npc + "_" + wh + "." + e);
+            FileoutputUtil.log(FileoutputUtil.ScriptEx_Log,
+                    "Error executing NPC script, NPC ID : " + npc + "_" + wh + "." + e);
             this.dispose(c);
         } finally {
 
@@ -122,7 +122,8 @@ public class NPCScriptManager extends AbstractScriptManager {
                 }
                 System.err.println("NPC 腳本錯誤. 它ID為 : " + cm.getNpc() + "_" + wh + ":" + e);
                 this.dispose(c);
-                FileoutputUtil.log(FileoutputUtil.ScriptEx_Log, "Error executing NPC script, NPC ID : " + cm.getNpc() + "_" + wh + "." + e);
+                FileoutputUtil.log(FileoutputUtil.ScriptEx_Log,
+                        "Error executing NPC script, NPC ID : " + cm.getNpc() + "_" + wh + "." + e);
             } finally {
                 lock.unlock();
             }
@@ -137,7 +138,7 @@ public class NPCScriptManager extends AbstractScriptManager {
         lock.lock();
         try {
             if (!this.mapleClientNPCConversationManagerMap.containsKey(c)) {
-                final Invocable iv = this.getInvocable("quest"+File.separator + quest + ".js", c, true);
+                final Invocable iv = this.getInvocable("quest" + File.separator + quest + ".js", c, true);
                 if (iv == null) {
                     this.dispose(c);
                     return;
@@ -156,7 +157,8 @@ public class NPCScriptManager extends AbstractScriptManager {
             }
         } catch (Exception e) {
             System.err.println("Error executing Quest script. (" + quest + ")..NPCID: " + npc + ":" + e);
-            FileoutputUtil.log(FileoutputUtil.ScriptEx_Log, "Error executing Quest script. (" + quest + ")..NPCID: " + npc + ":" + e);
+            FileoutputUtil.log(FileoutputUtil.ScriptEx_Log,
+                    "Error executing Quest script. (" + quest + ")..NPCID: " + npc + ":" + e);
             this.dispose(c);
         } finally {
             lock.unlock();
@@ -181,7 +183,8 @@ public class NPCScriptManager extends AbstractScriptManager {
                 c.getPlayer().dropMessage("[系統提示]任務腳本:" + cm.getQuest() + "錯誤...NPC: " + cm.getNpc() + ":" + e);
             }
             System.err.println("Error executing Quest script. (" + cm.getQuest() + ")...NPC: " + cm.getNpc() + ":" + e);
-            FileoutputUtil.log(FileoutputUtil.ScriptEx_Log, "Error executing Quest script. (" + cm.getQuest() + ")..NPCID: " + cm.getNpc() + ":" + e);
+            FileoutputUtil.log(FileoutputUtil.ScriptEx_Log,
+                    "Error executing Quest script. (" + cm.getQuest() + ")..NPCID: " + cm.getNpc() + ":" + e);
             this.dispose(c);
         } finally {
             lock.unlock();
@@ -196,7 +199,7 @@ public class NPCScriptManager extends AbstractScriptManager {
         lock.lock();
         try {
             if (!this.mapleClientNPCConversationManagerMap.containsKey(c)) {
-                final Invocable iv = this.getInvocable("quest"+File.separator + quest + ".js", c, true);
+                final Invocable iv = this.getInvocable("quest" + File.separator + quest + ".js", c, true);
                 if (iv == null) {
                     this.dispose(c);
                     return;
@@ -213,7 +216,8 @@ public class NPCScriptManager extends AbstractScriptManager {
                 c.getPlayer().dropMessage("[系統提示]任務腳本:" + quest + "錯誤...NPC: " + quest + ":" + e);
             }
             System.err.println("Error executing Quest script. (" + quest + ")..NPCID: " + npc + ":" + e);
-            FileoutputUtil.log(FileoutputUtil.ScriptEx_Log, "Error executing Quest script. (" + quest + ")..NPCID: " + npc + ":" + e);
+            FileoutputUtil.log(FileoutputUtil.ScriptEx_Log,
+                    "Error executing Quest script. (" + quest + ")..NPCID: " + npc + ":" + e);
             this.dispose(c);
         } finally {
             lock.unlock();
@@ -238,7 +242,8 @@ public class NPCScriptManager extends AbstractScriptManager {
                 c.getPlayer().dropMessage("[系統提示]任務腳本:" + cm.getQuest() + "錯誤...NPC: " + cm.getNpc() + ":" + e);
             }
             System.err.println("Error executing Quest script. (" + cm.getQuest() + ")...NPC: " + cm.getNpc() + ":" + e);
-            FileoutputUtil.log(FileoutputUtil.ScriptEx_Log, "Error executing Quest script. (" + cm.getQuest() + ")..NPCID: " + cm.getNpc() + ":" + e);
+            FileoutputUtil.log(FileoutputUtil.ScriptEx_Log,
+                    "Error executing Quest script. (" + cm.getQuest() + ")..NPCID: " + cm.getNpc() + ":" + e);
             this.dispose(c);
         } finally {
             lock.unlock();
@@ -252,13 +257,16 @@ public class NPCScriptManager extends AbstractScriptManager {
             this.mapleClientNPCConversationManagerMap.remove(c);
             if (npccm.getType() == -1) {
                 if (npccm.getwh() == 0) {
-                    c.removeScriptEngine(scriptsPath +"scripts"+File.separator+"npc"+File.separator + npccm.getNpc() + ".js");
+                    c.removeScriptEngine(
+                            scriptsPath + "scripts" + File.separator + "npc" + File.separator + npccm.getNpc() + ".js");
                 } else {
-                    c.removeScriptEngine(scriptsPath +"scripts"+File.separator+"npc"+File.separator + npccm.getNpc() + "_" + npccm.getwh() + ".js");
+                    c.removeScriptEngine(scriptsPath + "scripts" + File.separator + "npc" + File.separator
+                            + npccm.getNpc() + "_" + npccm.getwh() + ".js");
                 }
-                c.removeScriptEngine(scriptsPath +"scripts"+File.separator+"npc"+File.separator+"notcoded.js");
+                c.removeScriptEngine(scriptsPath + "scripts" + File.separator + "npc" + File.separator + "notcoded.js");
             } else {
-                c.removeScriptEngine(scriptsPath +"scripts"+File.separator+"quest"+File.separator + npccm.getQuest() + ".js");
+                c.removeScriptEngine(
+                        scriptsPath + "scripts" + File.separator + "quest" + File.separator + npccm.getQuest() + ".js");
             }
         }
         if (c.getPlayer() != null && c.getPlayer().getConversation() == 1) {

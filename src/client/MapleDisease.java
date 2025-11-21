@@ -3,51 +3,49 @@ package client;
 import java.io.Serializable;
 import server.Randomizer;
 
-public enum MapleDisease implements Serializable
-{
-    眩晕(562949953421312L), 
-    中毒(1125899906842624L), 
-    封印(2251799813685248L), 
-    黑暗(4503599627370496L), 
-    虚弱(4611686018427387904L), 
-    诅咒(Long.MIN_VALUE), 
-    缓慢(1L), 
-    变身(2L), 
-    诱惑(128L), 
-    ZOMBIFY(16384L), 
-    REVERSE_DIRECTION(524288L), 
-    冻结(2251799813685248L, true), 
-    POTION(8796093022208L, true), 
-    SHADOW(17592186044416L, true), 
-    BLIND(35184372088832L, true), 
+public enum MapleDisease implements Serializable {
+    眩晕(562949953421312L),
+    中毒(1125899906842624L),
+    封印(2251799813685248L),
+    黑暗(4503599627370496L),
+    虚弱(4611686018427387904L),
+    诅咒(Long.MIN_VALUE),
+    缓慢(1L),
+    变身(2L),
+    诱惑(128L),
+    ZOMBIFY(16384L),
+    REVERSE_DIRECTION(524288L),
+    冻结(2251799813685248L, true),
+    POTION(8796093022208L, true),
+    SHADOW(17592186044416L, true),
+    BLIND(35184372088832L, true),
     WEIRD_FLAME(134217728L);
-    
+
     private static long serialVersionUID;
     private long i;
     private boolean first;
-    
+
     MapleDisease(final long i) {
         this.i = i;
         this.first = false;
     }
-    
+
     MapleDisease(final long i, final boolean first) {
         this.i = i;
         this.first = first;
     }
-    
+
     public boolean isFirst() {
         return this.first;
     }
-    
+
     public long getValue() {
         return this.i;
     }
-    
+
     public static MapleDisease getRandom() {
         MapleDisease dis = null;
-    Block_1:
-        while (true) {
+        Block_1: while (true) {
             final MapleDisease[] values = values();
             for (int length = values.length, i = 0; i < length; ++i) {
                 dis = values[i];
@@ -58,7 +56,7 @@ public enum MapleDisease implements Serializable
         }
         return dis;
     }
-    
+
     public static MapleDisease getBySkill(final int skill) {
         switch (skill) {
             case 120: {
@@ -108,7 +106,7 @@ public enum MapleDisease implements Serializable
             }
         }
     }
-    
+
     public static int getByDisease(final MapleDisease skill) {
         switch (skill) {
             case 封印: {
@@ -158,7 +156,7 @@ public enum MapleDisease implements Serializable
             }
         }
     }
-    
+
     static {
         MapleDisease.serialVersionUID = 0L;
     }

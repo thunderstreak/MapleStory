@@ -17,7 +17,7 @@ public class ExternalCodeTableGetter {
         this.props = properties;
     }
 
-    private static  String valueOf(String name, String[] values) {
+    private static String valueOf(String name, String[] values) {
         for (String val : values) {
             if (val.equals(name)) {
                 return val;
@@ -25,6 +25,7 @@ public class ExternalCodeTableGetter {
         }
         return null;
     }
+
     private static <T extends Enum> T valueOf(String name, T[] values) {
         for (T val : values) {
             if (val.name().equals(name)) {
@@ -34,8 +35,8 @@ public class ExternalCodeTableGetter {
         return null;
     }
 
-
-    private <T extends Enum<? extends WritableIntValueHolder> & WritableIntValueHolder> short getValue(String name, T[] values, short def) {
+    private <T extends Enum<? extends WritableIntValueHolder> & WritableIntValueHolder> short getValue(String name,
+            T[] values, short def) {
         String prop = this.props.getProperty(name);
         if (prop != null && prop.length() > 0) {
             String trimmed = prop.trim();
@@ -53,13 +54,16 @@ public class ExternalCodeTableGetter {
                 offset = args[0];
             }
 
-            return offset.length() > 2 && offset.substring(0, 2).equals("0x") ? (short) (Short.parseShort(offset.substring(2), 16) + base) : (short) (Short.parseShort(offset) + base);
+            return offset.length() > 2 && offset.substring(0, 2).equals("0x")
+                    ? (short) (Short.parseShort(offset.substring(2), 16) + base)
+                    : (short) (Short.parseShort(offset) + base);
         } else {
             return def;
         }
     }
 
-    public static <T extends Enum<? extends WritableIntValueHolder> & WritableIntValueHolder> String getOpcodeTable(T[] enumeration) {
+    public static <T extends Enum<? extends WritableIntValueHolder> & WritableIntValueHolder> String getOpcodeTable(
+            T[] enumeration) {
         StringBuilder enumVals = new StringBuilder();
         List<T> all = new ArrayList<>();
         all.addAll(Arrays.asList(enumeration));
@@ -83,16 +87,17 @@ public class ExternalCodeTableGetter {
     public static <T extends java.lang.Enum> void populateValues(Properties properties, T[] values) {
         ExternalCodeTableGetter exc = new ExternalCodeTableGetter(properties);
         for (T code : values) {
-            if(code instanceof SendPacketOpcode) {
+            if (code instanceof SendPacketOpcode) {
                 SendPacketOpcode[] new_values = (SendPacketOpcode[]) values;
-                ((WritableIntValueHolder) code).setValue( exc.getValue(code.name(),new_values,(short)-2));
+                ((WritableIntValueHolder) code).setValue(exc.getValue(code.name(), new_values, (short) -2));
             }
-            if(code instanceof RecvPacketOpcode) {
+            if (code instanceof RecvPacketOpcode) {
                 RecvPacketOpcode[] new_values = (RecvPacketOpcode[]) values;
                 ((WritableIntValueHolder) code).setValue(exc.getValue(code.name(), new_values, (short) (-2)));
             }
 
-//            ((WritableIntValueHolder) code).setValue(exc.getValue(code.name(), values, (short) (-2)));
+            // ((WritableIntValueHolder) code).setValue(exc.getValue(code.name(), values,
+            // (short) (-2)));
         }
     }
 }
