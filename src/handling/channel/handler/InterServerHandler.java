@@ -527,59 +527,48 @@ public class InterServerHandler {
         } catch (Exception e) {
             FileoutputUtil.outputFileError(FileoutputUtil.Login_Error, e);
         }
-        // 使用 try-catch 包裹后续登录流程，防止异常导致登录失败
-        try {
-            c.getSession().write(FamilyPacket.getFamilyData());
-            for (final MapleQuestStatus status : player.getStartedQuests()) {
-                if (status.hasMobKills()) {
-                    c.getSession().write(MaplePacketCreator.updateQuestMobKills(status));
-                }
+        // 发送家族数据和其他登录后的初始化操作
+        c.getSession().write(FamilyPacket.getFamilyData());
+        for (final MapleQuestStatus status : player.getStartedQuests()) {
+            if (status.hasMobKills()) {
+                c.getSession().write(MaplePacketCreator.updateQuestMobKills(status));
             }
-            // 检查好友列表是否为 null，防止 NullPointerException
-            if (player.getBuddylist() != null) {
-                try {
-                    final BuddyEntry pendingBuddyRequest = player.getBuddylist().pollPendingRequest();
-                    if (pendingBuddyRequest != null) {
-                        player.getBuddylist()
-                                .put(new BuddyEntry(pendingBuddyRequest.getName(), pendingBuddyRequest.getCharacterId(),
-                                        "ETC", -1,
-                                        false, pendingBuddyRequest.getLevel(), pendingBuddyRequest.getJob()));
-                        c.sendPacket(MaplePacketCreator.requestBuddylistAdd(pendingBuddyRequest.getCharacterId(),
-                                pendingBuddyRequest.getName(), pendingBuddyRequest.getLevel(),
-                                pendingBuddyRequest.getJob()));
-                    }
-                } catch (Exception e) {
-                    System.err.println("处理待处理好友请求异常 - 角色: " + player.getName() + " (ID: " + player.getId() + ") - "
-                            + e.getMessage());
-                    e.printStackTrace();
-                    FileoutputUtil.outputFileError("logs/好友系统异常.log", e);
-                }
-            } else {
-                System.err.println(
-                        "警告：处理待处理好友请求时，角色好友列表为 null - 角色: " + player.getName() + " (ID: " + player.getId() + ")");
-            }
-            player.expirationTask();
-            if (player.getJob() == 132) {
-                player.checkBerserk();
-            }
-            player.sendMacros();
-            c.getSession().write(MaplePacketCreator.showCharCash(c.getPlayer()));
-            player.getClient().getSession().write(MaplePacketCreator.serverMessage(channelServer.getServerMessage()));
-            player.showNote();
-            player.updatePartyMemberHP();
-            player.startFairySchedule(false);
-            player.updatePetEquip();
-            player.baseSkills();
-            player.spawnSavedPets();
-            c.getSession().write(MaplePacketCreator.getKeymap(player.getKeyLayout()));
-            c.getSession().write(MaplePacketCreator.weirdStatUpdate());
-        } catch (Exception e) {
-            System.err.println(
-                    "登录流程后续处理异常 - 角色: " + player.getName() + " (ID: " + player.getId() + ") - " + e.getMessage());
-            e.printStackTrace();
-            FileoutputUtil.outputFileError("logs/登录流程异常.log", e);
-            // 记录详细错误信息，但不阻止登录流程
         }
+        // 处理待处理的好友请求（使用内部 try-catch 防止好友系统问题影响登录）
+        if (player.getBuddylist() != null) {
+            try {
+                final BuddyEntry pendingBuddyRequest = player.getBuddylist().pollPendingRequest();
+                if (pendingBuddyRequest != null) {
+                    player.getBuddylist()
+                            .put(new BuddyEntry(pendingBuddyRequest.getName(), pendingBuddyRequest.getCharacterId(),
+                                    "ETC", -1,
+                                    false, pendingBuddyRequest.getLevel(), pendingBuddyRequest.getJob()));
+                    c.sendPacket(MaplePacketCreator.requestBuddylistAdd(pendingBuddyRequest.getCharacterId(),
+                            pendingBuddyRequest.getName(), pendingBuddyRequest.getLevel(),
+                            pendingBuddyRequest.getJob()));
+                }
+            } catch (Exception e) {
+                System.err.println("处理待处理好友请求异常 - 角色: " + player.getName() + " (ID: " + player.getId() + ") - "
+                        + e.getMessage());
+                e.printStackTrace();
+                FileoutputUtil.outputFileError("logs/好友系统异常.log", e);
+            }
+        }
+        player.expirationTask();
+        if (player.getJob() == 132) {
+            player.checkBerserk();
+        }
+        player.sendMacros();
+        c.getSession().write(MaplePacketCreator.showCharCash(c.getPlayer()));
+        player.getClient().getSession().write(MaplePacketCreator.serverMessage(channelServer.getServerMessage()));
+        player.showNote();
+        player.updatePartyMemberHP();
+        player.startFairySchedule(false);
+        player.updatePetEquip();
+        player.baseSkills();
+        player.spawnSavedPets();
+        c.getSession().write(MaplePacketCreator.getKeymap(player.getKeyLayout()));
+        c.getSession().write(MaplePacketCreator.weirdStatUpdate());
         if (firstLoggedIn) {
             if (player.getGMLevel() == 0) {
                 if (player.getGender() == 0) {
