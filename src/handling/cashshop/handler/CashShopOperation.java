@@ -203,6 +203,8 @@ public class CashShopOperation {
                             doCSPackets(c);
                             return;
                         }
+                        // 记录购买前的数量，用于计算实际获得的数量
+                        final int beforeQuantity = chr.itemQuantity(item.getId());
                         final byte pos = MapleInventoryManipulator.addId(c, item.getId(), (short) item.getCount(), null,
                                 item.getPeriod(), (byte) 0);
                         if (pos < 0) {
@@ -210,7 +212,15 @@ public class CashShopOperation {
                             doCSPackets(c);
                             return;
                         }
+                        // 计算实际获得的数量
+                        final int afterQuantity = chr.itemQuantity(item.getId());
+                        final int actualGained = afterQuantity - beforeQuantity;
                         chr.modifyCSPoints(useNX, -item.getPrice(), false);
+                        // 发送实际获得数量的显示消息
+                        if (actualGained > 0) {
+                            c.getSession()
+                                    .write(MaplePacketCreator.getShowItemGain(item.getId(), (short) actualGained));
+                        }
                         chr.dropMessage(1, "购买成功！\r\n物品自动放入了背包！");
                     } else {
                         chr.modifyCSPoints(useNX, -item.getPrice(), false);
