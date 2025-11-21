@@ -376,8 +376,12 @@ public class MapleServerHandler extends IoHandlerAdapter implements MapleServerH
                     final long packetReceiveTime = System.currentTimeMillis();
                     boolean packetHandled = false;
                     Exception packetException = null;
-                    if (ServerConstants.EnablePlayerPacketLog && c != null && c.getPlayer() != null
-                            && c.getPlayer().getName() != null) {
+                    // 在 handlePacket 之前保存 player 引用，因为 handlePacket 可能会清空 player
+                    final MapleCharacter playerBefore = (c != null) ? c.getPlayer() : null;
+                    final String playerNameBefore = (playerBefore != null) ? playerBefore.getName() : null;
+
+                    if (ServerConstants.EnablePlayerPacketLog && c != null && playerBefore != null
+                            && playerNameBefore != null) {
                         try {
                             handlePacket(recv, slea, c, this.cs);
                             packetHandled = true;
@@ -385,13 +389,19 @@ public class MapleServerHandler extends IoHandlerAdapter implements MapleServerH
                             packetHandled = false;
                             packetException = e;
                         }
-                        final String playerName = c.getPlayer().getName();
+                        // handlePacket 后再次检查 player，因为可能被清空
+                        final MapleCharacter playerAfter = c.getPlayer();
+                        if (playerAfter == null) {
+                            // 如果 player 被清空，使用之前保存的信息
+                            System.out.println("警告：handlePacket 后 player 被清空 - 角色: " + playerNameBefore);
+                        }
+                        final String playerName = (playerAfter != null) ? playerAfter.getName() : playerNameBefore;
                         final long packetProcessTime = System.currentTimeMillis() - packetReceiveTime;
                         final String time = FileoutputUtil.CurrentReadable_Time();
                         final String headerHex = String.format("0x%04X", header_num & 0xFFFF);
                         final String packetHex = HexTool.toString((byte[]) message);
                         final String packetAscii = HexTool.toStringFromAscii((byte[]) message);
-                        final MapleCharacter player = c.getPlayer();
+                        final MapleCharacter player = (playerAfter != null) ? playerAfter : playerBefore;
                         final StringBuilder logMsg = new StringBuilder();
                         logMsg.append("========== 客户端封包记录 ==========\r\n");
                         logMsg.append("时间：").append(time).append(" (时间戳: ").append(packetReceiveTime).append(")\r\n");
@@ -412,13 +422,23 @@ public class MapleServerHandler extends IoHandlerAdapter implements MapleServerH
                         logMsg.append("  延迟：").append(c.getLatency()).append("ms\r\n");
                         logMsg.append("-----------------------------------\r\n");
                         logMsg.append("【角色信息】\r\n");
-                        logMsg.append("  角色名：").append(player.getName()).append("\r\n");
-                        logMsg.append("  角色ID：").append(player.getId()).append("\r\n");
-                        logMsg.append("  等级：").append(player.getLevel()).append("\r\n");
-                        logMsg.append("  职业：").append(player.getJob()).append("\r\n");
-                        logMsg.append("  地图ID：").append(player.getMapId()).append("\r\n");
-                        logMsg.append("  经验值：").append(player.getExp()).append("\r\n");
-                        logMsg.append("  金币：").append(player.getMeso()).append("\r\n");
+                        if (player != null) {
+                            logMsg.append("  角色名：").append(player.getName()).append("\r\n");
+                            logMsg.append("  角色ID：").append(player.getId()).append("\r\n");
+                            logMsg.append("  等级：").append(player.getLevel()).append("\r\n");
+                            logMsg.append("  职业：").append(player.getJob()).append("\r\n");
+                            logMsg.append("  地图ID：").append(player.getMapId()).append("\r\n");
+                            logMsg.append("  经验值：").append(player.getExp()).append("\r\n");
+                            logMsg.append("  金币：").append(player.getMeso()).append("\r\n");
+                        } else {
+                            logMsg.append("  角色名：").append(playerName != null ? playerName : "未知").append("\r\n");
+                            logMsg.append("  角色ID：未知（player已被清空）\r\n");
+                            logMsg.append("  等级：未知\r\n");
+                            logMsg.append("  职业：未知\r\n");
+                            logMsg.append("  地图ID：未知\r\n");
+                            logMsg.append("  经验值：未知\r\n");
+                            logMsg.append("  金币：未知\r\n");
+                        }
                         logMsg.append("-----------------------------------\r\n");
                         logMsg.append("【封包信息】\r\n");
                         logMsg.append("  操作码：").append(recv.toString()).append("\r\n");
