@@ -366,7 +366,7 @@ public class InterServerHandler {
             }
 
             long buddyStartTime = System.currentTimeMillis();
-            Collection<Integer> buddyIds = Collections.emptyList();
+            Collection<Integer> buddyIds = Collections.<Integer>emptyList();
             try {
                 if (player.getBuddylist() != null) {
                     buddyIds = player.getBuddylist().getBuddiesIds();
@@ -376,7 +376,8 @@ public class InterServerHandler {
                 } else {
                     System.err.println("警告：角色好友列表为 null - 角色: " + player.getName() + " (ID: " + player.getId() + ")");
                     // 使用空集合继续登录流程
-                    World.Buddy.loggedOn(player.getName(), player.getId(), c.getChannel(), Collections.emptyList(),
+                    World.Buddy.loggedOn(player.getName(), player.getId(), c.getChannel(),
+                            Collections.<Integer>emptyList(),
                             player.getGMLevel(), player.isHidden());
                 }
             } catch (Exception e) {
@@ -386,14 +387,15 @@ public class InterServerHandler {
                 FileoutputUtil.outputFileError("logs/好友系统异常.log", e);
                 // 继续登录流程，不阻止玩家登录
                 try {
-                    World.Buddy.loggedOn(player.getName(), player.getId(), c.getChannel(), Collections.emptyList(),
+                    World.Buddy.loggedOn(player.getName(), player.getId(), c.getChannel(),
+                            Collections.<Integer>emptyList(),
                             player.getGMLevel(), player.isHidden());
                 } catch (Exception e2) {
                     System.err.println("好友系统登录处理二次异常 - 角色: " + player.getName() + " (ID: " + player.getId() + ") - "
                             + e2.getMessage());
                 }
                 // 如果获取 buddyIds 失败，使用空集合
-                buddyIds = Collections.emptyList();
+                buddyIds = Collections.<Integer>emptyList();
             }
             long buddyDuration = System.currentTimeMillis() - buddyStartTime;
             if (buddyDuration > 500) {
