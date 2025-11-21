@@ -99,6 +99,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -1506,145 +1507,98 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
             } else {
                 ItemLoader.装备道具.saveItems(listing, this.id);
             }
-            ps = con.prepareStatement("SELECT * FROM questinfo WHERE `characterid` = ? AND `quest` = ? LIMIT 1");
+            ps = con.prepareStatement("DELETE FROM questinfo WHERE `characterid` = ?");
             ps.setInt(1, this.id);
-            for (final Map.Entry<Integer, String> q : this.questinfo.entrySet()) {
-                final int questID = q.getKey();
-                ps.setInt(2, questID);
-                rs = ps.executeQuery();
-                if (rs.next()) {
-                    ps2 = con.prepareStatement(
-                            "UPDATE questinfo SET `customData` = ? WHERE `characterid` = ? AND `quest` = ?");
-                    ps2.setString(1, q.getValue());
-                    ps2.setInt(2, this.id);
-                    ps2.setInt(3, questID);
-                    ps2.executeUpdate();
-                    ps2.close();
-                } else {
-                    ps2 = con.prepareStatement(
-                            "INSERT INTO questinfo (`characterid`, `quest`, `customData`) VALUES (?, ?, ?)");
-                    ps2.setInt(1, this.id);
-                    ps2.setInt(2, q.getKey());
-                    ps2.setString(3, q.getValue());
-                    ps2.executeUpdate();
-                    ps2.close();
-                }
-                rs.close();
-            }
+            ps.executeUpdate();
             ps.close();
-            ps = con.prepareStatement("SELECT * FROM queststatus WHERE `characterid` = ? AND `quest` = ? LIMIT 1");
-            ps.setInt(1, this.id);
-            for (final MapleQuestStatus q2 : this.quests.values()) {
-                final int questID = q2.getQuest().getId();
-                ps.setInt(2, questID);
-                rs = ps.executeQuery();
-                if (rs.next()) {
-                    ps2 = con.prepareStatement(
-                            "UPDATE queststatus SET `status` = ?, `time` = ?, `forfeited` = ?, `customData` = ? WHERE `characterid` = ? AND `quest` = ?");
-                    ps2.setInt(1, q2.getStatus());
-                    ps2.setInt(2, (int) (q2.getCompletionTime() / 1000L));
-                    ps2.setInt(3, q2.getForfeited());
-                    ps2.setString(4, q2.getCustomData());
-                    ps2.setInt(5, this.id);
-                    ps2.setInt(6, questID);
-                    ps2.executeUpdate();
-                    final int queststatusid = rs.getInt("queststatusid");
-                    if (q2.hasMobKills()) {
-                        ps3 = con.prepareStatement(
-                                "UPDATE queststatusmobs SET `count` = ? WHERE `queststatusid` = ? AND `mob` = ?");
-                        for (final int mob : q2.getMobKills().keySet()) {
-                            ps3.setInt(1, q2.getMobKills(mob));
-                            ps3.setInt(2, queststatusid);
-                            ps3.setInt(3, mob);
-                            ps3.executeUpdate();
-                        }
-                        ps3.close();
-                    }
-                    rs.close();
-                    ps2.close();
-                } else {
-                    ps2 = con.prepareStatement(
-                            "INSERT INTO queststatus (`queststatusid`, `characterid`, `quest`, `status`, `time`, `forfeited`, `customData`) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)",
-                            1);
-                    ps2.setInt(1, this.id);
-                    ps2.setInt(2, q2.getQuest().getId());
-                    ps2.setInt(3, q2.getStatus());
-                    ps2.setInt(4, (int) (q2.getCompletionTime() / 1000L));
-                    ps2.setInt(5, q2.getForfeited());
-                    ps2.setString(6, q2.getCustomData());
-                    ps2.executeUpdate();
-                    rs.close();
-                    rs = ps2.getGeneratedKeys();
-                    rs.next();
-                    if (q2.hasMobKills()) {
-                        ps3 = con.prepareStatement("INSERT INTO queststatusmobs VALUES (DEFAULT, ?, ?, ?)");
-                        for (final int mob2 : q2.getMobKills().keySet()) {
-                            ps3.setInt(1, rs.getInt(1));
-                            ps3.setInt(2, mob2);
-                            ps3.setInt(3, q2.getMobKills(mob2));
-                            ps3.executeUpdate();
-                        }
-                        ps3.close();
-                    }
-                    rs.close();
-                    ps2.close();
+            if (!this.questinfo.isEmpty()) {
+                ps = con.prepareStatement(
+                        "INSERT INTO questinfo (`characterid`, `quest`, `customData`) VALUES (?, ?, ?)");
+                for (final Map.Entry<Integer, String> q : this.questinfo.entrySet()) {
+                    ps.setInt(1, this.id);
+                    ps.setInt(2, q.getKey());
+                    ps.setString(3, q.getValue());
+                    ps.addBatch();
                 }
+                ps.executeBatch();
+                ps.close();
             }
-            ps.close();
-            ps = con.prepareStatement("SELECT * FROM skills WHERE `characterid` = ?");
+            final List<Integer> oldQuestStatusIds = new ArrayList<Integer>();
+            ps = con.prepareStatement("SELECT `queststatusid` FROM queststatus WHERE `characterid` = ?");
             ps.setInt(1, this.id);
             rs = ps.executeQuery();
             while (rs.next()) {
-                final int skillID = rs.getInt("skillid");
-                boolean find = false;
-                for (final Map.Entry<ISkill, SkillEntry> skill : this.skills.entrySet()) {
-                    if (skill.getKey().getId() == skillID) {
-                        find = true;
-                        break;
-                    }
-                }
-                if (!find) {
-                    ps2 = con.prepareStatement("DELETE FROM skills WHERE `characterid` = ? AND `skillid` = ?");
-                    ps2.setInt(1, this.id);
-                    ps2.setInt(2, skillID);
-                    ps2.execute();
-                    ps2.close();
-                }
+                oldQuestStatusIds.add(rs.getInt(1));
             }
-            ps.close();
             rs.close();
-            ps = con.prepareStatement("SELECT * FROM skills WHERE `characterid` = ? AND `skillid` = ? LIMIT 1");
-            ps.setInt(1, this.id);
-            for (final Map.Entry<ISkill, SkillEntry> skill2 : this.skills.entrySet()) {
-                final int skillID2 = skill2.getKey().getId();
-                if (!GameConstants.isApplicableSkill(skillID2)) {
-                    continue;
+            ps.close();
+            if (!oldQuestStatusIds.isEmpty()) {
+                ps = con.prepareStatement("DELETE FROM queststatusmobs WHERE `queststatusid` = ?");
+                for (final Integer qsid : oldQuestStatusIds) {
+                    ps.setInt(1, qsid);
+                    ps.addBatch();
                 }
-                ps.setInt(2, skillID2);
-                rs = ps.executeQuery();
+                ps.executeBatch();
+                ps.close();
+            }
+            ps = con.prepareStatement("DELETE FROM queststatus WHERE `characterid` = ?");
+            ps.setInt(1, this.id);
+            ps.executeUpdate();
+            ps.close();
+            final PreparedStatement insertQuestStatus = con.prepareStatement(
+                    "INSERT INTO queststatus (`characterid`, `quest`, `status`, `time`, `forfeited`, `customData`) VALUES (?, ?, ?, ?, ?, ?)",
+                    Statement.RETURN_GENERATED_KEYS);
+            final PreparedStatement insertQuestStatusMob = con.prepareStatement(
+                    "INSERT INTO queststatusmobs (`queststatusid`, `mob`, `count`) VALUES (?, ?, ?)");
+            for (final MapleQuestStatus q2 : this.quests.values()) {
+                final int questID = q2.getQuest().getId();
+                insertQuestStatus.setInt(1, this.id);
+                insertQuestStatus.setInt(2, questID);
+                insertQuestStatus.setInt(3, q2.getStatus());
+                insertQuestStatus.setInt(4, (int) (q2.getCompletionTime() / 1000L));
+                insertQuestStatus.setInt(5, q2.getForfeited());
+                insertQuestStatus.setString(6, q2.getCustomData());
+                insertQuestStatus.executeUpdate();
+                rs = insertQuestStatus.getGeneratedKeys();
+                int queststatusid = 0;
                 if (rs.next()) {
-                    ps2 = con.prepareStatement(
-                            "UPDATE skills SET `skilllevel` = ?, `masterlevel` = ?, `expiration` = ? WHERE `characterid` = ? AND `skillid` = ?");
-                    ps2.setByte(1, skill2.getValue().skillevel);
-                    ps2.setByte(2, skill2.getValue().masterlevel);
-                    ps2.setLong(3, skill2.getValue().expiration);
-                    ps2.setInt(4, this.id);
-                    ps2.setInt(5, skill2.getKey().getId());
-                    ps2.executeUpdate();
-                    ps2.close();
-                } else {
-                    ps2 = con.prepareStatement(
-                            "INSERT INTO skills (characterid, skillid, skilllevel, masterlevel, expiration) VALUES (?, ?, ?, ?, ?)");
-                    ps2.setInt(1, this.id);
-                    ps2.setInt(2, skill2.getKey().getId());
-                    ps2.setByte(3, skill2.getValue().skillevel);
-                    ps2.setByte(4, skill2.getValue().masterlevel);
-                    ps2.setLong(5, skill2.getValue().expiration);
-                    ps2.execute();
+                    queststatusid = rs.getInt(1);
                 }
                 rs.close();
+                if (queststatusid != 0 && q2.hasMobKills()) {
+                    for (final Map.Entry<Integer, Integer> mobEntry : q2.getMobKills().entrySet()) {
+                        insertQuestStatusMob.setInt(1, queststatusid);
+                        insertQuestStatusMob.setInt(2, mobEntry.getKey());
+                        insertQuestStatusMob.setInt(3, mobEntry.getValue());
+                        insertQuestStatusMob.addBatch();
+                    }
+                }
             }
+            insertQuestStatusMob.executeBatch();
+            insertQuestStatus.close();
+            insertQuestStatusMob.close();
+            ps = con.prepareStatement("DELETE FROM skills WHERE `characterid` = ?");
+            ps.setInt(1, this.id);
+            ps.executeUpdate();
             ps.close();
+            if (!this.skills.isEmpty()) {
+                ps = con.prepareStatement(
+                        "INSERT INTO skills (`characterid`, `skillid`, `skilllevel`, `masterlevel`, `expiration`) VALUES (?, ?, ?, ?, ?)");
+                for (final Map.Entry<ISkill, SkillEntry> skillEntry : this.skills.entrySet()) {
+                    final int skillID = skillEntry.getKey().getId();
+                    if (!GameConstants.isApplicableSkill(skillID)) {
+                        continue;
+                    }
+                    ps.setInt(1, this.id);
+                    ps.setInt(2, skillID);
+                    ps.setByte(3, skillEntry.getValue().skillevel);
+                    ps.setByte(4, skillEntry.getValue().masterlevel);
+                    ps.setLong(5, skillEntry.getValue().expiration);
+                    ps.addBatch();
+                }
+                ps.executeBatch();
+                ps.close();
+            }
             final List<MapleCoolDownValueHolder> cd = this.getCooldowns();
             if (dc && cd.size() > 0) {
                 ps = con.prepareStatement(
