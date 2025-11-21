@@ -52,6 +52,27 @@ else
     exit 1
 fi
 
+# 检测 Java 版本，Java 8+ 使用 Metaspace，Java 7 使用 PermGen
+JAVA_VERSION_OUTPUT=$("$JAVA_CMD" -version 2>&1 | head -n 1)
+# 提取主版本号（支持 "1.8.0" 和 "8" 两种格式）
+JAVA_VER=$(echo "$JAVA_VERSION_OUTPUT" | grep -oE 'version "?([0-9]+\.)?[0-9]+' | grep -oE '[0-9]+' | head -1)
+# 如果是 "1.8" 格式，提取第二个数字；如果是 "8" 格式，直接使用
+if echo "$JAVA_VERSION_OUTPUT" | grep -qE 'version "1\.'; then
+    JAVA_MAJOR=$(echo "$JAVA_VERSION_OUTPUT" | grep -oE 'version "1\.([0-9]+)' | grep -oE '[0-9]+$' | head -1)
+else
+    JAVA_MAJOR=$JAVA_VER
+fi
+
+if [ -z "$JAVA_MAJOR" ] || [ "$JAVA_MAJOR" -ge 8 ]; then
+    # Java 8 及更高版本，使用 Metaspace
+    JVM_ARGS="-Xms512m -Xmx2048m -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=512m -XX:MaxNewSize=512m"
+    echo "检测到 Java 8+ (主版本: $JAVA_MAJOR)，使用 Metaspace 参数" >> "$LOG_FILE"
+else
+    # Java 7 及更早版本，使用 PermGen
+    JVM_ARGS="-Xms512m -Xmx2048m -XX:PermSize=256m -XX:MaxPermSize=512m -XX:MaxNewSize=512m"
+    echo "检测到 Java 7 (主版本: $JAVA_MAJOR)，使用 PermGen 参数" >> "$LOG_FILE"
+fi
+
 # 构建 classpath：包含 jar 文件和 lib 目录下的所有依赖
 if [ -d "lib" ] && [ "$(ls -A lib/*.jar 2>/dev/null)" ]; then
     CLASSPATH="./bin/maple.jar:$(find lib -name "*.jar" | tr '\n' ':')"
@@ -62,7 +83,7 @@ else
 fi
 
 # 后台运行 Java 服务，并将输出重定向到日志文件
-nohup "$JAVA_CMD" -cp "$CLASSPATH" -server -DhomePath=./config/ -DscriptsPath=./scripts/ -DwzPath=./scripts/wz -Xms512m -Xmx2048m -XX:PermSize=256m -XX:MaxPermSize=512m -XX:MaxNewSize=512m server.Start >> "$LOG_FILE" 2>&1 &
+nohup "$JAVA_CMD" -cp "$CLASSPATH" -server -DhomePath=./config/ -DscriptsPath=./scripts/ -DwzPath=./scripts/wz $JVM_ARGS server.Start >> "$LOG_FILE" 2>&1 &
 
 # 获取进程ID
 PID=$!
