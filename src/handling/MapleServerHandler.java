@@ -422,23 +422,15 @@ public class MapleServerHandler extends IoHandlerAdapter implements MapleServerH
                         logMsg.append("  延迟：").append(c.getLatency()).append("ms\r\n");
                         logMsg.append("-----------------------------------\r\n");
                         logMsg.append("【角色信息】\r\n");
-                        if (player != null) {
-                            logMsg.append("  角色名：").append(player.getName()).append("\r\n");
-                            logMsg.append("  角色ID：").append(player.getId()).append("\r\n");
-                            logMsg.append("  等级：").append(player.getLevel()).append("\r\n");
-                            logMsg.append("  职业：").append(player.getJob()).append("\r\n");
-                            logMsg.append("  地图ID：").append(player.getMapId()).append("\r\n");
-                            logMsg.append("  经验值：").append(player.getExp()).append("\r\n");
-                            logMsg.append("  金币：").append(player.getMeso()).append("\r\n");
-                        } else {
-                            logMsg.append("  角色名：").append(playerName != null ? playerName : "未知").append("\r\n");
-                            logMsg.append("  角色ID：未知（player已被清空）\r\n");
-                            logMsg.append("  等级：未知\r\n");
-                            logMsg.append("  职业：未知\r\n");
-                            logMsg.append("  地图ID：未知\r\n");
-                            logMsg.append("  经验值：未知\r\n");
-                            logMsg.append("  金币：未知\r\n");
-                        }
+                        // player 不可能为 null，因为 playerBefore 在进入 if 块时已检查不为 null
+                        // 如果 playerAfter 为 null，player 会被赋值为 playerBefore
+                        logMsg.append("  角色名：").append(player.getName()).append("\r\n");
+                        logMsg.append("  角色ID：").append(player.getId()).append("\r\n");
+                        logMsg.append("  等级：").append(player.getLevel()).append("\r\n");
+                        logMsg.append("  职业：").append(player.getJob()).append("\r\n");
+                        logMsg.append("  地图ID：").append(player.getMapId()).append("\r\n");
+                        logMsg.append("  经验值：").append(player.getExp()).append("\r\n");
+                        logMsg.append("  金币：").append(player.getMeso()).append("\r\n");
                         logMsg.append("-----------------------------------\r\n");
                         logMsg.append("【封包信息】\r\n");
                         logMsg.append("  操作码：").append(recv.toString()).append("\r\n");
