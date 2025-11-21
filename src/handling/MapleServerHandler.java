@@ -422,15 +422,28 @@ public class MapleServerHandler extends IoHandlerAdapter implements MapleServerH
                         logMsg.append("  延迟：").append(c.getLatency()).append("ms\r\n");
                         logMsg.append("-----------------------------------\r\n");
                         logMsg.append("【角色信息】\r\n");
-                        // player 不可能为 null，因为 playerBefore 在进入 if 块时已检查不为 null
-                        // 如果 playerAfter 为 null，player 会被赋值为 playerBefore
-                        logMsg.append("  角色名：").append(player.getName()).append("\r\n");
-                        logMsg.append("  角色ID：").append(player.getId()).append("\r\n");
-                        logMsg.append("  等级：").append(player.getLevel()).append("\r\n");
-                        logMsg.append("  职业：").append(player.getJob()).append("\r\n");
-                        logMsg.append("  地图ID：").append(player.getMapId()).append("\r\n");
-                        logMsg.append("  经验值：").append(player.getExp()).append("\r\n");
-                        logMsg.append("  金币：").append(player.getMeso()).append("\r\n");
+                        // 添加 null 检查，防止 NullPointerException
+                        if (player != null) {
+                            logMsg.append("  角色名：").append(player.getName()).append("\r\n");
+                            logMsg.append("  角色ID：").append(player.getId()).append("\r\n");
+                            logMsg.append("  等级：").append(player.getLevel()).append("\r\n");
+                            logMsg.append("  职业：").append(player.getJob()).append("\r\n");
+                            logMsg.append("  地图ID：").append(player.getMapId()).append("\r\n");
+                            logMsg.append("  经验值：").append(player.getExp()).append("\r\n");
+                            logMsg.append("  金币：").append(player.getMeso()).append("\r\n");
+                        } else {
+                            // player 为 null 的情况（理论上不应该发生，但为了安全起见）
+                            logMsg.append("  角色名：").append(playerNameBefore != null ? playerNameBefore : "未知")
+                                    .append("\r\n");
+                            logMsg.append("  角色ID：未知\r\n");
+                            logMsg.append("  等级：未知\r\n");
+                            logMsg.append("  职业：未知\r\n");
+                            logMsg.append("  地图ID：未知\r\n");
+                            logMsg.append("  经验值：未知\r\n");
+                            logMsg.append("  金币：未知\r\n");
+                            System.err.println("警告：player 为 null - playerNameBefore: " + playerNameBefore
+                                    + ", playerAfter: " + (playerAfter != null ? playerAfter.getName() : "null"));
+                        }
                         logMsg.append("-----------------------------------\r\n");
                         logMsg.append("【封包信息】\r\n");
                         logMsg.append("  操作码：").append(recv.toString()).append("\r\n");
@@ -454,7 +467,9 @@ public class MapleServerHandler extends IoHandlerAdapter implements MapleServerH
                         logMsg.append("  十六进制：").append(packetHex).append("\r\n");
                         logMsg.append("  ASCII数据：").append(packetAscii).append("\r\n");
                         logMsg.append("===================================\r\n\r\n");
-                        FileoutputUtil.packetLog("logs/客户端封包/" + playerName + ".log", logMsg.toString());
+                        // 确保 playerName 不为 null
+                        final String logFileName = (playerName != null && !playerName.isEmpty()) ? playerName : "未知角色";
+                        FileoutputUtil.packetLog("logs/客户端封包/" + logFileName + ".log", logMsg.toString());
                         // 如果处理失败，重新抛出异常
                         if (!packetHandled && packetException != null) {
                             throw packetException;
