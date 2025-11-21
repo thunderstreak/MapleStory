@@ -9,8 +9,7 @@ import handling.world.World;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
-public class PartyHandler
-{
+public class PartyHandler {
     public static void DenyPartyRequest(final SeekableLittleEndianAccessor slea, final MapleClient c) {
         final int action = slea.readByte();
         final int partyid = slea.readInt();
@@ -20,7 +19,8 @@ public class PartyHandler
                 switch (action) {
                     case 27: {
                         if (party.getMembers().size() < 6) {
-                            World.Party.updateParty(partyid, PartyOperation.JOIN, new MaplePartyCharacter(c.getPlayer()));
+                            World.Party.updateParty(partyid, PartyOperation.JOIN,
+                                    new MaplePartyCharacter(c.getPlayer()));
                             c.getPlayer().receivePartyMemberHP();
                             c.getPlayer().updatePartyMemberHP();
                             break;
@@ -29,24 +29,26 @@ public class PartyHandler
                         break;
                     }
                     case 22: {
-                        final MapleCharacter cfrom = c.getChannelServer().getPlayerStorage().getCharacterById(party.getLeader().getId());
-                        if (cfrom != null) {
-                            cfrom.getClient().getSession().write(MaplePacketCreator.partyStatusMessage(23, c.getPlayer().getName()));
+                        final MapleCharacter cfrom = c.getChannelServer().getPlayerStorage()
+                                .getCharacterById(party.getLeader().getId());
+                        if (cfrom != null && cfrom.getClient() != null && cfrom.getClient().isLoggedIn()
+                                && cfrom.getClient().getSession() != null
+                                && cfrom.getClient().getSession().isConnected()) {
+                            cfrom.getClient().getSession()
+                                    .write(MaplePacketCreator.partyStatusMessage(23, c.getPlayer().getName()));
                             break;
                         }
                         break;
                     }
                 }
-            }
-            else {
+            } else {
                 c.getPlayer().dropMessage(5, "要参加的队伍不存在。");
             }
-        }
-        else {
+        } else {
             c.getPlayer().dropMessage(5, "您已经有一个组队，无法加入其他组队!");
         }
     }
-    
+
     public static void PartyOperatopn(final SeekableLittleEndianAccessor slea, final MapleClient c) {
         final int operation = slea.readByte();
         MapleParty party = c.getPlayer().getParty();
@@ -76,8 +78,7 @@ public class PartyHandler
                         if (c.getPlayer().getPyramidSubway() != null) {
                             c.getPlayer().getPyramidSubway().fail(c.getPlayer());
                         }
-                    }
-                    else {
+                    } else {
                         World.Party.updateParty(party.getId(), PartyOperation.LEAVE, partyplayer);
                         if (c.getPlayer().getEventInstance() != null) {
                             c.getPlayer().getEventInstance().leftParty(c.getPlayer());
@@ -112,8 +113,16 @@ public class PartyHandler
                 break;
             }
             case 4: {
-                final MapleCharacter invited = c.getChannelServer().getPlayerStorage().getCharacterByName(slea.readMapleAsciiString());
+                final MapleCharacter invited = c.getChannelServer().getPlayerStorage()
+                        .getCharacterByName(slea.readMapleAsciiString());
                 if (invited == null) {
+                    c.getSession().write(MaplePacketCreator.partyStatusMessage(18));
+                    break;
+                }
+                // 检查被邀请玩家的客户端是否有效
+                if (invited.getClient() == null || !invited.getClient().isLoggedIn()
+                        || invited.getClient().getSession() == null
+                        || !invited.getClient().getSession().isConnected()) {
                     c.getSession().write(MaplePacketCreator.partyStatusMessage(18));
                     break;
                 }

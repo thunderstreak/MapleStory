@@ -198,6 +198,26 @@ public class InterServerHandler {
         if (state == MapleClient.LOGIN_SERVER_TRANSITION || state == MapleClient.CHANGE_CHANNEL
                 || state == MapleClient.LOGIN_NOTLOGGEDIN) {
             final List<String> charNames = c.loadCharacterNames(c.getWorld());
+            // 再次检查并清理无效玩家
+            for (final String charName : charNames) {
+                for (final ChannelServer cs : ChannelServer.getAllInstances()) {
+                    final MapleCharacter existingChr = cs.getPlayerStorage().getCharacterByName(charName);
+                    if (existingChr != null) {
+                        // 如果玩家存在但客户端无效，强制清理
+                        if (existingChr.getClient() == null || !existingChr.getClient().isLoggedIn()
+                                || existingChr.getClient().getSession() == null
+                                || !existingChr.getClient().getSession().isConnected()) {
+                            try {
+                                cs.removePlayer(existingChr.getId(), existingChr.getName());
+                                World.Find.forceDeregister(existingChr.getId(), existingChr.getName());
+                                System.out.println("清理无效玩家: " + charName);
+                            } catch (Exception e) {
+                                System.err.println("清理无效玩家失败: " + charName + " - " + e.getMessage());
+                            }
+                        }
+                    }
+                }
+            }
             allowLogin = !World.isCharacterListConnected(charNames);
             if (!allowLogin) {
                 allowLoginTip = World.getAllowLoginTip(charNames);
