@@ -1612,111 +1612,42 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
                 }
                 ps.close();
             }
-            ps = con.prepareStatement("SELECT * FROM savedlocations WHERE `characterid` = ?");
+            // 优化：使用 DELETE + 批量 INSERT 代替逐条查询和更新
+            ps = con.prepareStatement("DELETE FROM savedlocations WHERE `characterid` = ?");
             ps.setInt(1, this.id);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                final int locationType = rs.getInt("locationtype");
-                boolean find2 = false;
-                for (final SavedLocationType savedLocationType : SavedLocationType.values()) {
-                    if (this.savedLocations[savedLocationType.getValue()] != -1
-                            && savedLocationType.getValue() == locationType) {
-                        find2 = true;
-                        break;
-                    }
-                }
-                if (!find2) {
-                    ps2 = con.prepareStatement(
-                            "DELETE FROM savedlocations WHERE `characterid` = ? AND `locationtype` = ?");
-                    ps2.setInt(1, this.id);
-                    ps2.setInt(2, locationType);
-                    ps2.execute();
-                    ps2.close();
-                }
-            }
+            ps.executeUpdate();
             ps.close();
-            rs.close();
             ps = con.prepareStatement(
-                    "SELECT * FROM savedlocations WHERE `characterid` = ? AND `locationtype` = ? LIMIT 1");
-            ps.setInt(1, this.id);
-            for (final SavedLocationType savedLocationType2 : SavedLocationType.values()) {
-                final int locationType2 = savedLocationType2.getValue();
-                ps.setInt(2, locationType2);
-                rs = ps.executeQuery();
-                if (rs.next()) {
-                    if (this.savedLocations[savedLocationType2.getValue()] != -1) {
-                        ps2 = con.prepareStatement(
-                                "UPDATE savedlocations SET `map` = ? WHERE `characterid` = ? AND `locationtype` = ?");
-                        ps2.setInt(1, this.savedLocations[savedLocationType2.getValue()]);
-                        ps2.setInt(2, this.id);
-                        ps2.setInt(3, savedLocationType2.getValue());
-                        ps2.executeUpdate();
-                        ps2.close();
-                    }
-                } else if (this.savedLocations[savedLocationType2.getValue()] != -1) {
-                    ps2 = con.prepareStatement(
-                            "INSERT INTO savedlocations (characterid, `locationtype`, `map`) VALUES (?, ?, ?)");
-                    ps2.setInt(1, this.id);
-                    ps2.setInt(2, savedLocationType2.getValue());
-                    ps2.setInt(3, this.savedLocations[savedLocationType2.getValue()]);
-                    ps2.execute();
-                    ps2.close();
+                    "INSERT INTO savedlocations (characterid, `locationtype`, `map`) VALUES (?, ?, ?)");
+            for (final SavedLocationType savedLocationType : SavedLocationType.values()) {
+                final int locationType = savedLocationType.getValue();
+                if (this.savedLocations[locationType] != -1) {
+                    ps.setInt(1, this.id);
+                    ps.setInt(2, locationType);
+                    ps.setInt(3, this.savedLocations[locationType]);
+                    ps.addBatch();
                 }
-                rs.close();
             }
+            ps.executeBatch();
             ps.close();
+            // 优化：使用 DELETE + 批量 INSERT 代替逐条查询和更新
             if (this.buddylist.changed()) {
-                ps = con.prepareStatement("SELECT * FROM buddies WHERE `characterid` = ?");
+                ps = con.prepareStatement("DELETE FROM buddies WHERE `characterid` = ?");
                 ps.setInt(1, this.id);
-                rs = ps.executeQuery();
-                while (rs.next()) {
-                    final int buddyID = rs.getInt("buddyid");
-                    boolean find2 = false;
-                    for (final BuddyEntry entry : this.buddylist.getBuddies()) {
-                        if (entry != null && entry.getCharacterId() == buddyID) {
-                            find2 = true;
-                            break;
-                        }
-                    }
-                    if (!find2) {
-                        ps2 = con.prepareStatement("DELETE FROM buddies WHERE `characterid` = ? AND `buddyid` = ?");
-                        ps2.setInt(1, this.id);
-                        ps2.setInt(2, buddyID);
-                        ps2.execute();
-                        ps2.close();
-                    }
-                }
+                ps.executeUpdate();
                 ps.close();
-                rs.close();
-                ps = con.prepareStatement("SELECT * FROM buddies WHERE `characterid` = ? AND `buddyid` = ? LIMIT 1");
-                ps.setInt(1, this.id);
-                for (final BuddyEntry entry2 : this.buddylist.getBuddies()) {
-                    final int buddyID2 = entry2.getCharacterId();
-                    ps.setInt(2, buddyID2);
-                    rs = ps.executeQuery();
-                    if (rs.next()) {
-                        if (entry2 != null) {
-                            ps2 = con.prepareStatement(
-                                    "UPDATE buddies SET `pending` = ?, `groupname` = ? WHERE `characterid` = ? AND `buddyid` = ?");
-                            ps2.setInt(1, entry2.isVisible() ? 0 : 1);
-                            ps2.setString(2, entry2.getGroup());
-                            ps2.setInt(3, this.id);
-                            ps2.setInt(4, buddyID2);
-                            ps2.executeUpdate();
-                            ps2.close();
-                        }
-                    } else if (entry2 != null) {
-                        ps2 = con.prepareStatement(
-                                "INSERT INTO buddies (`characterid`, `buddyid`, `pending`, `groupname`) VALUES (?, ?, ?, ?)");
-                        ps2.setInt(1, this.id);
-                        ps2.setInt(2, buddyID2);
-                        ps2.setInt(3, entry2.isVisible() ? 0 : 1);
-                        ps2.setString(4, entry2.getGroup());
-                        ps2.execute();
-                        ps2.close();
+                ps = con.prepareStatement(
+                        "INSERT INTO buddies (`characterid`, `buddyid`, `pending`, `groupname`) VALUES (?, ?, ?, ?)");
+                for (final BuddyEntry entry : this.buddylist.getBuddies()) {
+                    if (entry != null) {
+                        ps.setInt(1, this.id);
+                        ps.setInt(2, entry.getCharacterId());
+                        ps.setInt(3, entry.isVisible() ? 0 : 1);
+                        ps.setString(4, entry.getGroup());
+                        ps.addBatch();
                     }
-                    rs.close();
                 }
+                ps.executeBatch();
                 ps.close();
             }
             ps = con.prepareStatement(
@@ -1744,90 +1675,48 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
             this.mount.saveMount(this.id);
             this.monsterbook.saveCards(this.id);
             this.pvpStats.saveToDb(this.accountid);
+            // 优化：使用批量 INSERT 代替循环执行
             this.deleteWhereCharacterId(con, "DELETE FROM wishlist WHERE characterid = ?");
-            for (int k = 0; k < this.getWishlistSize(); ++k) {
-                ps = con.prepareStatement("INSERT INTO wishlist(characterid, sn) VALUES(?, ?) ");
-                ps.setInt(1, this.getId());
-                ps.setInt(2, this.wishlist[k]);
-                ps.execute();
+            if (this.getWishlistSize() > 0) {
+                ps = con.prepareStatement("INSERT INTO wishlist(characterid, sn) VALUES(?, ?)");
+                for (int k = 0; k < this.getWishlistSize(); ++k) {
+                    ps.setInt(1, this.getId());
+                    ps.setInt(2, this.wishlist[k]);
+                    ps.addBatch();
+                }
+                ps.executeBatch();
                 ps.close();
             }
-            ps = con.prepareStatement("SELECT * FROM trocklocations WHERE `characterid` = ?");
+            // 优化：使用 DELETE + 批量 INSERT 代替逐条查询和插入
+            ps = con.prepareStatement("DELETE FROM trocklocations WHERE `characterid` = ?");
             ps.setInt(1, this.id);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                final int mapid = rs.getInt("mapid");
-                boolean find2 = false;
-                for (int l = 0; l < this.rocks.length; ++l) {
-                    if (this.rocks[l] == mapid) {
-                        find2 = true;
-                        break;
-                    }
-                }
-                if (!find2) {
-                    ps2 = con.prepareStatement("DELETE FROM trocklocations WHERE `characterid` = ? AND `mapid` = ?");
-                    ps2.setInt(1, this.id);
-                    ps2.setInt(2, mapid);
-                    ps2.execute();
-                    ps2.close();
-                }
-            }
+            ps.executeUpdate();
             ps.close();
-            rs.close();
-            ps = con.prepareStatement("SELECT * FROM trocklocations WHERE `characterid` = ? AND `mapid` = ?");
+            if (this.rocks.length > 0) {
+                ps = con.prepareStatement("INSERT INTO trocklocations (`characterid`, `mapid`) VALUES (?, ?)");
+                for (int k = 0; k < this.rocks.length; ++k) {
+                    ps.setInt(1, this.id);
+                    ps.setInt(2, this.rocks[k]);
+                    ps.addBatch();
+                }
+                ps.executeBatch();
+                ps.close();
+            }
+            // 优化：使用 DELETE + 批量 INSERT 代替逐条查询和插入
+            ps = con.prepareStatement("DELETE FROM regrocklocations WHERE `characterid` = ?");
             ps.setInt(1, this.id);
-            for (int k = 0; k < this.rocks.length; ++k) {
-                final int mapid2 = this.rocks[k];
-                ps.setInt(2, mapid2);
-                rs = ps.executeQuery();
-                if (!rs.next()) {
-                    ps2 = con.prepareStatement("INSERT INTO trocklocations (`characterid`, `mapid`) VALUES (?, ?)");
-                    ps2.setInt(1, this.id);
-                    ps2.setInt(2, mapid2);
-                    ps2.execute();
-                    ps2.close();
-                }
-                rs.close();
-            }
+            ps.executeUpdate();
             ps.close();
-            ps = con.prepareStatement("SELECT * FROM regrocklocations WHERE `characterid` = ?");
-            ps.setInt(1, this.id);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                final int mapid = rs.getInt("mapid");
-                boolean find2 = false;
-                for (int l = 0; l < this.regrocks.length; ++l) {
-                    if (this.regrocks[l] == mapid) {
-                        find2 = true;
-                        break;
-                    }
+            if (this.regrocks.length > 0) {
+                ps = con.prepareStatement("INSERT INTO regrocklocations (`characterid`, `mapid`) VALUES (?, ?)");
+                for (int k = 0; k < this.regrocks.length; ++k) {
+                    ps.setInt(1, this.id);
+                    ps.setInt(2, this.regrocks[k]);
+                    ps.addBatch();
                 }
-                if (!find2) {
-                    ps2 = con.prepareStatement("DELETE FROM regrocklocations WHERE `characterid` = ? AND `mapid` = ?");
-                    ps2.setInt(1, this.id);
-                    ps2.setInt(2, mapid);
-                    ps2.execute();
-                    ps2.close();
-                }
+                ps.executeBatch();
+                ps.close();
             }
-            ps.close();
-            rs.close();
-            ps = con.prepareStatement("SELECT * FROM regrocklocations WHERE `characterid` = ? AND `mapid` = ?");
-            ps.setInt(1, this.id);
-            for (int k = 0; k < this.regrocks.length; ++k) {
-                final int mapid2 = this.regrocks[k];
-                ps.setInt(2, mapid2);
-                rs = ps.executeQuery();
-                if (!rs.next()) {
-                    ps2 = con.prepareStatement("INSERT INTO regrocklocations (`characterid`, `mapid`) VALUES (?, ?)");
-                    ps2.setInt(1, this.id);
-                    ps2.setInt(2, mapid2);
-                    ps2.execute();
-                    ps2.close();
-                }
-                rs.close();
-            }
-            ps.close();
             con.commit();
         } catch (SQLException ex2) {
         } catch (DatabaseException ex3) {
