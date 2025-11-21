@@ -114,19 +114,67 @@ public class BuddyListHandler {
                             } else {
                                 int displayChannel = -1;
                                 final int otherCid = charWithId.getId();
+                                final int myCid = c.getPlayer().getId();
+                                final Connection con2 = DatabaseConnection.getConnection();
+                                
                                 if (buddyAddResult == BuddyList.BuddyAddResult.ALREADY_ON_LIST && channel > 0) {
                                     displayChannel = channel;
                                     notifyRemoteChannel(c, channel, otherCid, groupName,
                                             BuddyList.BuddyOperation.ADDED);
-                                } else if (buddyAddResult != BuddyList.BuddyAddResult.ALREADY_ON_LIST && channel > 0) {
-                                    final Connection con2 = DatabaseConnection.getConnection();
-                                    final PreparedStatement ps2 = con2.prepareStatement(
-                                            "INSERT INTO buddies (`characterid`, `buddyid`, `groupname`, `pending`) VALUES (?, ?, ?, 1)");
-                                    ps2.setInt(1, charWithId.getId());
-                                    ps2.setInt(2, c.getPlayer().getId());
-                                    ps2.setString(3, groupName);
-                                    ps2.executeUpdate();
-                                    ps2.close();
+                                    // 如果已经在列表中，确保申请者这边也有记录
+                                    try {
+                                        PreparedStatement psCheck = con2.prepareStatement(
+                                                "SELECT pending FROM buddies WHERE characterid = ? AND buddyid = ?");
+                                        psCheck.setInt(1, myCid);
+                                        psCheck.setInt(2, otherCid);
+                                        ResultSet rsCheck = psCheck.executeQuery();
+                                        if (!rsCheck.next()) {
+                                            // 申请者这边没有记录，需要插入
+                                            PreparedStatement psInsert = con2.prepareStatement(
+                                                    "INSERT INTO buddies (`characterid`, `buddyid`, `groupname`, `pending`) VALUES (?, ?, ?, 0)");
+                                            psInsert.setInt(1, myCid);
+                                            psInsert.setInt(2, otherCid);
+                                            psInsert.setString(3, groupName);
+                                            psInsert.executeUpdate();
+                                            psInsert.close();
+                                        }
+                                        rsCheck.close();
+                                        psCheck.close();
+                                    } catch (SQLException e) {
+                                        System.err.println("检查/插入好友记录时出错: " + e);
+                                    }
+                                } else if (buddyAddResult != BuddyList.BuddyAddResult.ALREADY_ON_LIST) {
+                                    // 对方不在列表上，需要插入双向记录
+                                    try {
+                                        // 插入对方收到的好友申请记录（pending=1）
+                                        PreparedStatement psPending = con2.prepareStatement(
+                                                "INSERT INTO buddies (`characterid`, `buddyid`, `groupname`, `pending`) VALUES (?, ?, ?, 1) ON DUPLICATE KEY UPDATE groupname = ?");
+                                        psPending.setInt(1, otherCid);
+                                        psPending.setInt(2, myCid);
+                                        psPending.setString(3, groupName);
+                                        psPending.setString(4, groupName);
+                                        psPending.executeUpdate();
+                                        psPending.close();
+                                        
+                                        // 插入申请者这边的好友记录（pending=0，表示已添加）
+                                        PreparedStatement psMy = con2.prepareStatement(
+                                                "INSERT INTO buddies (`characterid`, `buddyid`, `groupname`, `pending`) VALUES (?, ?, ?, 0) ON DUPLICATE KEY UPDATE groupname = ?, pending = 0");
+                                        psMy.setInt(1, myCid);
+                                        psMy.setInt(2, otherCid);
+                                        psMy.setString(3, groupName);
+                                        psMy.setString(4, groupName);
+                                        psMy.executeUpdate();
+                                        psMy.close();
+                                        
+                                        if (channel > 0) {
+                                            displayChannel = channel;
+                                            notifyRemoteChannel(c, channel, otherCid, groupName,
+                                                    BuddyList.BuddyOperation.ADDED);
+                                        }
+                                    } catch (SQLException e) {
+                                        System.err.println("插入好友记录时出错: " + e);
+                                        e.printStackTrace();
+                                    }
                                 }
                                 buddylist.put(new BuddyEntry(charWithId.getName(), otherCid, groupName, displayChannel,
                                         true, charWithId.getLevel(), charWithId.getJob()));

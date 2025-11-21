@@ -3719,9 +3719,17 @@ public class MaplePacketCreator {
         }
         mplew.writeShort(SendPacketOpcode.BUDDYLIST.getValue());
         mplew.write(7);
-        mplew.write(buddylist.size());
+        // 先计算可见好友数量
+        int visibleCount = 0;
         for (final BuddyEntry buddy : buddylist) {
-            if (buddy.isVisible()) {
+            if (buddy != null && buddy.isVisible()) {
+                visibleCount++;
+            }
+        }
+        mplew.write(visibleCount);
+        // 写入可见好友的详细信息
+        for (final BuddyEntry buddy : buddylist) {
+            if (buddy != null && buddy.isVisible()) {
                 mplew.writeInt(buddy.getCharacterId());
                 mplew.writeAsciiString(StringUtil.getRightPaddedStr(buddy.getName(), '\0', 13));
                 mplew.write(0);
@@ -3729,7 +3737,8 @@ public class MaplePacketCreator {
                 mplew.writeAsciiString(StringUtil.getRightPaddedStr(buddy.getGroup(), '\0', 17));
             }
         }
-        for (int x = 0; x < buddylist.size(); ++x) {
+        // 写入可见好友数量的0值（可能是某种标识位）
+        for (int x = 0; x < visibleCount; ++x) {
             mplew.writeInt(0);
         }
         if (ServerConstants.PACKET_ERROR_OFF) {

@@ -162,37 +162,103 @@ public class BuddyList implements Serializable {
     }
 
     public void loadFromDb(final int characterId) throws SQLException {
-        final Connection con = DatabaseConnection.getConnection();
-        PreparedStatement ps = con.prepareStatement(
-                "SELECT b.buddyid, b.pending, c.name as buddyname, c.job as buddyjob, c.level as buddylevel, b.groupname FROM buddies as b, characters as c WHERE c.id = b.buddyid AND b.characterid = ?");
-        ps.setInt(1, characterId);
-        final ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            final int buddyid = rs.getInt("buddyid");
-            final String buddyname = rs.getString("buddyname");
-            // 添加 null 检查
-            if (buddyname == null || buddyname.isEmpty()) {
-                System.err.println("警告：好友名称为空 - characterid: " + characterId + ", buddyid: " + buddyid);
-                continue; // 跳过无效的好友关系
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            con = DatabaseConnection.getConnection();
+            // 使用LEFT JOIN来处理好友角色可能不存在的情况
+            ps = con.prepareStatement(
+                    "SELECT b.buddyid, b.pending, c.name as buddyname, c.job as buddyjob, c.level as buddylevel, b.groupname FROM buddies as b LEFT JOIN characters as c ON c.id = b.buddyid WHERE b.characterid = ?");
+            ps.setInt(1, characterId);
+            rs = ps.executeQuery();
+            int invalidCount = 0;
+            while (rs.next()) {
+                try {
+                    final int buddyid = rs.getInt("buddyid");
+                    final String buddyname = rs.getString("buddyname");
+                    // 检查好友角色是否存在
+                    if (buddyname == null || buddyname.isEmpty()) {
+                        System.err.println("警告：好友角色不存在或已删除 - characterid: " + characterId + ", buddyid: " + buddyid + "，将删除此无效的好友记录");
+                        invalidCount++;
+                        // 删除无效的好友记录
+                        try {
+                            PreparedStatement psDelete = con.prepareStatement(
+                                    "DELETE FROM buddies WHERE characterid = ? AND buddyid = ?");
+                            psDelete.setInt(1, characterId);
+                            psDelete.setInt(2, buddyid);
+                            psDelete.executeUpdate();
+                            psDelete.close();
+                        } catch (SQLException e) {
+                            System.err.println("删除无效好友记录时出错: " + e);
+                            e.printStackTrace();
+                        }
+                        continue; // 跳过无效的好友关系
+                    }
+                    final int pending = rs.getInt("pending");
+                    final String groupname = rs.getString("groupname");
+                    // 处理job和level可能为null的情况
+                    int buddyLevel = 0;
+                    int buddyJob = 0;
+                    try {
+                        buddyLevel = rs.getInt("buddylevel");
+                        if (rs.wasNull()) {
+                            buddyLevel = 0;
+                        }
+                    } catch (SQLException e) {
+                        buddyLevel = 0;
+                    }
+                    try {
+                        buddyJob = rs.getInt("buddyjob");
+                        if (rs.wasNull()) {
+                            buddyJob = 0;
+                        }
+                    } catch (SQLException e) {
+                        buddyJob = 0;
+                    }
+                    
+                    if (pending == 1) {
+                        this.pendingReqs.push(new BuddyEntry(buddyname, buddyid,
+                                (groupname != null ? groupname : BuddyList.DEFAULT_GROUP), -1, false,
+                                buddyLevel, buddyJob));
+                    } else {
+                        this.put(new BuddyEntry(buddyname, buddyid,
+                                (groupname != null ? groupname : BuddyList.DEFAULT_GROUP), -1, true,
+                                buddyLevel, buddyJob));
+                    }
+                } catch (Exception e) {
+                    // 处理单条记录加载错误，继续处理其他记录
+                    System.err.println("加载好友记录时出错 - characterid: " + characterId + ", 错误: " + e.getMessage());
+                    e.printStackTrace();
+                }
             }
-            final int pending = rs.getInt("pending");
-            final String groupname = rs.getString("groupname");
-            if (pending == 1) {
-                this.pendingReqs.push(new BuddyEntry(buddyname, buddyid,
-                        (groupname != null ? groupname : BuddyList.DEFAULT_GROUP), -1, false,
-                        rs.getInt("buddylevel"), rs.getInt("buddyjob")));
-            } else {
-                this.put(new BuddyEntry(buddyname, buddyid,
-                        (groupname != null ? groupname : BuddyList.DEFAULT_GROUP), -1, true,
-                        rs.getInt("buddylevel"), rs.getInt("buddyjob")));
+            if (invalidCount > 0) {
+                System.err.println("已清理 " + invalidCount + " 条无效的好友记录 - characterid: " + characterId);
+            }
+            // 删除待处理的好友申请（pending=1），这些应该在登录时处理
+            if (ps != null) {
+                ps.close();
+            }
+            ps = con.prepareStatement("DELETE FROM buddies WHERE pending = 1 AND characterid = ?");
+            ps.setInt(1, characterId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("加载好友列表时发生SQL错误 - characterid: " + characterId + ", 错误: " + e.getMessage());
+            e.printStackTrace();
+            // 不重新抛出异常，允许角色继续加载（使用空的好友列表）
+        } finally {
+            // 确保资源被正确关闭
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch (SQLException e) {
+                System.err.println("关闭数据库资源时出错: " + e);
             }
         }
-        rs.close();
-        ps.close();
-        ps = con.prepareStatement("DELETE FROM buddies WHERE pending = 1 AND characterid = ?");
-        ps.setInt(1, characterId);
-        ps.executeUpdate();
-        ps.close();
     }
 
     public BuddyEntry pollPendingRequest() {
