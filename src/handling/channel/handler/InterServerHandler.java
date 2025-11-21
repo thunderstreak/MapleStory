@@ -183,15 +183,31 @@ public class InterServerHandler {
         final CharacterTransfer transfer = channelServer.getPlayerStorage().getPendingCharacter(playerid);
         boolean firstLoggedIn = true;
         MapleCharacter player;
+        long loadStartTime = System.currentTimeMillis();
         if (transfer == null) {
+            System.out.println("开始加载角色数据 - 角色ID: " + playerid);
             player = MapleCharacter.loadCharFromDB(playerid, c, true);
+            long loadDuration = System.currentTimeMillis() - loadStartTime;
+            System.out.println(
+                    "角色数据加载完成 - 角色ID: " + playerid + " 名字: " + player.getName() + " 耗时: " + loadDuration + "ms");
+            if (loadDuration > 1000) {
+                System.err.println("警告：loadCharFromDB 执行时间过长: " + loadDuration + "ms - 角色: " + player.getName());
+            }
         } else {
             player = MapleCharacter.ReconstructChr(transfer, c, true);
             firstLoggedIn = false;
+            long loadDuration = System.currentTimeMillis() - loadStartTime;
+            System.out.println(
+                    "角色数据重构完成 - 角色ID: " + playerid + " 名字: " + player.getName() + " 耗时: " + loadDuration + "ms");
         }
         c.setPlayer(player);
         c.setAccID(player.getAccountID());
+        long accountDataStartTime = System.currentTimeMillis();
         c.loadAccountData(player.getAccountID());
+        long accountDataDuration = System.currentTimeMillis() - accountDataStartTime;
+        if (accountDataDuration > 500) {
+            System.out.println("loadAccountData 耗时: " + accountDataDuration + "ms - 角色: " + player.getName());
+        }
         ChannelServer.forceRemovePlayerByAccId(c, c.getAccID());
         final int state = c.getLoginState();
         boolean allowLogin = true; // 默认允许登录，除非检测到真正的问题
@@ -305,21 +321,57 @@ public class InterServerHandler {
             c.getSession().close(true);
             return;
         }
+        long loginProcessStartTime = System.currentTimeMillis();
         c.updateLoginState(MapleClient.LOGIN_LOGGEDIN, c.getSessionIPAddress());
+        long addPlayerStartTime = System.currentTimeMillis();
         channelServer.addPlayer(player);
+        long addPlayerDuration = System.currentTimeMillis() - addPlayerStartTime;
+        if (addPlayerDuration > 500) {
+            System.out.println("addPlayer 耗时: " + addPlayerDuration + "ms - 角色: " + player.getName());
+        }
+
+        long packetStartTime = System.currentTimeMillis();
         c.getSession().write(MaplePacketCreator.getCharInfo(player));
         if (player.isGM()) {
             SkillFactory.getSkill(9001004).getEffect(1).applyTo(player);
         }
         c.getSession().write(MaplePacketCreator.temporaryStats_Reset());
-        player.getMap().addPlayer(player);
+        long packetDuration = System.currentTimeMillis() - packetStartTime;
+        if (packetDuration > 500) {
+            System.out.println("发送登录封包耗时: " + packetDuration + "ms - 角色: " + player.getName());
+        }
+
+        long mapAddStartTime = System.currentTimeMillis();
+        if (player.getMap() == null) {
+            System.err.println("错误：玩家地图为 null - 角色: " + player.getName() + " 地图ID: " + player.getMapId());
+        } else {
+            player.getMap().addPlayer(player);
+            long mapAddDuration = System.currentTimeMillis() - mapAddStartTime;
+            if (mapAddDuration > 500) {
+                System.out.println("addPlayerToMap 耗时: " + mapAddDuration + "ms - 角色: " + player.getName() + " 地图: "
+                        + player.getMapId());
+            }
+        }
+        long loginProcessDuration = System.currentTimeMillis() - loginProcessStartTime;
+        System.out.println("登录流程总耗时: " + loginProcessDuration + "ms - 角色: " + player.getName());
         try {
+            long buffStartTime = System.currentTimeMillis();
             player.silentGiveBuffs(PlayerBuffStorage.getBuffsFromStorage(player.getId()));
             player.giveCoolDowns(PlayerBuffStorage.getCooldownsFromStorage(player.getId()));
             player.giveSilentDebuff(PlayerBuffStorage.getDiseaseFromStorage(player.getId()));
+            long buffDuration = System.currentTimeMillis() - buffStartTime;
+            if (buffDuration > 500) {
+                System.out.println("恢复Buff/Cooldown耗时: " + buffDuration + "ms - 角色: " + player.getName());
+            }
+
+            long buddyStartTime = System.currentTimeMillis();
             final Collection<Integer> buddyIds = player.getBuddylist().getBuddiesIds();
             World.Buddy.loggedOn(player.getName(), player.getId(), c.getChannel(), buddyIds, player.getGMLevel(),
                     player.isHidden());
+            long buddyDuration = System.currentTimeMillis() - buddyStartTime;
+            if (buddyDuration > 500) {
+                System.out.println("Buddy登录处理耗时: " + buddyDuration + "ms - 角色: " + player.getName());
+            }
             // 登录时清理组队中的无效成员
             if (player.getParty() != null) {
                 final MapleParty party = player.getParty();
