@@ -19,6 +19,8 @@ import java.lang.ref.WeakReference;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import scripting.NPCScriptManager;
 import server.AutobanManager;
 import server.MapleInventoryManipulator;
@@ -1114,9 +1116,51 @@ public class PlayerHandler {
         }
     }
 
+    private static final Map<Integer, Long> lastSaveTime = new ConcurrentHashMap<Integer, Long>();
+    private static final long SAVE_INTERVAL = 5000L; // 5秒内最多保存一次
+
     public static void UpdateHandler(final SeekableLittleEndianAccessor slea, final MapleClient c,
             final MapleCharacter chr) {
-        chr.saveToDB(false, false);
+        if (chr == null) {
+            return;
+        }
+        final int charId = chr.getId();
+        final long currentTime = System.currentTimeMillis();
+        final Long lastSave = lastSaveTime.get(charId);
+
+        // 节流：如果距离上次保存不到5秒，跳过本次保存
+        if (lastSave != null && (currentTime - lastSave) < SAVE_INTERVAL) {
+            return;
+        }
+
+        // 更新最后保存时间
+        lastSaveTime.put(charId, currentTime);
+
+        // 异步执行数据库保存，避免阻塞主线程
+        Timer.WorldTimer.getInstance().schedule(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final long startTime = System.currentTimeMillis();
+                    chr.saveToDB(false, false);
+                    final long duration = System.currentTimeMillis() - startTime;
+                    // 如果保存时间超过1秒，记录警告
+                    if (duration > 1000) {
+                        System.err.println("警告：saveToDB 执行时间过长: " + duration + "ms - 角色: " + chr.getName() + " (ID: "
+                                + charId + ")");
+                    }
+                } catch (Exception e) {
+                    System.err.println("保存角色数据失败: " + chr.getName() + " (ID: " + charId + ") - " + e.getMessage());
+                    e.printStackTrace();
+                } finally {
+                    // 清理过期的保存时间记录（超过1分钟）
+                    final long cleanupTime = System.currentTimeMillis();
+                    if (lastSaveTime.containsKey(charId) && (cleanupTime - lastSaveTime.get(charId)) > 60000) {
+                        lastSaveTime.remove(charId);
+                    }
+                }
+            }
+        }, 0);
     }
 
     public static void ChangeMapSpecial(final SeekableLittleEndianAccessor slea, final MapleClient c,
