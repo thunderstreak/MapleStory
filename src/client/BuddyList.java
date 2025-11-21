@@ -177,9 +177,10 @@ public class BuddyList implements Serializable {
                 try {
                     final int buddyid = rs.getInt("buddyid");
                     final String buddyname = rs.getString("buddyname");
-                    // 检查好友角色是否存在
-                    if (buddyname == null || buddyname.isEmpty()) {
-                        System.err.println("警告：好友角色不存在或已删除 - characterid: " + characterId + ", buddyid: " + buddyid + "，将删除此无效的好友记录");
+                    // 检查好友角色是否存在（使用LEFT JOIN时，如果角色不存在，buddyname会是null）
+                    if (buddyname == null) {
+                        System.err.println("警告：好友角色不存在或已删除 - characterid: " + characterId + ", buddyid: " + buddyid
+                                + "，将删除此无效的好友记录");
                         invalidCount++;
                         // 删除无效的好友记录
                         try {
@@ -216,7 +217,7 @@ public class BuddyList implements Serializable {
                     } catch (SQLException e) {
                         buddyJob = 0;
                     }
-                    
+
                     if (pending == 1) {
                         this.pendingReqs.push(new BuddyEntry(buddyname, buddyid,
                                 (groupname != null ? groupname : BuddyList.DEFAULT_GROUP), -1, false,
