@@ -44,11 +44,11 @@ function action(mode, type, selection) {
         cm.getPlayer().gainqiandao(1);
         cm.sendOk('恭喜签到成功！');
         //cm.gainDY(1000)
-        cm.gainMeso(50000000);
-        cm.gainItem(2010006, 1);
+        cm.gainMeso(1000000); //100万
+        cm.gainItem(2010006, 1); //蜂蜜
         cm.gainItem(2340000, 2); //祝福
-        cm.gainItem(2022468, 10);
-        cm.spawnMonster(9300340, 1);
+        cm.gainItem(2022468, 3); //神秘箱子
+        cm.spawnMonster(9300340, 1); //每日蛋糕怪物
         //cm.gainvip(+2);//破攻等级
         cm.喇叭(1, '[每日签到]：' + cm.getPlayer().getName() + '，今日已成功签到.每日蛋糕怪物出现了！！！');
         cm.dispose();
@@ -65,15 +65,15 @@ function action(mode, type, selection) {
       if (cm.getBossLog('vipqiandao3') == 0 && cm.haveItem(3700148, 1)) {
         //获取玩家签到状态
         cm.setBossLog('vipqiandao3'); //设置签到次数
-        cm.getPlayer().gainqiandao(1);
+        cm.getPlayer().gainqiandao(1); //签到次数
         cm.sendOk('恭喜签到成功！');
         //cm.gainDY(3000)
-        cm.gainMeso(100000000);
+        cm.gainMeso(2000000); //200万
         cm.gainItem(2010006, 4); //蜂蜜
-        cm.gainItem(2340000, 6); //祝福
-        cm.gainItem(2022468, 10);
-        cm.spawnMonster(9300340, 1);
-        cm.喇叭(1, '[VIP签到]：' + cm.getPlayer().getName() + '，今日已成功签到！送1E金币+ 蜂蜜4个+ 祝福卷6张+神秘箱子10个，每日蛋糕怪物出现了！！！');
+        cm.gainItem(2340000, 5); //祝福
+        cm.gainItem(2022468, 6); //神秘箱子
+        cm.spawnMonster(9300340, 1); //每日蛋糕怪物
+        cm.喇叭(1, '[VIP签到]：' + cm.getPlayer().getName() + '，今日已成功签到！送200W金币+ 蜂蜜4个+ 祝福卷6张+神秘箱子10个，每日蛋糕怪物出现了！！！');
         cm.dispose();
       } else {
         cm.sendOk('您今日已签到过了！');

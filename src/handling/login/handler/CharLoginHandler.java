@@ -267,22 +267,19 @@ public class CharLoginHandler {
                 newchar.setQuestAdd(MapleQuest.getInstance(20020), (byte) 1, null);
                 newchar.getInventory(MapleInventoryType.ETC).addItem(new Item(4161047, (short) 0, (short) 1, (byte) 0));
                 // 注释掉：创建角色时赠送神秘箱子（新手礼包箱子）
-                // newchar.getInventory(MapleInventoryType.USE).addItem(new Item(2022336,
-                // (short)0, (short)1, (byte)0));
+                newchar.getInventory(MapleInventoryType.USE).addItem(new Item(2022336, (short) 0, (short) 1, (byte) 0));
                 break;
             }
             case 1: {
                 newchar.getInventory(MapleInventoryType.ETC).addItem(new Item(4161001, (short) 0, (short) 1, (byte) 0));
                 // 注释掉：创建角色时赠送神秘箱子（新手礼包箱子）
-                // newchar.getInventory(MapleInventoryType.USE).addItem(new Item(2022336,
-                // (short)0, (short)1, (byte)0));
+                newchar.getInventory(MapleInventoryType.USE).addItem(new Item(2022336, (short) 0, (short) 1, (byte) 0));
                 break;
             }
             case 2: {
                 newchar.getInventory(MapleInventoryType.ETC).addItem(new Item(4161048, (short) 0, (short) 1, (byte) 0));
                 // 注释掉：创建角色时赠送神秘箱子（新手礼包箱子）
-                // newchar.getInventory(MapleInventoryType.USE).addItem(new Item(2022336,
-                // (short)0, (short)1, (byte)0));
+                newchar.getInventory(MapleInventoryType.USE).addItem(new Item(2022336, (short) 0, (short) 1, (byte) 0));
                 break;
             }
         }

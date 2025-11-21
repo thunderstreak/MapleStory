@@ -346,22 +346,11 @@ public class InterServerHandler {
             }
         }
         // 注释掉：检查并提示玩家使用神秘箱子领取新手礼包
-        // if (player.haveItem(2022336)) {
-        // player.dropMessage(5, "欢迎来到" +
-        // ServerProperties.getProperty("RoyMS.ServerName") +
-        // ",请按"I"键，打开背包，双击使用神秘箱子，领取新人礼包");
-        // }
-        if (player.getLevel() == 1) {
-            player.dropMessage(1, "欢迎来到 " + c.getChannelServer().getServerName() + ", " + player.getName()
-                    + " ！\r\n使用 @help 可以查看您当前能使用的命令\r\n祝您玩的愉快！");
-            player.dropMessage(5, "使用 @help 可以查看您当前能使用的命令 祝您玩的愉快！");
+        if (player.haveItem(2022336)) {
+            player.dropMessage(5,
+                    "欢迎来到" + ServerProperties.getProperty("RoyMS.ServerName") + ",请按“I”键，打开背包，双击使用神秘箱子，领取新人礼包");
         }
-        if (c.getPlayer().hasEquipped(1122017)) {
-            player.dropMessage(5, "您装备了精灵吊坠！打猎时可以额外获得10%的道具佩戴经验奖励！在线1小时后，经验增加10%，最高可获得30%");
-        }
-        if (c.getChannelServer().getDoubleExp() > 1) {
-            player.dropMessage(6, "[系统提示] 当前服务器处于双倍经验活动中，祝您玩的愉快！目前倍率：" + c.getChannelServer().getDoubleExp() + " 倍");
-        }
+
         final int 阴森世界地图 = 551030200;
         if (c.getPlayer().getHp() != 50
                 && (c.getPlayer().getBossLog("狮熊Boss") >= 1 || c.getPlayer().getBossLogChannel("狮熊Boss") > 0)

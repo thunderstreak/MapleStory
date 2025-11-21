@@ -169,7 +169,7 @@ function NewPlayer() {
     cm.dispose();
     return;
   }
-  cm.gainPet(5000007, '黑色小猪', 1, 0, 100, 0); //
+  cm.gainPet(5000007, '黑色小猪', 1, 0, 100, 0); // 黑色小猪宠物
   cm.gainItem(2450000, 10); //猎人的幸运
   cm.gainItemPeriod(1002419, 1, 30); //红叶黑头巾
   cm.gainItemPeriod(5030000, 1, 30); //精灵商人
