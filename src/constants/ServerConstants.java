@@ -20,6 +20,7 @@ public class ServerConstants {
     public static boolean EnablePacketLog;
     public static boolean 自动注册;
     public static boolean PACKET_ERROR_OFF;
+    public static boolean EnablePlayerPacketLog;
     public static boolean Super_password;
     public static boolean clientAutoDisconnect;
     public static String superpw;
@@ -103,6 +104,8 @@ public class ServerConstants {
                 .parseBoolean(ServerProperties.getProperty("RoyMS.EnablePacketLog", "true"));
         ServerConstants.自动注册 = Boolean.parseBoolean(ServerProperties.getProperty("RoyMS.AutoRegister", "false"));
         ServerConstants.PACKET_ERROR_OFF = Boolean.parseBoolean(ServerProperties.getProperty("RoyMS.记录38错误", "false"));
+        ServerConstants.EnablePlayerPacketLog = Boolean
+                .parseBoolean(ServerProperties.getProperty("RoyMS.EnablePlayerPacketLog", "false"));
         ServerConstants.Super_password = false;
         ServerConstants.clientAutoDisconnect = true;
         ServerConstants.superpw = "";

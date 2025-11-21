@@ -1,5 +1,6 @@
 package handling;
 
+import client.MapleCharacter;
 import client.MapleClient;
 import constants.ServerConstants;
 import handling.cashshop.CashShopServer;
@@ -371,7 +372,84 @@ public class MapleServerHandler extends IoHandlerAdapter implements MapleServerH
                     if (MapleServerHandler.Log_Packets) {
                         log(slea, recv, c, session);
                     }
-                    handlePacket(recv, slea, c, this.cs);
+                    // 根据角色名保存客户端封包（需要配置启用）
+                    final long packetReceiveTime = System.currentTimeMillis();
+                    boolean packetHandled = false;
+                    Exception packetException = null;
+                    if (ServerConstants.EnablePlayerPacketLog && c != null && c.getPlayer() != null
+                            && c.getPlayer().getName() != null) {
+                        try {
+                            handlePacket(recv, slea, c, this.cs);
+                            packetHandled = true;
+                        } catch (Exception e) {
+                            packetHandled = false;
+                            packetException = e;
+                        }
+                        final String playerName = c.getPlayer().getName();
+                        final long packetProcessTime = System.currentTimeMillis() - packetReceiveTime;
+                        final String time = FileoutputUtil.CurrentReadable_Time();
+                        final String headerHex = String.format("0x%04X", header_num & 0xFFFF);
+                        final String packetHex = HexTool.toString((byte[]) message);
+                        final String packetAscii = HexTool.toStringFromAscii((byte[]) message);
+                        final MapleCharacter player = c.getPlayer();
+                        final StringBuilder logMsg = new StringBuilder();
+                        logMsg.append("========== 客户端封包记录 ==========\r\n");
+                        logMsg.append("时间：").append(time).append(" (时间戳: ").append(packetReceiveTime).append(")\r\n");
+                        logMsg.append("线程：").append(Thread.currentThread().getName()).append(" (ID: ")
+                                .append(Thread.currentThread().getId()).append(")\r\n");
+                        logMsg.append("-----------------------------------\r\n");
+                        logMsg.append("【账号信息】\r\n");
+                        logMsg.append("  账号名：").append(c.getAccountName() != null ? c.getAccountName() : "null")
+                                .append("\r\n");
+                        logMsg.append("  账号ID：").append(c.getAccID()).append("\r\n");
+                        logMsg.append("  登录状态：").append(c.isLoggedIn() ? "已登录" : "未登录").append("\r\n");
+                        logMsg.append("  世界：").append(c.getWorld()).append("\r\n");
+                        logMsg.append("  频道：").append(c.getChannel()).append("\r\n");
+                        logMsg.append("  IP地址：").append(c.getTempIP() != null && !c.getTempIP().isEmpty()
+                                ? c.getTempIP()
+                                : (c.getSessionIPAddress() != null ? c.getSessionIPAddress() : "未知")).append("\r\n");
+                        logMsg.append("  MAC地址：").append(c.getMac() != null ? c.getMac() : "未知").append("\r\n");
+                        logMsg.append("  延迟：").append(c.getLatency()).append("ms\r\n");
+                        logMsg.append("-----------------------------------\r\n");
+                        logMsg.append("【角色信息】\r\n");
+                        logMsg.append("  角色名：").append(player.getName()).append("\r\n");
+                        logMsg.append("  角色ID：").append(player.getId()).append("\r\n");
+                        logMsg.append("  等级：").append(player.getLevel()).append("\r\n");
+                        logMsg.append("  职业：").append(player.getJob()).append("\r\n");
+                        logMsg.append("  地图ID：").append(player.getMapId()).append("\r\n");
+                        logMsg.append("  经验值：").append(player.getExp()).append("\r\n");
+                        logMsg.append("  金币：").append(player.getMeso()).append("\r\n");
+                        logMsg.append("-----------------------------------\r\n");
+                        logMsg.append("【封包信息】\r\n");
+                        logMsg.append("  操作码：").append(recv.toString()).append("\r\n");
+                        logMsg.append("  封包头：").append(headerHex).append(" (").append(header_num).append(")\r\n");
+                        logMsg.append("  封包长度：").append(((byte[]) message).length).append(" 字节\r\n");
+                        logMsg.append("  处理状态：").append(packetHandled ? "成功" : "失败").append("\r\n");
+                        logMsg.append("  处理耗时：").append(packetProcessTime).append("ms\r\n");
+                        if (packetException != null) {
+                            logMsg.append("  异常信息：").append(packetException.getClass().getName()).append("\r\n");
+                            logMsg.append("  异常消息：").append(packetException.getMessage()).append("\r\n");
+                            final StackTraceElement[] stackTrace = packetException.getStackTrace();
+                            if (stackTrace != null && stackTrace.length > 0) {
+                                logMsg.append("  异常堆栈：\r\n");
+                                for (int j = 0; j < Math.min(stackTrace.length, 5); j++) {
+                                    logMsg.append("    ").append(stackTrace[j].toString()).append("\r\n");
+                                }
+                            }
+                        }
+                        logMsg.append("-----------------------------------\r\n");
+                        logMsg.append("【封包数据】\r\n");
+                        logMsg.append("  十六进制：").append(packetHex).append("\r\n");
+                        logMsg.append("  ASCII数据：").append(packetAscii).append("\r\n");
+                        logMsg.append("===================================\r\n\r\n");
+                        FileoutputUtil.packetLog("logs/客户端封包/" + playerName + ".log", logMsg.toString());
+                        // 如果处理失败，重新抛出异常
+                        if (!packetHandled && packetException != null) {
+                            throw packetException;
+                        }
+                    } else {
+                        handlePacket(recv, slea, c, this.cs);
+                    }
                     final FileWriter fw = isLoggedIP(session);
                     if (fw != null && !MapleServerHandler.blocked.contains(recv)) {
                         if (recv == RecvPacketOpcode.PLAYER_LOGGEDIN && c != null) {
