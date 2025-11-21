@@ -21,6 +21,7 @@ public class ServerConstants {
     public static boolean 自动注册;
     public static boolean PACKET_ERROR_OFF;
     public static boolean EnablePlayerPacketLog;
+    public static double GOLD_EQUIP_FACTOR;
     public static boolean Super_password;
     public static boolean clientAutoDisconnect;
     public static String superpw;
@@ -106,6 +107,8 @@ public class ServerConstants {
         ServerConstants.PACKET_ERROR_OFF = Boolean.parseBoolean(ServerProperties.getProperty("RoyMS.记录38错误", "false"));
         ServerConstants.EnablePlayerPacketLog = Boolean
                 .parseBoolean(ServerProperties.getProperty("RoyMS.EnablePlayerPacketLog", "false"));
+        ServerConstants.GOLD_EQUIP_FACTOR = Double
+                .parseDouble(ServerProperties.getProperty("RoyMS.GoldEquipFactor", "0.5"));
         ServerConstants.Super_password = false;
         ServerConstants.clientAutoDisconnect = true;
         ServerConstants.superpw = "";

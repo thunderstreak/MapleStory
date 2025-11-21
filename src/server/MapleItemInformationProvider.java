@@ -151,7 +151,66 @@ public class MapleItemInformationProvider {
     }
 
     public List<StructPotentialItem> getPotentialInfo(final int potId) {
-        return this.potentialCache.get(potId);
+        List<StructPotentialItem> original = this.potentialCache.get(potId);
+        if (original == null) {
+            return null;
+        }
+
+        // 如果potentialID >= 30000，说明这是State 7（金色装备）的潜在能力，需要应用减半
+        // 注意：这里假设potentialID >= 30000就是State 7，实际应用中可能需要更精确的判断
+        // 如果调用者知道装备的确切State，应该使用 getPotentialInfoAdjusted 或 getPotentialInfoForEquip 方法
+        if (potId >= 30000) {
+            // State 7装备，返回减半后的属性值
+            List<StructPotentialItem> adjusted = new ArrayList<StructPotentialItem>();
+            for (StructPotentialItem item : original) {
+                adjusted.add(item.getAdjustedForState((byte) 7));
+            }
+            return adjusted;
+        }
+
+        // 非State 7装备，直接返回原始值
+        return original;
+    }
+
+    /**
+     * 根据装备的State获取调整后的潜在能力信息（State 7的属性值减半）
+     * 
+     * @param potId      潜在能力ID
+     * @param equipState 装备的品质等级（State）
+     * @return 调整后的潜在能力信息列表
+     */
+    public List<StructPotentialItem> getPotentialInfoAdjusted(final int potId, final byte equipState) {
+        List<StructPotentialItem> original = this.potentialCache.get(potId);
+        if (original == null) {
+            return null;
+        }
+
+        if (equipState != 7) {
+            // 非State 7装备，直接返回原始值
+            return original;
+        }
+
+        // State 7装备，返回减半后的属性值
+        List<StructPotentialItem> adjusted = new ArrayList<StructPotentialItem>();
+        for (StructPotentialItem item : original) {
+            adjusted.add(item.getAdjustedForState(equipState));
+        }
+        return adjusted;
+    }
+
+    /**
+     * 根据装备对象获取调整后的潜在能力信息（State 7的属性值减半）
+     * 
+     * @param equip 装备对象
+     * @param potId 潜在能力ID（potential1/2/3的值）
+     * @return 调整后的潜在能力信息列表，如果不存在则返回null
+     */
+    public List<StructPotentialItem> getPotentialInfoForEquip(final Equip equip, final int potId) {
+        if (equip == null || potId <= 0) {
+            return null;
+        }
+        byte equipState = equip.getState();
+        return this.getPotentialInfoAdjusted(potId, equipState);
     }
 
     public Map<Integer, List<StructPotentialItem>> getAllPotentialInfo() {

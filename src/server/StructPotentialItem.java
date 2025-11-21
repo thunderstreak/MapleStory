@@ -1,5 +1,7 @@
 package server;
 
+import constants.ServerConstants;
+
 public class StructPotentialItem {
     public byte incSTR;
     public byte incDEX;
@@ -53,6 +55,78 @@ public class StructPotentialItem {
     public int optionType;
     public int reqLevel;
     public String face;
+
+    /**
+     * 根据装备State获取调整后的属性值（State 7减半）
+     * 
+     * @param state 装备的品质等级（State）
+     * @return 调整后的StructPotentialItem副本
+     */
+    public StructPotentialItem getAdjustedForState(byte state) {
+        if (state != 7) {
+            // 非State 7装备，直接返回自身
+            return this;
+        }
+
+        final double factor = ServerConstants.GOLD_EQUIP_FACTOR;
+
+        // State 7装备，创建副本并根据倍率调整属性值（使用四舍五入处理小数点）
+        StructPotentialItem adjusted = new StructPotentialItem();
+        adjusted.incSTR = (byte) Math.round(this.incSTR * factor);
+        adjusted.incDEX = (byte) Math.round(this.incDEX * factor);
+        adjusted.incINT = (byte) Math.round(this.incINT * factor);
+        adjusted.incLUK = (byte) Math.round(this.incLUK * factor);
+        adjusted.incACC = (byte) Math.round(this.incACC * factor);
+        adjusted.incEVA = (byte) Math.round(this.incEVA * factor);
+        adjusted.incSpeed = (byte) Math.round(this.incSpeed * factor);
+        adjusted.incJump = (byte) Math.round(this.incJump * factor);
+        adjusted.incPAD = (byte) Math.round(this.incPAD * factor);
+        adjusted.incMAD = (byte) Math.round(this.incMAD * factor);
+        adjusted.incPDD = (byte) Math.round(this.incPDD * factor);
+        adjusted.incMDD = (byte) Math.round(this.incMDD * factor);
+        adjusted.prop = this.prop;
+        adjusted.time = this.time;
+        adjusted.incSTRr = (byte) Math.round(this.incSTRr * factor);
+        adjusted.incDEXr = (byte) Math.round(this.incDEXr * factor);
+        adjusted.incINTr = (byte) Math.round(this.incINTr * factor);
+        adjusted.incLUKr = (byte) Math.round(this.incLUKr * factor);
+        adjusted.incMHPr = (byte) Math.round(this.incMHPr * factor);
+        adjusted.incMMPr = (byte) Math.round(this.incMMPr * factor);
+        adjusted.incACCr = (byte) Math.round(this.incACCr * factor);
+        adjusted.incEVAr = (byte) Math.round(this.incEVAr * factor);
+        adjusted.incPADr = (byte) Math.round(this.incPADr * factor);
+        adjusted.incMADr = (byte) Math.round(this.incMADr * factor);
+        adjusted.incPDDr = (byte) Math.round(this.incPDDr * factor);
+        adjusted.incMDDr = (byte) Math.round(this.incMDDr * factor);
+        adjusted.incCr = (byte) Math.round(this.incCr * factor);
+        adjusted.incDAMr = (byte) Math.round(this.incDAMr * factor);
+        adjusted.RecoveryHP = (byte) Math.round(this.RecoveryHP * factor);
+        adjusted.RecoveryMP = (byte) Math.round(this.RecoveryMP * factor);
+        adjusted.HP = (byte) Math.round(this.HP * factor);
+        adjusted.MP = (byte) Math.round(this.MP * factor);
+        adjusted.level = this.level;
+        adjusted.ignoreTargetDEF = (byte) Math.round(this.ignoreTargetDEF * factor);
+        adjusted.ignoreDAM = (byte) Math.round(this.ignoreDAM * factor);
+        adjusted.DAMreflect = (byte) Math.round(this.DAMreflect * factor);
+        adjusted.mpconReduce = (byte) Math.round(this.mpconReduce * factor);
+        adjusted.mpRestore = (byte) Math.round(this.mpRestore * factor);
+        adjusted.incMesoProp = this.incMesoProp;
+        adjusted.incRewardProp = this.incRewardProp;
+        adjusted.incAllskill = (byte) Math.round(this.incAllskill * factor);
+        adjusted.ignoreDAMr = (byte) Math.round(this.ignoreDAMr * factor);
+        adjusted.RecoveryUP = (byte) Math.round(this.RecoveryUP * factor);
+        adjusted.boss = this.boss;
+        adjusted.incMHP = (short) Math.round(this.incMHP * factor);
+        adjusted.incMMP = (short) Math.round(this.incMMP * factor);
+        adjusted.attackType = this.attackType;
+        adjusted.potentialID = this.potentialID;
+        adjusted.skillID = this.skillID;
+        adjusted.optionType = this.optionType;
+        adjusted.reqLevel = this.reqLevel;
+        adjusted.face = this.face;
+
+        return adjusted;
+    }
 
     @Override
     public String toString() {
