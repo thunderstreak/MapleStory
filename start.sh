@@ -8,10 +8,12 @@ echo "
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-# 删除旧日志（如果存在）
-LOG_FILE="logs/server.log"
-if [ -f "$LOG_FILE" ]; then
-    rm -f "$LOG_FILE"
+# 删除 logs/ 目录下的所有日志文件
+if [ -d "logs" ]; then
+    echo "正在清理 logs/ 目录下的所有日志文件..."
+    # 删除 logs/ 目录及其子目录下的所有文件（保留目录结构）
+    find logs -type f -delete 2>/dev/null || true
+    echo "日志文件清理完成"
 fi
 
 # 检测 Java 可执行文件

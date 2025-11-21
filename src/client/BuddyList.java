@@ -170,11 +170,20 @@ public class BuddyList implements Serializable {
         while (rs.next()) {
             final int buddyid = rs.getInt("buddyid");
             final String buddyname = rs.getString("buddyname");
-            if (rs.getInt("pending") == 1) {
-                this.pendingReqs.push(new BuddyEntry(buddyname, buddyid, rs.getString("groupname"), -1, false,
+            // 添加 null 检查
+            if (buddyname == null || buddyname.isEmpty()) {
+                System.err.println("警告：好友名称为空 - characterid: " + characterId + ", buddyid: " + buddyid);
+                continue; // 跳过无效的好友关系
+            }
+            final int pending = rs.getInt("pending");
+            final String groupname = rs.getString("groupname");
+            if (pending == 1) {
+                this.pendingReqs.push(new BuddyEntry(buddyname, buddyid,
+                        (groupname != null ? groupname : BuddyList.DEFAULT_GROUP), -1, false,
                         rs.getInt("buddylevel"), rs.getInt("buddyjob")));
             } else {
-                this.put(new BuddyEntry(buddyname, buddyid, rs.getString("groupname"), -1, true,
+                this.put(new BuddyEntry(buddyname, buddyid,
+                        (groupname != null ? groupname : BuddyList.DEFAULT_GROUP), -1, true,
                         rs.getInt("buddylevel"), rs.getInt("buddyjob")));
             }
         }

@@ -568,6 +568,11 @@ public class World {
                     if (chr == null) {
                         continue;
                     }
+                    // 添加 buddylist null 检查
+                    if (chr.getBuddylist() == null) {
+                        System.err.println("警告：好友角色好友列表为 null - characterId: " + characterId + ", buddy: " + buddy);
+                        continue;
+                    }
                     final BuddyEntry ble = chr.getBuddylist().get(characterId);
                     if (ble == null || !ble.isVisible()) {
                         continue;

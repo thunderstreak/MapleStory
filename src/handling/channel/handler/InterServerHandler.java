@@ -28,6 +28,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
@@ -365,9 +366,35 @@ public class InterServerHandler {
             }
 
             long buddyStartTime = System.currentTimeMillis();
-            final Collection<Integer> buddyIds = player.getBuddylist().getBuddiesIds();
-            World.Buddy.loggedOn(player.getName(), player.getId(), c.getChannel(), buddyIds, player.getGMLevel(),
-                    player.isHidden());
+            Collection<Integer> buddyIds = Collections.emptyList();
+            try {
+                if (player.getBuddylist() != null) {
+                    buddyIds = player.getBuddylist().getBuddiesIds();
+                    World.Buddy.loggedOn(player.getName(), player.getId(), c.getChannel(), buddyIds,
+                            player.getGMLevel(),
+                            player.isHidden());
+                } else {
+                    System.err.println("警告：角色好友列表为 null - 角色: " + player.getName() + " (ID: " + player.getId() + ")");
+                    // 使用空集合继续登录流程
+                    World.Buddy.loggedOn(player.getName(), player.getId(), c.getChannel(), Collections.emptyList(),
+                            player.getGMLevel(), player.isHidden());
+                }
+            } catch (Exception e) {
+                System.err.println(
+                        "好友系统登录处理异常 - 角色: " + player.getName() + " (ID: " + player.getId() + ") - " + e.getMessage());
+                e.printStackTrace();
+                FileoutputUtil.outputFileError("logs/好友系统异常.log", e);
+                // 继续登录流程，不阻止玩家登录
+                try {
+                    World.Buddy.loggedOn(player.getName(), player.getId(), c.getChannel(), Collections.emptyList(),
+                            player.getGMLevel(), player.isHidden());
+                } catch (Exception e2) {
+                    System.err.println("好友系统登录处理二次异常 - 角色: " + player.getName() + " (ID: " + player.getId() + ") - "
+                            + e2.getMessage());
+                }
+                // 如果获取 buddyIds 失败，使用空集合
+                buddyIds = Collections.emptyList();
+            }
             long buddyDuration = System.currentTimeMillis() - buddyStartTime;
             if (buddyDuration > 500) {
                 System.out.println("Buddy登录处理耗时: " + buddyDuration + "ms - 角色: " + player.getName());
@@ -442,15 +469,35 @@ public class InterServerHandler {
                             new MaplePartyCharacter(player));
                 }
             }
-            final CharacterIdChannelPair[] multiBuddyFind;
-            final CharacterIdChannelPair[] onlineBuddies = multiBuddyFind = World.Find.multiBuddyFind(player.getId(),
-                    buddyIds);
-            for (final CharacterIdChannelPair onlineBuddy : multiBuddyFind) {
-                final BuddyEntry ble = player.getBuddylist().get(onlineBuddy.getCharacterId());
-                ble.setChannel(onlineBuddy.getChannel());
-                player.getBuddylist().put(ble);
+            // 更新好友列表状态（需要 buddyIds 变量）
+            if (player.getBuddylist() != null && !buddyIds.isEmpty()) {
+                try {
+                    final CharacterIdChannelPair[] multiBuddyFind = World.Find.multiBuddyFind(player.getId(),
+                            buddyIds);
+                    for (final CharacterIdChannelPair onlineBuddy : multiBuddyFind) {
+                        final BuddyEntry ble = player.getBuddylist().get(onlineBuddy.getCharacterId());
+                        if (ble != null) {
+                            ble.setChannel(onlineBuddy.getChannel());
+                            player.getBuddylist().put(ble);
+                        }
+                    }
+                    c.sendPacket(MaplePacketCreator.updateBuddylist(player.getBuddylist().getBuddies()));
+                } catch (Exception e) {
+                    System.err.println("更新好友列表状态异常 - 角色: " + player.getName() + " (ID: " + player.getId() + ") - "
+                            + e.getMessage());
+                    e.printStackTrace();
+                    FileoutputUtil.outputFileError("logs/好友系统异常.log", e);
+                }
+            } else if (player.getBuddylist() != null) {
+                // 即使没有好友，也发送空的好友列表更新
+                try {
+                    c.sendPacket(MaplePacketCreator.updateBuddylist(player.getBuddylist().getBuddies()));
+                } catch (Exception e) {
+                    System.err.println("发送好友列表更新异常 - 角色: " + player.getName() + " (ID: " + player.getId() + ") - "
+                            + e.getMessage());
+                    FileoutputUtil.outputFileError("logs/好友系统异常.log", e);
+                }
             }
-            c.sendPacket(MaplePacketCreator.updateBuddylist(player.getBuddylist().getBuddies()));
             final MapleMessenger messenger = player.getMessenger();
             if (messenger != null) {
                 World.Messenger.silentJoinMessenger(messenger.getId(), new MapleMessengerCharacter(c.getPlayer()));
