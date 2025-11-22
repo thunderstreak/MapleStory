@@ -48,11 +48,13 @@ public class MTSOperation {
                 slea.skip(32);
             } else {
                 slea.readShort();
-                if (GameConstants.is飞镖道具(itemid) || GameConstants.is子弹道具(itemid)) {
+                //  Throwing Stars and Bullets
+                if (GameConstants.isRechargable(itemid)) {
                     slea.skip(8);
                 }
                 slot = (byte) slea.readInt();
-                if (GameConstants.is飞镖道具(itemid) || GameConstants.is子弹道具(itemid)) {
+                //  Throwing Stars and Bullets
+                if (GameConstants.isRechargable(itemid)) {
                     quantity = stars;
                     slea.skip(4);
                 } else {

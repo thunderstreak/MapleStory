@@ -811,7 +811,7 @@ public class MapleStatEffect implements Serializable {
             boolean itemz = false;
             for (int i = 0; i < use.getSlotLimit(); ++i) {
                 final IItem item = use.getItem((byte) i);
-                if (item != null && GameConstants.is飞镖道具(item.getItemId()) && item.getQuantity() >= 200) {
+                if (item != null && GameConstants.isThrowingStar(item.getItemId()) && item.getQuantity() >= 200) {
                     MapleInventoryManipulator.removeById(applyto.getClient(), MapleInventoryType.USE, item.getItemId(),
                             200, false, true);
                     itemz = true;

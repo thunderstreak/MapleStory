@@ -369,7 +369,7 @@ public class PacketHelper {
             mplew.writeShort(item.getQuantity());
             mplew.writeMapleAsciiString(item.getOwner());
             mplew.writeShort(0);
-            if (GameConstants.is飞镖道具(item.getItemId()) || GameConstants.is子弹道具(item.getItemId())) {
+            if (GameConstants.isRechargable(item.getItemId())) {
                 mplew.writeInt(2);
                 mplew.writeShort(84);
                 mplew.write(0);

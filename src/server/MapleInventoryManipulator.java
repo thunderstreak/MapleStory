@@ -111,7 +111,7 @@ public class MapleInventoryManipulator {
             if (!checkSpace(cg, id, quantity, "")) {
                 return;
             }
-            if (type.equals(MapleInventoryType.EQUIP) && !GameConstants.is飞镖道具(id) && !GameConstants.is子弹道具(id)) {
+            if (type.equals(MapleInventoryType.EQUIP) && !GameConstants.isThrowingStar(id) && !GameConstants.isBullet(id)) {
                 final Equip item = (Equip) (randomStats ? ii.randomizeStats((Equip) ii.getEquipById(id))
                         : ii.getEquipById(id));
                 if (period > 0L) {

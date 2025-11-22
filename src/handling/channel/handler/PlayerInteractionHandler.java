@@ -374,8 +374,7 @@ public class PlayerInteractionHandler {
                         return;
                     }
                 }
-                if (chr.getTrade() != null && item != null && ((quantity <= item.getQuantity() && quantity >= 0)
-                        || GameConstants.is飞镖道具(item.getItemId()) || GameConstants.is子弹道具(item.getItemId()))) {
+                if (chr.getTrade() != null && item != null && ((quantity <= item.getQuantity() && quantity >= 0) || GameConstants.isRechargable(item.getItemId()))) {
                     chr.getTrade().setItems(c, item, targetSlot, quantity);
                     break;
                 }
@@ -434,7 +433,7 @@ public class PlayerInteractionHandler {
                     if (bundles_perbundle >= 50 && GameConstants.isUpgradeScroll(ivItem.getItemId())) {
                         c.setMonitored(true);
                     }
-                    if (GameConstants.is飞镖道具(ivItem.getItemId()) || GameConstants.is子弹道具(ivItem.getItemId())) {
+                    if (GameConstants.isRechargable(ivItem.getItemId())) {
                         MapleInventoryManipulator.removeFromSlot(c, type, slot, ivItem.getQuantity(), true);
                         final IItem sellItem = ivItem.copy();
                         shop3.addItem(new MaplePlayerShopItem(sellItem, (short) 1, price, sellItem.getFlag()));

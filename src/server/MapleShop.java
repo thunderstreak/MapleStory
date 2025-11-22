@@ -49,7 +49,9 @@ public class MapleShop {
             rs = ps.executeQuery();
             List<Integer> recharges = new ArrayList<Integer>(MapleShop.rechargeableItems);
             while (rs.next()) {
-                if (GameConstants.is飞镖道具(rs.getInt("itemid")) || GameConstants.is子弹道具(rs.getInt("itemid"))) {
+                // 投掷道具
+                if (GameConstants.isRechargable(rs.getInt("itemid"))) {
+                // if (GameConstants.isThrowingStar(rs.getInt("itemid")) || GameConstants.isBullet(rs.getInt("itemid"))) {
                     MapleShopItem starItem = new MapleShopItem((short) 1, rs.getInt("itemid"), rs.getInt("price"));
                     ret.addItem(starItem);
                     if (!MapleShop.rechargeableItems.contains(starItem.getItemId())) {
@@ -192,7 +194,7 @@ public class MapleShop {
         if (item == null) {
             return;
         }
-        if (GameConstants.is飞镖道具(item.getItemId()) || GameConstants.is子弹道具(item.getItemId())) {
+        if (GameConstants.isRechargable(item.getItemId())) {
             quantity = item.getQuantity();
         }
         if (quantity < 0) {
@@ -211,7 +213,7 @@ public class MapleShop {
         if (quantity <= iQuant && iQuant > 0) {
             MapleInventoryManipulator.removeFromSlot(c, type, slot, quantity, false);
             double price;
-            if (GameConstants.is飞镖道具(item.getItemId()) || GameConstants.is子弹道具(item.getItemId())) {
+            if (GameConstants.isRechargable(item.getItemId())) {
                 price = ii.getWholePrice(item.getItemId()) / (double) ii.getSlotMax(c, item.getItemId());
             } else {
                 price = ii.getPrice(item.getItemId());
@@ -229,7 +231,7 @@ public class MapleShop {
 
     public void recharge(final MapleClient c, final byte slot) {
         final IItem item = c.getPlayer().getInventory(MapleInventoryType.USE).getItem(slot);
-        if (item == null || (!GameConstants.is飞镖道具(item.getItemId()) && !GameConstants.is子弹道具(item.getItemId()))) {
+        if (item == null || (!GameConstants.isThrowingStar(item.getItemId()) && !GameConstants.isBullet(item.getItemId()))) {
             return;
         }
         final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();

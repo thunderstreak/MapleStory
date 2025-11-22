@@ -296,7 +296,7 @@ public class MapleTrade {
             return false;
         }
         final IItem tradeItem = item.copy();
-        if (GameConstants.is飞镖道具(item.getItemId()) || GameConstants.is子弹道具(item.getItemId())) {
+        if (GameConstants.isRechargable(item.getItemId())) {
             tradeItem.setQuantity(item.getQuantity());
             MapleInventoryManipulator.removeFromSlot(c, GameConstants.getInventoryType(item.getItemId()),
                     item.getPosition(), item.getQuantity(), true);

@@ -2,7 +2,6 @@ package handling.channel;
 
 import client.MapleCharacter;
 import client.MapleClient;
-import constants.GameConstants;
 import handling.ByteArrayMaplePacket;
 import handling.MaplePacket;
 import handling.MapleServerHandler;
@@ -26,12 +25,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.buffer.IoBufferAllocator;
 import org.apache.mina.core.buffer.SimpleBufferAllocator;
-import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.service.IoAcceptor;
-import org.apache.mina.core.service.IoHandler;
-import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.transport.socket.SocketSessionConfig;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
@@ -48,7 +43,6 @@ import server.events.MapleOxQuiz;
 import server.events.MapleSnowball;
 import server.life.PlayerNPC;
 import server.maps.MapleMapFactory;
-import server.maps.MapleMapObject;
 import server.shops.HiredMerchant;
 import tools.CollectionUtil;
 import tools.ConcurrentEnumMap;
@@ -56,7 +50,7 @@ import tools.MaplePacketCreator;
 
 public class ChannelServer implements Serializable {
     public static long serverStartTime;
-    private static final short DEFAULT_PORT = 2524;
+    // private static final short DEFAULT_PORT = 2524;
     private static final Map<Integer, ChannelServer> instances;
     private int expRate;
     private int mesoRate;
@@ -71,7 +65,7 @@ public class ChannelServer implements Serializable {
     private int running_MerchantID;
     private int flags;
     private String serverMessage;
-    private String key;
+    // private String key;
     private String ip;
     private String serverName;
     private boolean shutdown;
@@ -90,7 +84,7 @@ public class ChannelServer implements Serializable {
     private final ReentrantReadWriteLock squadLock;
     private int eventmap;
     private final Map<MapleEventType, MapleEvent> events;
-    private final boolean debugMode = false;
+    // private final boolean debugMode = false;
     private int instanceId;
     private boolean warpcsshop;
     private boolean warpmts;
@@ -318,7 +312,7 @@ public class ChannelServer implements Serializable {
         this.acceptor.getFilterChain().addLast("codec", new ProtocolCodecFilter(new MapleCodecFactory()));
         this.players = new PlayerStorage(this.channel);
         this.loadEvents();
-        final Timer tMan = Timer.TimerManager.getInstance();
+        // final Timer tMan = Timer.TimerManager.getInstance();
         try {
             this.acceptor.setHandler(new MapleServerHandler(this.channel, false));
             this.acceptor.bind(new InetSocketAddress(this.port));

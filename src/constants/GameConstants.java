@@ -284,16 +284,19 @@ public class GameConstants {
         }
     }
 
-    public static boolean is飞镖道具(final int itemId) {
+    // 飞镖道具
+    public static boolean isThrowingStar(final int itemId) {
         return itemId / 10000 == 207;
     }
 
-    public static boolean is子弹道具(final int itemId) {
+    // 弹药道具
+    public static boolean isBullet(final int itemId) {
         return itemId / 10000 == 233;
     }
 
+    // 投掷道具（飞镖，弹药）
     public static boolean isRechargable(final int itemId) {
-        return is飞镖道具(itemId) || is子弹道具(itemId);
+        return isThrowingStar(itemId) || isBullet(itemId);
     }
 
     public static boolean isOverall(final int itemId) {
@@ -3798,13 +3801,7 @@ public class GameConstants {
         }
     }
 
-    public static boolean isThrowingStar(final int itemId) {
-        return itemId / 10000 == 207;
-    }
 
-    public static boolean isBullet(final int itemId) {
-        return itemId / 10000 == 233;
-    }
 
     public static boolean isTeamMap(final int mapid) {
         return mapid == 109080000 || mapid == 109080001 || mapid == 109080002 || mapid == 109080003

@@ -1274,7 +1274,7 @@ public class MaplePacketCreator {
         for (final MapleShopItem item : items) {
             mplew.writeInt(item.getItemId());
             mplew.writeInt(item.getPrice());
-            if (!GameConstants.is飞镖道具(item.getItemId()) && !GameConstants.is子弹道具(item.getItemId())) {
+            if (!GameConstants.isThrowingStar(item.getItemId()) && !GameConstants.isBullet(item.getItemId())) {
                 mplew.writeShort(1);
                 mplew.writeShort(item.getBuyable());
             } else {

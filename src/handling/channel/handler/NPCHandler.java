@@ -305,8 +305,7 @@ public class NPCHandler {
                     c.getSession().write(MaplePacketCreator.enableActions());
                     return;
                 }
-                if (item2.getItemId() == itemId && (item2.getQuantity() >= quantity || GameConstants.is飞镖道具(itemId)
-                        || GameConstants.is子弹道具(itemId))) {
+                if (item2.getItemId() == itemId && (item2.getQuantity() >= quantity || GameConstants.isRechargable(itemId))) {
                     if (ii.isDropRestricted(item2.getItemId())) {
                         if (ItemFlag.KARMA_EQ.check(flag)) {
                             item2.setFlag((byte) (flag - ItemFlag.KARMA_EQ.getValue()));
@@ -320,7 +319,7 @@ public class NPCHandler {
                             item2.setFlag((byte) (flag - ItemFlag.LOCK.getValue()));
                         }
                     }
-                    if (GameConstants.is飞镖道具(itemId) || GameConstants.is子弹道具(itemId)) {
+                    if (GameConstants.isRechargable(itemId)) {
                         quantity = item2.getQuantity();
                     }
                     chr.gainMeso(-100, false, true, false);

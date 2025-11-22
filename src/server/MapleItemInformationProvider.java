@@ -386,7 +386,12 @@ public class MapleItemInformationProvider {
                     if (GameConstants.getInventoryType(itemId) == MapleInventoryType.EQUIP) {
                         ret = 1;
                     } else if (GameConstants.getInventoryType(itemId) == MapleInventoryType.USE) { // 消耗物品最大堆叠1000
-                        ret = 1000;
+                        // 检查是否为投掷类型道具(飞镖，弹药)
+                        if (GameConstants.isRechargable(itemId)) {
+                            ret = 9999;
+                        } else {
+                            ret = 1000;
+                        }
                     } else if (GameConstants.getInventoryType(itemId) == MapleInventoryType.ETC) { // 其他物品最大堆叠1000
                         ret = 1000;
                     } else {

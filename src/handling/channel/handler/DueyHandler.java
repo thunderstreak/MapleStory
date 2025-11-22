@@ -72,8 +72,8 @@ public class DueyHandler {
                                             && !ii.isAccountShared(item.getItemId())) {
                                         if (addItemToDB(item, amount, mesos, c.getPlayer().getName(), accid,
                                                 recipientOn)) {
-                                            if (GameConstants.is飞镖道具(item.getItemId())
-                                                    || GameConstants.is子弹道具(item.getItemId())) {
+                                            // 投掷类道具
+                                            if (GameConstants.isRechargable(item.getItemId())) {
                                                 MapleInventoryManipulator.removeFromSlot(c, inv, (byte) itemPos,
                                                         item.getQuantity(), true);
                                             } else {
