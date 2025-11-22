@@ -126,32 +126,71 @@ public class NPCHandler {
     }
 
     public static void NPCTalk(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
-        if (chr == null || chr.getMap() == null) {
-            return;
-        }
-        final MapleNPC npc = chr.getMap().getNPCByOid(slea.readInt());
-        slea.readInt();
-        if (npc == null) {
-            return;
-        }
-        chr.setCurrenttime(System.currentTimeMillis());
-        if (chr.getCurrenttime() - chr.getLasttime() < chr.getDeadtime()) {
-            chr.dropMessage("悠着点!");
-            c.getSession().write(MaplePacketCreator.enableActions());
-            return;
-        }
-        chr.setLasttime(System.currentTimeMillis());
-        if (chr.getConversation() != 0) {
-            NPCScriptManager.getInstance().dispose(c);
-            c.getSession().write(MaplePacketCreator.enableActions());
-            return;
-        }
-        if (npc.hasShop()) {
-            c.getSession().write(MaplePacketCreator.confirmShopTransaction((byte) 20));
-            chr.setConversation(1);
-            npc.sendShop(c);
-        } else {
-            NPCScriptManager.getInstance().start(c, npc.getId());
+        try {
+            if (chr == null || chr.getMap() == null) {
+                if (c != null && c.getSession() != null) {
+                    c.getSession().write(MaplePacketCreator.enableActions());
+                }
+                return;
+            }
+            final int oid = slea.readInt();
+            slea.readInt(); // skip some data
+            final MapleNPC npc = chr.getMap().getNPCByOid(oid);
+            
+            if (npc == null) {
+                if (c != null && c.getSession() != null) {
+                    c.getSession().write(MaplePacketCreator.enableActions());
+                }
+                return;
+            }
+            
+            chr.setCurrenttime(System.currentTimeMillis());
+            if (chr.getCurrenttime() - chr.getLasttime() < chr.getDeadtime()) {
+                chr.dropMessage("悠着点!");
+                c.getSession().write(MaplePacketCreator.enableActions());
+                return;
+            }
+            chr.setLasttime(System.currentTimeMillis());
+            
+            if (chr.getConversation() != 0) {
+                NPCScriptManager.getInstance().dispose(c);
+                c.getSession().write(MaplePacketCreator.enableActions());
+                return;
+            }
+            
+            if (npc.hasShop()) {
+                c.getSession().write(MaplePacketCreator.confirmShopTransaction((byte) 20));
+                chr.setConversation(1);
+                npc.sendShop(c);
+            } else {
+                NPCScriptManager.getInstance().start(c, npc.getId());
+            }
+        } catch (Exception e) {
+            System.err.println("[NPCTalk] Error with NPC OID: " + slea.toString() + " for character: " + (chr != null ? chr.getName() : "null"));
+            FileoutputUtil.outputFileError(FileoutputUtil.PacketEx_Log, e);
+            e.printStackTrace();
+            
+            try {
+                if (c != null && c.getSession() != null && chr != null) {
+                    c.getSession().write(MaplePacketCreator.enableActions());
+                    chr.setConversation(0);
+                }
+            } catch (Exception innerException) {
+                System.err.println("[NPCTalk] Failed to send enableActions packet: " + innerException.getMessage());
+                innerException.printStackTrace();
+            }
+        } catch (Throwable t) {
+            System.err.println("[NPCTalk] Critical error with NPC talk: " + t.getMessage());
+            t.printStackTrace();
+            
+            try {
+                if (c != null && c.getSession() != null) {
+                    c.getSession().write(MaplePacketCreator.enableActions());
+                }
+            } catch (Exception innerException) {
+                System.err.println("[NPCTalk] Failed to send enableActions packet on Throwable: " + innerException.getMessage());
+                innerException.printStackTrace();
+            }
         }
     }
 

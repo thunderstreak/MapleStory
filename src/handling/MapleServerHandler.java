@@ -1177,7 +1177,8 @@ public class MapleServerHandler extends IoHandlerAdapter implements MapleServerH
                 PlayerHandler.Rabbit(slea, c);
                 break;
             }
-            case NEW_SX: {
+            case NEW_SX:
+            case STRANGE_DATA: {
                 // 空处理，防止38错误
                 break;
             }
