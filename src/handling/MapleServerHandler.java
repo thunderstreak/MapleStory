@@ -1181,6 +1181,7 @@ public class MapleServerHandler extends IoHandlerAdapter implements MapleServerH
                 FamilyBuffHandler.handleFamilyBuff(slea, c);
                 break;
             }
+            case CANCEL_DEBUFF: // 清除负面状态？
             case EFFECT_ON_OFF:
             case NEW_SX:
             case STRANGE_DATA:
