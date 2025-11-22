@@ -22,6 +22,7 @@ import server.quest.MapleQuest;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 import tools.data.output.MaplePacketLittleEndianWriter;
+import tools.FileoutputUtil;
 
 public class NPCHandler {
     public static final void NPCAnimation(final SeekableLittleEndianAccessor slea, final MapleClient c) {
@@ -75,46 +76,52 @@ public class NPCHandler {
     }
 
     public static void NPCShop(final SeekableLittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
-        final byte bmode = slea.readByte();
-        if (chr == null) {
-            return;
-        }
-        switch (bmode) {
-            case 0: {
-                final MapleShop shop = chr.getShop();
-                if (shop == null) {
-                    return;
+        try {
+            final byte bmode = slea.readByte();
+            if (chr == null) {
+                return;
+            }
+            switch (bmode) {
+                case 0: {
+                    final MapleShop shop = chr.getShop();
+                    if (shop == null) {
+                        return;
+                    }
+                    slea.skip(2);
+                    final int itemId = slea.readInt();
+                    final short quantity = slea.readShort();
+                    shop.buy(c, itemId, quantity);
+                    break;
                 }
-                slea.skip(2);
-                final int itemId = slea.readInt();
-                final short quantity = slea.readShort();
-                shop.buy(c, itemId, quantity);
-                break;
-            }
-            case 1: {
-                final MapleShop shop = chr.getShop();
-                if (shop == null) {
-                    return;
+                case 1: {
+                    final MapleShop shop = chr.getShop();
+                    if (shop == null) {
+                        return;
+                    }
+                    final byte slot = (byte) slea.readShort();
+                    final int itemId2 = slea.readInt();
+                    final short quantity2 = slea.readShort();
+                    shop.sell(c, GameConstants.getInventoryType(itemId2), slot, quantity2);
+                    break;
                 }
-                final byte slot = (byte) slea.readShort();
-                final int itemId2 = slea.readInt();
-                final short quantity2 = slea.readShort();
-                shop.sell(c, GameConstants.getInventoryType(itemId2), slot, quantity2);
-                break;
-            }
-            case 2: {
-                final MapleShop shop = chr.getShop();
-                if (shop == null) {
-                    return;
+                case 2: {
+                    final MapleShop shop = chr.getShop();
+                    if (shop == null) {
+                        return;
+                    }
+                    final byte slot = (byte) slea.readShort();
+                    shop.recharge(c, slot);
+                    break;
                 }
-                final byte slot = (byte) slea.readShort();
-                shop.recharge(c, slot);
-                break;
+                default: {
+                    chr.setConversation(0);
+                    break;
+                }
             }
-            default: {
-                chr.setConversation(0);
-                break;
-            }
+        } catch (Exception e) {
+            FileoutputUtil.outputFileError(FileoutputUtil.PacketEx_Log, e);
+            e.printStackTrace();
+            chr.setConversation(0);
         }
     }
 

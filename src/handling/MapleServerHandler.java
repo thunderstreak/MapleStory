@@ -1181,6 +1181,14 @@ public class MapleServerHandler extends IoHandlerAdapter implements MapleServerH
                 FamilyBuffHandler.handleFamilyBuff(slea, c);
                 break;
             }
+            default: {
+                // 处理未知的操作码，防止38错误导致客户端断开连接
+                if (c.getPlayer() != null && c.getPlayer().isGM()) {
+                    c.getPlayer().dropMessage(5, "未知的操作码: " + header.name() + " (0x" + Integer.toHexString(header.getValue()) + ")");
+                }
+                FileoutputUtil.log(FileoutputUtil.UnknownPacket_Log, "Unknown Packet: " + header.name() + " (0x" + Integer.toHexString(header.getValue()) + ")\n" + slea.toString());
+                break;
+            }
         }
     }
 

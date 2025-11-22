@@ -27,6 +27,7 @@ public class FileoutputUtil {
     public static String Pinkbean_Log;
     public static String ScriptEx_Log;
     public static String PacketEx_Log;
+    public static String UnknownPacket_Log;
     public static final SimpleDateFormat sdf;
     private static final SimpleDateFormat sdf_;
 
@@ -205,6 +206,7 @@ public class FileoutputUtil {
         FileoutputUtil.Pinkbean_Log = "logs/Log_品克缤.rtf";
         FileoutputUtil.ScriptEx_Log = "logs/Log_Script_脚本异常.rtf";
         FileoutputUtil.PacketEx_Log = "logs/Log_Packet_封包异常.rtf";
+        FileoutputUtil.UnknownPacket_Log = "logs/Log_Packet_未知封包.rtf";
         sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         sdf_ = new SimpleDateFormat("yyyy-MM-dd");
     }
