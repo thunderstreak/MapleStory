@@ -241,7 +241,8 @@ public enum SendPacketOpcode implements WritableIntValueHolder {
     TALK_MONSTER,
     CHAOS_ZAKUM_SHRINE,
     CHAOS_HORNTAIL_SHRINE,
-    REMOVE_TALK_MONSTER;
+    REMOVE_TALK_MONSTER,
+    DELETE_CHAR_RESPONSE;
 
     private short code;
 

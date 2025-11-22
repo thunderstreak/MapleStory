@@ -623,6 +623,15 @@ public class MapleServerHandler extends IoHandlerAdapter implements MapleServerH
                 CharLoginHandler.Character_WithoutSecondPassword(slea, c);
                 break;
             }
+            case DELETE_CHAR: {
+                final int charId = slea.readInt();
+                if (!c.isLoggedIn()) {
+                    c.getSession().write(LoginPacket.deleteCharResponse(charId, 1));
+                    return;
+                }
+                c.getSession().write(LoginPacket.deleteCharResponse(charId, c.deleteCharacter(charId)));
+                break;
+            }
             case SET_GENDER: {
                 CharLoginHandler.SetGenderRequest(slea, c);
                 break;

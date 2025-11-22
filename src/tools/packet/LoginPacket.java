@@ -318,4 +318,12 @@ public class LoginPacket {
             mplew.write(2);
         }
     }
+
+    public static MaplePacket deleteCharResponse(final int charId, final int state) {
+        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendPacketOpcode.DELETE_CHAR_RESPONSE.getValue());
+        mplew.writeInt(charId);
+        mplew.write(state);
+        return mplew.getPacket();
+    }
 }
