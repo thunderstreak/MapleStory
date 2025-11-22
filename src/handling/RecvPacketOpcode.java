@@ -131,6 +131,8 @@ public enum RecvPacketOpcode implements WritableIntValueHolder {
     LEFT_KNOCK_BACK,
     COCONUT,
     NEW_SX,
+    // 未定义封包头0xC1 (193)处理
+    UNKNOWN_C1,
     MONSTER_CARNIVAL,
     SHIP_OBJECT,
     PARTY_SS,

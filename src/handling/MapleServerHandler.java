@@ -1178,7 +1178,8 @@ public class MapleServerHandler extends IoHandlerAdapter implements MapleServerH
                 break;
             }
             case NEW_SX:
-            case STRANGE_DATA: {
+            case STRANGE_DATA:
+            case UNKNOWN_C1: {
                 // 空处理，防止38错误
                 break;
             }
