@@ -68,16 +68,34 @@ public class MonsterStatusEffect {
     }
 
     public void cancelTask() {
-        if (this.cancelTask != null) {
-            this.cancelTask.cancel(false);
+        // 添加同步块以防止多线程环境下出现竞态条件
+        synchronized (this) {
+            if (this.cancelTask != null) {
+                try {
+                    this.cancelTask.cancel(false);
+                } catch (Exception e) {
+                    // 输出错误信息以便调试
+                    System.err.println("Error cancelling task: " + e.getMessage());
+                    e.printStackTrace();
+                }
+                this.cancelTask = null;
+            }
         }
-        this.cancelTask = null;
     }
 
     public void cancelPoisonSchedule() {
-        if (this.poisonSchedule != null) {
-            this.poisonSchedule.cancel(false);
-            this.poisonSchedule = null;
+        // 添加同步块以防止多线程环境下出现竞态条件
+        synchronized (this) {
+            if (this.poisonSchedule != null) {
+                try {
+                    this.poisonSchedule.cancel(false);
+                } catch (Exception e) {
+                    // 输出错误信息以便调试
+                    System.err.println("Error cancelling poison schedule: " + e.getMessage());
+                    e.printStackTrace();
+                }
+                this.poisonSchedule = null;
+            }
         }
     }
 

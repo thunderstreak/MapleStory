@@ -165,7 +165,9 @@ public enum RecvPacketOpcode implements WritableIntValueHolder {
     OWL_WARP,
     USE_OWL_MINERVA,
     UPDATE_QUEST,
-    USE_ITEM_QUEST;
+    USE_ITEM_QUEST,
+    // 添加家族Buff处理操作码
+    FAMILY_BUFF;
 
     private short code;
     private boolean CheckState;

@@ -33,6 +33,7 @@ import handling.channel.handler.UserInterfaceHandler;
 import handling.login.LoginServer;
 import handling.login.handler.CharLoginHandler;
 import handling.login.handler.PacketErrorHandler;
+import handling.channel.handler.FamilyBuffHandler;
 import handling.mina.MaplePacketDecoder;
 import handling.world.World;
 import java.io.File;
@@ -1153,6 +1154,10 @@ public class MapleServerHandler extends IoHandlerAdapter implements MapleServerH
             }
             case MOONRABBIT_HP: {
                 PlayerHandler.Rabbit(slea, c);
+                break;
+            }
+            case FAMILY_BUFF: {
+                FamilyBuffHandler.handleFamilyBuff(slea, c);
                 break;
             }
         }
