@@ -1177,16 +1177,22 @@ public class MapleServerHandler extends IoHandlerAdapter implements MapleServerH
                 PlayerHandler.Rabbit(slea, c);
                 break;
             }
+            case NEW_SX: {
+                // 空处理，防止38错误
+                break;
+            }
             case FAMILY_BUFF: {
                 FamilyBuffHandler.handleFamilyBuff(slea, c);
                 break;
             }
             default: {
                 // 处理未知的操作码，防止38错误导致客户端断开连接
+                final String packetInfo = "Unknown Packet Code: " + header.name() + " (0x" + Integer.toHexString(header.getValue()) + ")\n" + slea.toString();
+                System.err.println("[" + FileoutputUtil.CurrentReadable_Time() + "] " + packetInfo);
                 if (c.getPlayer() != null && c.getPlayer().isGM()) {
                     c.getPlayer().dropMessage(5, "未知的操作码: " + header.name() + " (0x" + Integer.toHexString(header.getValue()) + ")");
                 }
-                FileoutputUtil.log(FileoutputUtil.UnknownPacket_Log, "Unknown Packet: " + header.name() + " (0x" + Integer.toHexString(header.getValue()) + ")\n" + slea.toString());
+                FileoutputUtil.log(FileoutputUtil.UnknownPacket_Log, packetInfo);
                 break;
             }
         }
