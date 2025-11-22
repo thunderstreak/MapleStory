@@ -1177,14 +1177,21 @@ public class MapleServerHandler extends IoHandlerAdapter implements MapleServerH
                 PlayerHandler.Rabbit(slea, c);
                 break;
             }
+            case FAMILY_BUFF: {
+                FamilyBuffHandler.handleFamilyBuff(slea, c);
+                break;
+            }
+            case EFFECT_ON_OFF:
             case NEW_SX:
             case STRANGE_DATA:
             case UNKNOWN_C1: {
                 // 空处理，防止38错误
-                break;
-            }
-            case FAMILY_BUFF: {
-                FamilyBuffHandler.handleFamilyBuff(slea, c);
+                // 将未处理的封包码单独记录到logs/目录中
+                final String unhandledPacketInfo = "时间: " + FileoutputUtil.CurrentReadable_Time() +
+                        " | 封包码: " + header.name() + " (0x" + Integer.toHexString(header.getValue()) + ")" +
+                        " | 玩家: " + (c.getPlayer() != null ? c.getPlayer().getName() : "Unknown") +
+                        " | 账号: " + (c.getAccountName() != null ? c.getAccountName() : "Unknown") + "\n";
+                FileoutputUtil.log(FileoutputUtil.UnhandledPacket_Log, unhandledPacketInfo);
                 break;
             }
             default: {

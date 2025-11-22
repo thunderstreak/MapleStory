@@ -28,6 +28,8 @@ public class FileoutputUtil {
     public static String ScriptEx_Log;
     public static String PacketEx_Log;
     public static String UnknownPacket_Log;
+    // 未处理的封包码日志文件路径
+    public static String UnhandledPacket_Log;
     public static final SimpleDateFormat sdf;
     private static final SimpleDateFormat sdf_;
 
@@ -192,21 +194,23 @@ public class FileoutputUtil {
 
     static {
         sdfT = new SimpleDateFormat("yyyy年MM月dd日HH時mm分ss秒");
-        FileoutputUtil.fixdam_mg = "logs/魔法伤害修正.rtf";
-        FileoutputUtil.fixdam_ph = "logs/物理伤害修正.rtf";
-        FileoutputUtil.MobVac_log = "logs/Log_吸怪.txt";
-        FileoutputUtil.hack_log = "logs/Log_怀疑外挂.rtf";
-        FileoutputUtil.ban_log = "logs/Log_封号.rtf";
-        FileoutputUtil.Acc_Stuck = "logs/Log_卡账号.rtf";
-        FileoutputUtil.Login_Error = "logs/Log_登录错误.rtf";
+        FileoutputUtil.fixdam_mg = "logs/魔法伤害修正.log";
+        FileoutputUtil.fixdam_ph = "logs/物理伤害修正.log";
+        FileoutputUtil.MobVac_log = "logs/Log_吸怪.log";
+        FileoutputUtil.hack_log = "logs/Log_怀疑外挂.log";
+        FileoutputUtil.ban_log = "logs/Log_封号.log";
+        FileoutputUtil.Acc_Stuck = "logs/Log_卡账号.log";
+        FileoutputUtil.Login_Error = "logs/Log_登录错误.log";
         FileoutputUtil.Movement_Log = "logs/移动出错.log";
-        FileoutputUtil.IP_Log = "logs/Log_账号IP.rtf";
-        FileoutputUtil.Zakum_Log = "logs/Log_扎昆.rtf";
-        FileoutputUtil.Horntail_Log = "logs/Log_暗黑龙王.rtf";
-        FileoutputUtil.Pinkbean_Log = "logs/Log_品克缤.rtf";
-        FileoutputUtil.ScriptEx_Log = "logs/Log_Script_脚本异常.rtf";
-        FileoutputUtil.PacketEx_Log = "logs/Log_Packet_封包异常.rtf";
-        FileoutputUtil.UnknownPacket_Log = "logs/Log_Packet_未知封包.rtf";
+        FileoutputUtil.IP_Log = "logs/Log_账号IP.log";
+        FileoutputUtil.Zakum_Log = "logs/Log_扎昆.log";
+        FileoutputUtil.Horntail_Log = "logs/Log_暗黑龙王.log";
+        FileoutputUtil.Pinkbean_Log = "logs/Log_品克缤.log";
+        FileoutputUtil.ScriptEx_Log = "logs/Log_Script_脚本异常.log";
+        FileoutputUtil.PacketEx_Log = "logs/Log_Packet_封包异常.log";
+        FileoutputUtil.UnknownPacket_Log = "logs/Log_Packet_未知封包.log";
+        // 未处理的封包码日志文件
+        FileoutputUtil.UnhandledPacket_Log = "logs/Log_Packet_未处理封包.log";
         sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         sdf_ = new SimpleDateFormat("yyyy-MM-dd");
     }
