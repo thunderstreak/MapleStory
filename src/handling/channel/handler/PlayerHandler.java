@@ -1042,7 +1042,11 @@ public class PlayerHandler {
             System.out.println("AIOBE Type1:\n");
             // System.out.println("AIOBE Type1:\n" + slea.toString(true));
             return;
+        } catch (Exception e) {
+            System.out.println("Movement parsing error: " + e.getMessage());
+            return;
         }
+        
         if (res != null && c.getPlayer().getMap() != null) {
             if (slea.available() < 13L || slea.available() > 26L) {
                 // System.out.println("slea.available != 13-26 (movement parsing error)\n" +
@@ -1052,67 +1056,77 @@ public class PlayerHandler {
             }
             final List<LifeMovementFragment> res2 = new ArrayList<LifeMovementFragment>(res);
             final MapleMap map = c.getPlayer().getMap();
-            if (chr.isHidden()) {
-                chr.setLastRes(res2);
-                c.getPlayer().getMap().broadcastGMMessage(chr,
-                        MaplePacketCreator.movePlayer(chr.getId(), res, Original_Pos), false);
-            } else {
-                c.getPlayer().getMap().broadcastMessage(c.getPlayer(),
-                        MaplePacketCreator.movePlayer(chr.getId(), res, Original_Pos), false);
-            }
-            MovementParse.updatePosition(res, chr, 0);
-            final Point pos = chr.getPosition();
-            map.movePlayer(chr, pos);
-            if (chr.getFollowId() > 0 && chr.isFollowOn() && chr.isFollowInitiator()) {
-                final MapleCharacter fol = map.getCharacterById(chr.getFollowId());
-                if (fol != null) {
-                    final Point original_pos = fol.getPosition();
-                    MovementParse.updatePosition(res, fol, 0);
-                    map.broadcastMessage(fol, MaplePacketCreator.movePlayer(fol.getId(), res, original_pos), false);
+            
+            try {
+                if (chr.isHidden()) {
+                    chr.setLastRes(res2);
+                    c.getPlayer().getMap().broadcastGMMessage(chr,
+                            MaplePacketCreator.movePlayer(chr.getId(), res, Original_Pos), false);
                 } else {
-                    chr.checkFollow();
+                    c.getPlayer().getMap().broadcastMessage(c.getPlayer(),
+                            MaplePacketCreator.movePlayer(chr.getId(), res, Original_Pos), false);
                 }
-            }
-            final WeakReference<MapleCharacter>[] clones = chr.getClones();
-            for (int i = 0; i < clones.length; ++i) {
-                if (clones[i].get() != null) {
-                    final MapleCharacter clone = clones[i].get();
-                    final List<LifeMovementFragment> res3 = new ArrayList<LifeMovementFragment>(res2);
-                    Timer.CloneTimer.getInstance().schedule(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                if (clone.getMap() == map) {
-                                    if (clone.isHidden()) {
-                                        clone.setLastRes(res3);
-                                    } else {
-                                        map.broadcastMessage(clone,
-                                                MaplePacketCreator.movePlayer(clone.getId(), res3, Original_Pos),
-                                                false);
+                MovementParse.updatePosition(res, chr, 0);
+                final Point pos = chr.getPosition();
+                map.movePlayer(chr, pos);
+                
+                if (chr.getFollowId() > 0 && chr.isFollowOn() && chr.isFollowInitiator()) {
+                    final MapleCharacter fol = map.getCharacterById(chr.getFollowId());
+                    if (fol != null) {
+                        final Point original_pos = fol.getPosition();
+                        MovementParse.updatePosition(res, fol, 0);
+                        map.broadcastMessage(fol, MaplePacketCreator.movePlayer(fol.getId(), res, original_pos), false);
+                    } else {
+                        chr.checkFollow();
+                    }
+                }
+                
+                final WeakReference<MapleCharacter>[] clones = chr.getClones();
+                for (int i = 0; i < clones.length; ++i) {
+                    if (clones[i].get() != null) {
+                        final MapleCharacter clone = clones[i].get();
+                        final List<LifeMovementFragment> res3 = new ArrayList<LifeMovementFragment>(res2);
+                        Timer.CloneTimer.getInstance().schedule(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    if (clone.getMap() == map) {
+                                        if (clone.isHidden()) {
+                                            clone.setLastRes(res3);
+                                        } else {
+                                            map.broadcastMessage(clone,
+                                                    MaplePacketCreator.movePlayer(clone.getId(), res3, Original_Pos),
+                                                    false);
+                                        }
+                                        MovementParse.updatePosition(res3, clone, 0);
+                                        map.movePlayer(clone, pos);
                                     }
-                                    MovementParse.updatePosition(res3, clone, 0);
-                                    map.movePlayer(clone, pos);
+                                } catch (Exception ex) {
+                                    System.err.println("Error with clone movement: " + ex.getMessage());
                                 }
-                            } catch (Exception ex) {
                             }
-                        }
-                    }, 500 * i + 500);
+                        }, 500 * i + 500);
+                    }
                 }
-            }
-            int count = c.getPlayer().getFallCounter();
-            if (map.getFootholds().findBelow(c.getPlayer().getPosition()) == null
-                    && c.getPlayer().getPosition().y > c.getPlayer().getOldPosition().y
-                    && c.getPlayer().getPosition().x == c.getPlayer().getOldPosition().x) {
-                if (count > 10) {
-                    c.getPlayer().changeMap(map, map.getPortal(0));
+                
+                int count = c.getPlayer().getFallCounter();
+                if (map.getFootholds().findBelow(c.getPlayer().getPosition()) == null
+                        && c.getPlayer().getPosition().y > c.getPlayer().getOldPosition().y
+                        && c.getPlayer().getPosition().x == c.getPlayer().getOldPosition().x) {
+                    if (count > 10) {
+                        c.getPlayer().changeMap(map, map.getPortal(0));
+                        c.getPlayer().setFallCounter(0);
+                    } else {
+                        c.getPlayer().setFallCounter(++count);
+                    }
+                } else if (count > 0) {
                     c.getPlayer().setFallCounter(0);
-                } else {
-                    c.getPlayer().setFallCounter(++count);
                 }
-            } else if (count > 0) {
-                c.getPlayer().setFallCounter(0);
+                c.getPlayer().setOldPosition(new Point(c.getPlayer().getPosition()));
+            } catch (Exception e) {
+                System.err.println("Error in player movement processing: " + e.getMessage());
+                e.printStackTrace();
             }
-            c.getPlayer().setOldPosition(new Point(c.getPlayer().getPosition()));
         }
     }
 

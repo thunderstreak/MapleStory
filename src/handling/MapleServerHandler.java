@@ -528,6 +528,18 @@ public class MapleServerHandler extends IoHandlerAdapter implements MapleServerH
                 System.out.println(sb2.toString());
             }
 
+            // 检查是否为可能导致掉线的封包
+            // 38错误通常与未知的操作码有关，我们记录详细信息但不断开连接
+            if (c != null && c.getPlayer() != null) {
+                // 记录38掉线日志
+                final String dropLog = "时间：" + FileoutputUtil.CurrentReadable_Time() + 
+                        " || 玩家名字：" + c.getPlayer().getName() +
+                        "|| 玩家地图：" + c.getPlayer().getMapId() + "\r\n" +
+                        "38错误： 暂未定义 ：\r\n" +
+                        HexTool.toString((byte[]) message) + "\r\n";
+                FileoutputUtil.packetLog("logs/38掉线.log", dropLog);
+            }
+
             // 不处理这个封包，但不断开连接，直接返回
             return;
         } catch (RejectedExecutionException ex) {
