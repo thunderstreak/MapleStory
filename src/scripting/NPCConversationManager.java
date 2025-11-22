@@ -3056,8 +3056,12 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         }
     }
 
-    public int 获取分解的矿石() {
-        return GameConstants.分解的矿石();
+    /**
+     * Get ore for decomposition 获取分解的矿石
+     * @return ore item ID
+     */
+    public int getDecomposedOre() {
+        return GameConstants.getDecomposedOre();
     }
 
     public int getMount(final int s) {

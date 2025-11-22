@@ -2738,9 +2738,9 @@ public class GameConstants {
 
     public static List<Balloon> getBalloons() {
         if (GameConstants.lBalloon.isEmpty()) {
-            GameConstants.lBalloon.add(new Balloon("[" + System.getProperty("server_name") + "冒险岛]", 250, 286));
-            GameConstants.lBalloon.add(new Balloon(System.getProperty("server_name") + "冒险岛  尽情浪吧", 0, 276));
-            GameConstants.lBalloon.add(new Balloon("冒险岛" + System.getProperty("server_name") + "BY LOC 鞠婧祎", 490, 270));
+            GameConstants.lBalloon.add(new Balloon("[你来啦，冒险家]", 250, 286));
+            GameConstants.lBalloon.add(new Balloon("梦开始的地方", 0, 276));
+            GameConstants.lBalloon.add(new Balloon(System.getProperty("server_name"), 490, 270));
         }
         return GameConstants.lBalloon;
     }
@@ -2758,75 +2758,35 @@ public class GameConstants {
         return gm ? 1000 : (vip ? FishingVIPSJ : FishingSJ);
     }
 
-    public static int 分解的矿石() {
+    /**
+     * Get a random ore for decomposition 分解的矿石
+     * @return ore item ID
+     */
+    public static int getDecomposedOre() {
         final int s = Randomizer.nextInt(22);
         switch (s) {
-            case 1: {
-                return 4004000;
-            }
-            case 2: {
-                return 4004000;
-            }
-            case 3: {
-                return 4004000;
-            }
-            case 4: {
-                return 4004000;
-            }
-            case 5: {
-                return 4004000;
-            }
-            case 6: {
-                return 4004000;
-            }
-            case 7: {
-                return 4004000;
-            }
-            case 8: {
-                return 4004000;
-            }
-            case 9: {
-                return 4004000;
-            }
-            case 10: {
-                return 4004000;
-            }
-            case 11: {
-                return 4004000;
-            }
-            case 12: {
-                return 4004000;
-            }
-            case 13: {
-                return 4004000;
-            }
-            case 14: {
-                return 4004000;
-            }
-            case 15: {
-                return 4004000;
-            }
-            case 16: {
-                return 4004000;
-            }
-            case 17: {
-                return 4004000;
-            }
-            case 18: {
-                return 4004000;
-            }
-            case 19: {
-                return 4004000;
-            }
-            case 20: {
-                return 4004000;
-            }
-            case 21: {
-                return 4004000;
-            }
-            case 22: {
-                return 4004000;
-            }
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+            case 12:
+            case 13:
+            case 14:
+            case 15:
+            case 16:
+            case 17:
+            case 18:
+            case 19:
+            case 20:
+            case 21:
+            case 22:
             default: {
                 return 4004000;
             }
