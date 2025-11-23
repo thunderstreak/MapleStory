@@ -397,6 +397,17 @@ public class World {
                 }
                 case DISBAND: {
                     disbandParty(partyid);
+                    // 通知所有队员队伍已解散
+                    for (final MaplePartyCharacter partychar : party.getMembers()) {
+                        final int ch = Find.findChannel(partychar.getName());
+                        if (ch > 0) {
+                            final MapleCharacter chr = ChannelServer.getInstance(ch).getPlayerStorage()
+                                    .getCharacterByName(partychar.getName());
+                            if (chr != null) {
+                                chr.setParty(null);
+                            }
+                        }
+                    }
                     break;
                 }
                 case SILENT_UPDATE:

@@ -1054,6 +1054,10 @@ public class MapleClient implements Serializable {
                         FileoutputUtil.packetLog("logs/组队掉线.log", logMsg);
                         chrp.setOnline(false);
                         World.Party.updateParty(party.getId(), PartyOperation.LOG_ONOFF, chrp);
+                        // 如果断线的是队长，则解散队伍
+                        if (party.getLeader().getId() == idz) {
+                            World.Party.updateParty(party.getId(), PartyOperation.DISBAND, chrp);
+                        }
                         if (map != null && party.getLeader().getId() == idz) {
                             MaplePartyCharacter lchr = null;
                             for (final MaplePartyCharacter pchr : party.getMembers()) {
