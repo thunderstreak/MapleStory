@@ -1181,8 +1181,8 @@ public class MapleServerHandler extends IoHandlerAdapter implements MapleServerH
                 FamilyBuffHandler.handleFamilyBuff(slea, c);
                 break;
             }
-            case CANCEL_DEBUFF: // 清除负面状态？
-            case EFFECT_ON_OFF:
+            case CANCEL_DEBUFF: // 0x60  清除负面状态？
+            case EFFECT_ON_OFF: // 0x69
             case NEW_SX:
             case STRANGE_DATA:
             case UNKNOWN_C1: {
@@ -1197,7 +1197,7 @@ public class MapleServerHandler extends IoHandlerAdapter implements MapleServerH
             }
             default: {
                 // 处理未知的操作码，防止38错误导致客户端断开连接
-                final String packetInfo = "Unknown Packet Code: " + header.name() + " (0x" + Integer.toHexString(header.getValue()) + ")\n" + slea.toString();
+                final String packetInfo = "未知封包代码: " + header.name() + " (0x" + Integer.toHexString(header.getValue()) + ")\n" + slea.toString();
                 System.err.println("[" + FileoutputUtil.CurrentReadable_Time() + "] " + packetInfo);
                 if (c.getPlayer() != null && c.getPlayer().isGM()) {
                     c.getPlayer().dropMessage(5, "未知的操作码: " + header.name() + " (0x" + Integer.toHexString(header.getValue()) + ")");
