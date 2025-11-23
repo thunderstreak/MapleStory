@@ -1160,8 +1160,8 @@ public class PlayerHandler {
                     final long duration = System.currentTimeMillis() - startTime;
                     // 如果保存时间超过1秒，记录警告
                     if (duration > 1000) {
-                        System.err.println("警告：saveToDB 执行时间过长: " + duration + "ms - 角色: " + chr.getName() + " (ID: "
-                                + charId + ")");
+                        System.err.println("警告：saveToDB 执行时间过长: " + duration + "ms - 角色: " + chr.getName() + " (ID: " + charId + ")"
+                                + "等级：" + chr.getLevel());
                     }
                 } catch (Exception e) {
                     System.err.println("保存角色数据失败: " + chr.getName() + " (ID: " + charId + ") - " + e.getMessage());
