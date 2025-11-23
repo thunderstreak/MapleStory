@@ -1471,6 +1471,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
                 throw new DatabaseException("Character not in database (" + this.id + ")");
             }
             ps.close();
+            
+            // 批量更新技能宏
             ps = con.prepareStatement(
                     "UPDATE skillmacros SET `skill1` = ?, `skill2` = ?, `skill3` = ?, `name` = ?, `shout` = ? WHERE `characterid` = ? and `position` = ?");
             ps.setInt(6, this.id);
@@ -1483,9 +1485,12 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
                     ps.setString(4, macro.getName());
                     ps.setInt(5, macro.getShout());
                     ps.setInt(7, j);
-                    ps.executeUpdate();
+                    ps.addBatch();
                 }
             }
+            ps.executeBatch();
+            ps.close();
+            
             ps = con.prepareStatement(
                     "UPDATE inventoryslot SET `equip` = ?, `use` = ?, `setup` = ?, `etc` = ?, `cash` = ? WHERE characterid = ?");
             ps.setByte(1, this.getInventory(MapleInventoryType.EQUIP).getSlotLimit());
@@ -1496,26 +1501,32 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
             ps.setInt(6, this.id);
             ps.executeUpdate();
             ps.close();
+            
             final List<Pair<IItem, MapleInventoryType>> listing = new ArrayList<Pair<IItem, MapleInventoryType>>();
             for (final MapleInventory iv : this.inventory) {
                 for (final IItem item : iv.list()) {
                     listing.add(new Pair<IItem, MapleInventoryType>(item, iv.getType()));
                 }
             }
+            
+            // 优化物品保存
             if (con != null) {
                 ItemLoader.装备道具.saveItems(listing, con, this.id);
             } else {
                 ItemLoader.装备道具.saveItems(listing, this.id);
             }
+            
+            // 批量处理任务信息
             ps = con.prepareStatement("DELETE FROM questinfo WHERE `characterid` = ?");
             ps.setInt(1, this.id);
             ps.executeUpdate();
             ps.close();
+            
             if (!this.questinfo.isEmpty()) {
                 ps = con.prepareStatement(
                         "INSERT INTO questinfo (`characterid`, `quest`, `customData`) VALUES (?, ?, ?)");
+                ps.setInt(1, this.id);
                 for (final Map.Entry<Integer, String> q : this.questinfo.entrySet()) {
-                    ps.setInt(1, this.id);
                     ps.setInt(2, q.getKey());
                     ps.setString(3, q.getValue());
                     ps.addBatch();
@@ -1523,33 +1534,17 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
                 ps.executeBatch();
                 ps.close();
             }
-            final List<Integer> oldQuestStatusIds = new ArrayList<Integer>();
-            ps = con.prepareStatement("SELECT `queststatusid` FROM queststatus WHERE `characterid` = ?");
-            ps.setInt(1, this.id);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                oldQuestStatusIds.add(rs.getInt(1));
-            }
-            rs.close();
-            ps.close();
-            if (!oldQuestStatusIds.isEmpty()) {
-                ps = con.prepareStatement("DELETE FROM queststatusmobs WHERE `queststatusid` = ?");
-                for (final Integer qsid : oldQuestStatusIds) {
-                    ps.setInt(1, qsid);
-                    ps.addBatch();
-                }
-                ps.executeBatch();
-                ps.close();
-            }
+            
+            // 批量处理任务状态
             ps = con.prepareStatement("DELETE FROM queststatus WHERE `characterid` = ?");
             ps.setInt(1, this.id);
             ps.executeUpdate();
             ps.close();
+            
             final PreparedStatement insertQuestStatus = con.prepareStatement(
                     "INSERT INTO queststatus (`characterid`, `quest`, `status`, `time`, `forfeited`, `customData`) VALUES (?, ?, ?, ?, ?, ?)",
                     Statement.RETURN_GENERATED_KEYS);
-            final PreparedStatement insertQuestStatusMob = con.prepareStatement(
-                    "INSERT INTO queststatusmobs (`queststatusid`, `mob`, `count`) VALUES (?, ?, ?)");
+            
             for (final MapleQuestStatus q2 : this.quests.values()) {
                 final int questID = q2.getQuest().getId();
                 insertQuestStatus.setInt(1, this.id);
@@ -1558,38 +1553,26 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
                 insertQuestStatus.setInt(4, (int) (q2.getCompletionTime() / 1000L));
                 insertQuestStatus.setInt(5, q2.getForfeited());
                 insertQuestStatus.setString(6, q2.getCustomData());
-                insertQuestStatus.executeUpdate();
-                rs = insertQuestStatus.getGeneratedKeys();
-                int queststatusid = 0;
-                if (rs.next()) {
-                    queststatusid = rs.getInt(1);
-                }
-                rs.close();
-                if (queststatusid != 0 && q2.hasMobKills()) {
-                    for (final Map.Entry<Integer, Integer> mobEntry : q2.getMobKills().entrySet()) {
-                        insertQuestStatusMob.setInt(1, queststatusid);
-                        insertQuestStatusMob.setInt(2, mobEntry.getKey());
-                        insertQuestStatusMob.setInt(3, mobEntry.getValue());
-                        insertQuestStatusMob.addBatch();
-                    }
-                }
+                insertQuestStatus.addBatch();
             }
-            insertQuestStatusMob.executeBatch();
+            insertQuestStatus.executeBatch();
             insertQuestStatus.close();
-            insertQuestStatusMob.close();
+            
+            // 批量处理技能
             ps = con.prepareStatement("DELETE FROM skills WHERE `characterid` = ?");
             ps.setInt(1, this.id);
             ps.executeUpdate();
             ps.close();
+            
             if (!this.skills.isEmpty()) {
                 ps = con.prepareStatement(
                         "INSERT INTO skills (`characterid`, `skillid`, `skilllevel`, `masterlevel`, `expiration`) VALUES (?, ?, ?, ?, ?)");
+                ps.setInt(1, this.id);
                 for (final Map.Entry<ISkill, SkillEntry> skillEntry : this.skills.entrySet()) {
                     final int skillID = skillEntry.getKey().getId();
                     if (!GameConstants.isApplicableSkill(skillID)) {
                         continue;
                     }
-                    ps.setInt(1, this.id);
                     ps.setInt(2, skillID);
                     ps.setByte(3, skillEntry.getValue().skillevel);
                     ps.setByte(4, skillEntry.getValue().masterlevel);
@@ -1599,8 +1582,16 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
                 ps.executeBatch();
                 ps.close();
             }
-            final List<MapleCoolDownValueHolder> cd = this.getCooldowns();
-            if (dc && cd.size() > 0) {
+            
+            // 批量处理冷却时间
+            if (dc && !this.getCooldowns().isEmpty()) {
+                ps = con.prepareStatement(
+                        "DELETE FROM skills_cooldowns WHERE charid = ?");
+                ps.setInt(1, this.getId());
+                ps.executeUpdate();
+                ps.close();
+                
+                final List<MapleCoolDownValueHolder> cd = this.getCooldowns();
                 ps = con.prepareStatement(
                         "INSERT INTO skills_cooldowns (charid, SkillID, StartTime, length) VALUES (?, ?, ?, ?)");
                 ps.setInt(1, this.getId());
@@ -1608,21 +1599,24 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
                     ps.setInt(2, cooling.skillId);
                     ps.setLong(3, cooling.startTime);
                     ps.setLong(4, cooling.length);
-                    ps.execute();
+                    ps.addBatch();
                 }
+                ps.executeBatch();
                 ps.close();
             }
-            // 优化：使用 DELETE + 批量 INSERT 代替逐条查询和更新
+            
+            // 批量处理保存的位置
             ps = con.prepareStatement("DELETE FROM savedlocations WHERE `characterid` = ?");
             ps.setInt(1, this.id);
             ps.executeUpdate();
             ps.close();
+            
             ps = con.prepareStatement(
                     "INSERT INTO savedlocations (characterid, `locationtype`, `map`) VALUES (?, ?, ?)");
+            ps.setInt(1, this.id);
             for (final SavedLocationType savedLocationType : SavedLocationType.values()) {
                 final int locationType = savedLocationType.getValue();
                 if (this.savedLocations[locationType] != -1) {
-                    ps.setInt(1, this.id);
                     ps.setInt(2, locationType);
                     ps.setInt(3, this.savedLocations[locationType]);
                     ps.addBatch();
@@ -1630,17 +1624,19 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
             }
             ps.executeBatch();
             ps.close();
-            // 优化：使用 DELETE + 批量 INSERT 代替逐条查询和更新
+            
+            // 批量处理好友列表
             if (this.buddylist.changed()) {
                 ps = con.prepareStatement("DELETE FROM buddies WHERE `characterid` = ?");
                 ps.setInt(1, this.id);
                 ps.executeUpdate();
                 ps.close();
+                
                 ps = con.prepareStatement(
                         "INSERT INTO buddies (`characterid`, `buddyid`, `pending`, `groupname`) VALUES (?, ?, ?, ?)");
+                ps.setInt(1, this.id);
                 for (final BuddyEntry entry : this.buddylist.getBuddies()) {
                     if (entry != null) {
-                        ps.setInt(1, this.id);
                         ps.setInt(2, entry.getCharacterId());
                         ps.setInt(3, entry.isVisible() ? 0 : 1);
                         ps.setString(4, entry.getGroup());
@@ -1650,76 +1646,91 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject implements Se
                 ps.executeBatch();
                 ps.close();
             }
+            
+            // 更新账户信息
             ps = con.prepareStatement(
-                    "UPDATE accounts SET `ACash` = ?, `mPoints` = ?, `points` = ?, `vpoints` = ? WHERE id = ?");
+                    "UPDATE accounts SET `ACash` = ?, `mPoints` = ?, `points` = ?, `vpoints` = ?, `lastGainHM` = ? WHERE id = ?");
             ps.setInt(1, this.acash);
             ps.setInt(2, this.maplepoints);
             ps.setInt(3, this.points);
             ps.setInt(4, this.vpoints);
-            ps.setInt(5, this.client.getAccID());
-            ps.execute();
+            ps.setLong(5, this.lastGainHM);
+            ps.setInt(6, this.client.getAccID());
+            ps.executeUpdate();
             ps.close();
-            if (this.storage != null) {
-                this.storage.saveToDB();
-            }
-            ps = con.prepareStatement("UPDATE accounts SET `lastGainHM` = ? WHERE id = ?");
-            ps.setLong(1, this.lastGainHM);
-            ps.setInt(2, this.client.getAccID());
-            ps.execute();
+            
+            // 批量处理愿望清单
+            ps = con.prepareStatement("DELETE FROM wishlist WHERE characterid = ?");
+            ps.setInt(1, this.getId());
+            ps.executeUpdate();
             ps.close();
-            if (this.cs != null) {
-                this.cs.save();
-            }
-            PlayerNPC.updateByCharId(this);
-            this.keylayout.saveKeys(this.id);
-            this.mount.saveMount(this.id);
-            this.monsterbook.saveCards(this.id);
-            this.pvpStats.saveToDb(this.accountid);
-            // 优化：使用批量 INSERT 代替循环执行
-            this.deleteWhereCharacterId(con, "DELETE FROM wishlist WHERE characterid = ?");
+            
             if (this.getWishlistSize() > 0) {
                 ps = con.prepareStatement("INSERT INTO wishlist(characterid, sn) VALUES(?, ?)");
+                ps.setInt(1, this.getId());
                 for (int k = 0; k < this.getWishlistSize(); ++k) {
-                    ps.setInt(1, this.getId());
                     ps.setInt(2, this.wishlist[k]);
                     ps.addBatch();
                 }
                 ps.executeBatch();
                 ps.close();
             }
-            // 优化：使用 DELETE + 批量 INSERT 代替逐条查询和插入
+            
+            // 批量处理传送石
             ps = con.prepareStatement("DELETE FROM trocklocations WHERE `characterid` = ?");
             ps.setInt(1, this.id);
             ps.executeUpdate();
             ps.close();
+            
             if (this.rocks.length > 0) {
                 ps = con.prepareStatement("INSERT INTO trocklocations (`characterid`, `mapid`) VALUES (?, ?)");
+                ps.setInt(1, this.id);
                 for (int k = 0; k < this.rocks.length; ++k) {
-                    ps.setInt(1, this.id);
                     ps.setInt(2, this.rocks[k]);
                     ps.addBatch();
                 }
                 ps.executeBatch();
                 ps.close();
             }
-            // 优化：使用 DELETE + 批量 INSERT 代替逐条查询和插入
+            
+            // 批量处理VIP传送石
             ps = con.prepareStatement("DELETE FROM regrocklocations WHERE `characterid` = ?");
             ps.setInt(1, this.id);
             ps.executeUpdate();
             ps.close();
+            
             if (this.regrocks.length > 0) {
                 ps = con.prepareStatement("INSERT INTO regrocklocations (`characterid`, `mapid`) VALUES (?, ?)");
+                ps.setInt(1, this.id);
                 for (int k = 0; k < this.regrocks.length; ++k) {
-                    ps.setInt(1, this.id);
                     ps.setInt(2, this.regrocks[k]);
                     ps.addBatch();
                 }
                 ps.executeBatch();
                 ps.close();
             }
+            
+            if (this.storage != null) {
+                this.storage.saveToDB();
+            }
+            
+            if (this.cs != null) {
+                this.cs.save();
+            }
+            
+            PlayerNPC.updateByCharId(this);
+            this.keylayout.saveKeys(this.id);
+            this.mount.saveMount(this.id);
+            this.monsterbook.saveCards(this.id);
+            this.pvpStats.saveToDb(this.accountid);
+            
             con.commit();
         } catch (SQLException ex2) {
+            System.err.println("保存角色数据时发生SQL异常: " + ex2.getMessage());
+            ex2.printStackTrace();
         } catch (DatabaseException ex3) {
+            System.err.println("保存角色数据时发生数据库异常: " + ex3.getMessage());
+            ex3.printStackTrace();
         } catch (UnsupportedOperationException e) {
             FileoutputUtil.outputFileError(FileoutputUtil.PacketEx_Log, e);
             System.err.println(MapleClient.getLogMessage(this, "[charsave] 保存角色数据出现错误") + e);

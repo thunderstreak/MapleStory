@@ -254,284 +254,168 @@ public enum ItemLoader {
             return;
         if (items == null)
             return;
-        StringBuilder querySelectNeedDelete = new StringBuilder();
-        querySelectNeedDelete.append("SELECT * FROM `");
-        querySelectNeedDelete.append(this.table);
-        querySelectNeedDelete.append("` WHERE `type` = ? AND (`");
-        querySelectNeedDelete.append(this.arg.get(0));
-        querySelectNeedDelete.append("` = ?");
-        if (this.arg.size() > 1)
-            for (int j = 1; j < this.arg.size(); j++) {
-                querySelectNeedDelete.append(" OR `");
-                querySelectNeedDelete.append(this.arg.get(j));
-                querySelectNeedDelete.append("` = ?");
+        
+        // 使用事务确保数据一致性
+        boolean oldAutoCommit = con.getAutoCommit();
+        try {
+            con.setAutoCommit(false);
+            
+            // 先删除所有相关记录
+            StringBuilder deleteQuery = new StringBuilder();
+            deleteQuery.append("DELETE FROM `");
+            deleteQuery.append(this.table);
+            deleteQuery.append("` WHERE `type` = ? AND (`");
+            deleteQuery.append(this.arg.get(0));
+            deleteQuery.append("` = ?");
+            for (int i = 1; i < this.arg.size(); i++) {
+                deleteQuery.append(" OR `");
+                deleteQuery.append(this.arg.get(i));
+                deleteQuery.append("` = ?");
             }
-        querySelectNeedDelete.append(")");
-        PreparedStatement ps = con.prepareStatement(querySelectNeedDelete.toString());
-        ps.setInt(1, this.value);
-        for (int i = 0; i < lulz.size(); i++)
-            ps.setInt(i + 2, ((Integer) lulz.get(i)).intValue());
-        ResultSet rs = ps.executeQuery();
-        List<Integer> equipOnlyIds = new ArrayList<>();
-        Map<Integer, Integer> checkItems = new HashMap<>();
-        while (rs.next()) {
-            int itemId = rs.getInt("itemId");
-            int equipOnlyId = rs.getInt("equipOnlyId");
-            if (equipOnlyId > 0)
-                if (checkItems.containsKey(Integer.valueOf(equipOnlyId))) {
-                    if (((Integer) checkItems.get(Integer.valueOf(equipOnlyId))).intValue() == itemId)
-                        equipOnlyIds.add(Integer.valueOf(equipOnlyId));
-                } else {
-                    checkItems.put(Integer.valueOf(equipOnlyId), Integer.valueOf(itemId));
+            deleteQuery.append(")");
+            
+            try (PreparedStatement deletePs = con.prepareStatement(deleteQuery.toString())) {
+                deletePs.setInt(1, this.value);
+                for (int i = 0; i < lulz.size(); i++) {
+                    deletePs.setInt(i + 2, lulz.get(i));
                 }
-            boolean find = false;
-            for (Pair<IItem, MapleInventoryType> item : items) {
-                if (((IItem) item.getLeft()).getEquipOnlyId() == equipOnlyId
-                        && ((IItem) item.getLeft()).getItemId() == itemId) {
-                    find = true;
-                    break;
+                deletePs.executeUpdate();
+            }
+            
+            // 如果没有物品需要插入，直接提交事务
+            if (items.isEmpty()) {
+                con.commit();
+                return;
+            }
+            
+            // 批量插入物品
+            StringBuilder insertQuery = new StringBuilder("INSERT INTO `");
+            insertQuery.append(this.table);
+            insertQuery.append("` (");
+            for (String g : this.arg) {
+                insertQuery.append(g);
+                insertQuery.append(", ");
+            }
+            insertQuery.append(
+                    "itemid, inventorytype, position, quantity, owner, GM_Log, uniqueid, expiredate, flag, `type`, sender, `equipOnlyId`) VALUES (");
+            
+            // 为参数占位符
+            for (int i = 0; i < this.arg.size() + 12; i++) {
+                insertQuery.append("?");
+                if (i < this.arg.size() + 12 - 1) {
+                    insertQuery.append(", ");
                 }
             }
-            if (!find || equipOnlyIds.contains(Integer.valueOf(equipOnlyId))) {
-                StringBuilder queryDelete = new StringBuilder();
-                queryDelete.append("DELETE FROM `");
-                queryDelete.append(this.table);
-                queryDelete.append("` WHERE `type` = ? AND `itemId` = " + itemId + " AND `equipOnlyId` = " + equipOnlyId
-                        + " AND (`");
-                queryDelete.append(this.arg.get(0));
-                queryDelete.append("` = ?");
-                if (this.arg.size() > 1)
-                    for (int j = 1; j < this.arg.size(); j++) {
-                        queryDelete.append(" OR `");
-                        queryDelete.append(this.arg.get(j));
-                        queryDelete.append("` = ?");
+            insertQuery.append(")");
+            
+            try (PreparedStatement insertPs = con.prepareStatement(insertQuery.toString())) {
+                for (Pair<IItem, MapleInventoryType> item : items) {
+                    IItem itemTmp = item.getLeft();
+                    MapleInventoryType mit = item.getRight();
+                    
+                    int paramIndex = 1;
+                    for (int i = 0; i < lulz.size(); i++) {
+                        insertPs.setInt(paramIndex++, lulz.get(i));
                     }
-                queryDelete.append(")");
-                PreparedStatement ps2 = con.prepareStatement(queryDelete.toString());
-                try {
-                    ps2.setInt(1, this.value);
-                    for (int j = 0; j < lulz.size(); j++)
-                        ps2.setInt(j + 2, ((Integer) lulz.get(j)).intValue());
-                    ps2.executeUpdate();
-                } catch (SQLException ex) {
-                    System.err.println("Delete Item Error: " + itemId + " equipOnlyId : " + equipOnlyId + " " + ex);
+                    
+                    insertPs.setInt(paramIndex++, itemTmp.getItemId());
+                    insertPs.setInt(paramIndex++, mit.getType());
+                    insertPs.setInt(paramIndex++, itemTmp.getPosition());
+                    insertPs.setInt(paramIndex++, itemTmp.getQuantity());
+                    insertPs.setString(paramIndex++, itemTmp.getOwner());
+                    insertPs.setString(paramIndex++, itemTmp.getGMLog());
+                    insertPs.setInt(paramIndex++, itemTmp.getUniqueId());
+                    insertPs.setLong(paramIndex++, itemTmp.getExpiration());
+                    insertPs.setByte(paramIndex++, itemTmp.getFlag());
+                    insertPs.setByte(paramIndex++, (byte) this.value);
+                    insertPs.setString(paramIndex++, itemTmp.getGiftFrom());
+                    insertPs.setInt(paramIndex++, itemTmp.getEquipOnlyId());
+                    
+                    insertPs.addBatch();
                 }
-                ps2.close();
+                
+                insertPs.executeBatch();
+                
+                // 处理装备信息
+                if (this.table_equip != null && !this.table_equip.isEmpty()) {
+                    handleEquipmentInsert(con, items, insertPs);
+                }
+            }
+            
+            con.commit();
+        } catch (SQLException e) {
+            con.rollback();
+            throw e;
+        } finally {
+            con.setAutoCommit(oldAutoCommit);
+        }
+    }
+    
+    private void handleEquipmentInsert(Connection con, List<Pair<IItem, MapleInventoryType>> items, PreparedStatement itemInsertPs) throws SQLException {
+        // 获取所有插入的ID
+        List<Integer> insertedIds = new ArrayList<>();
+        try (ResultSet rs = itemInsertPs.getGeneratedKeys()) {
+            while (rs.next()) {
+                insertedIds.add(rs.getInt(1));
             }
         }
-        checkItems.clear();
-        equipOnlyIds.clear();
-        rs.close();
-        ps.close();
-        StringBuilder querySelectNeedInsert = new StringBuilder();
-        querySelectNeedInsert.append("SELECT * FROM `");
-        querySelectNeedInsert.append(this.table);
-        querySelectNeedInsert.append("` WHERE `type` = ? AND `itemId` = ? AND `equipOnlyId` = ? AND (`");
-        querySelectNeedInsert.append(this.arg.get(0));
-        querySelectNeedInsert.append("` = ?");
-        if (this.arg.size() > 1)
-            for (int j = 1; j < this.arg.size(); j++) {
-                querySelectNeedInsert.append(" OR `");
-                querySelectNeedInsert.append(this.arg.get(j));
-                querySelectNeedInsert.append("` = ?");
-            }
-        querySelectNeedInsert.append(") LIMIT 1");
-        ps = con.prepareStatement(querySelectNeedInsert.toString());
-        for (Pair<IItem, MapleInventoryType> item : items) {
-            int itemId = ((IItem) item.getLeft()).getItemId();
-            int equipOnlyId = ((IItem) item.getLeft()).getEquipOnlyId();
-            ps.setInt(1, this.value);
-            ps.setInt(2, itemId);
-            ps.setInt(3, equipOnlyId);
-            for (int j = 0; j < lulz.size(); j++)
-                ps.setInt(j + 4, ((Integer) lulz.get(j)).intValue());
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                StringBuilder queryItemUpdate = new StringBuilder("UPDATE `");
-                queryItemUpdate.append(this.table);
-                queryItemUpdate.append("` SET ");
-                queryItemUpdate.append(
-                        "`itemid` = ?, `inventorytype` = ?, `position` = ?, `quantity` = ?, `owner` = ?, `GM_Log` = ?, `uniqueid` = ?, `expiredate` = ?, `flag` = ?, `type` = ?, `sender` = ?  WHERE `equipOnlyId` = ? and (`");
-                queryItemUpdate.append(this.arg.get(0));
-                queryItemUpdate.append("` = ?");
-                if (this.arg.size() > 1)
-                    for (int k = 1; k < this.arg.size(); k++) {
-                        queryItemUpdate.append(" OR `");
-                        queryItemUpdate.append(this.arg.get(k));
-                        queryItemUpdate.append("` = ?");
-                    }
-                queryItemUpdate.append(")");
-                PreparedStatement ps2 = con.prepareStatement(queryItemUpdate.toString());
-                try {
-                    IItem itemUpdate = (IItem) item.getLeft();
-                    MapleInventoryType mit = (MapleInventoryType) item.getRight();
-                    try {
-                        ps2.setInt(1, itemUpdate.getItemId());
-                        ps2.setInt(2, mit.getType());
-                        ps2.setInt(3, itemUpdate.getPosition());
-                        ps2.setInt(4, itemUpdate.getQuantity());
-                        ps2.setString(5, itemUpdate.getOwner());
-                        ps2.setString(6, itemUpdate.getGMLog());
-                        ps2.setInt(7, itemUpdate.getUniqueId());
-                        ps2.setLong(8, itemUpdate.getExpiration());
-                        ps2.setByte(9, itemUpdate.getFlag());
-                        ps2.setByte(10, (byte) this.value);
-                        ps2.setString(11, itemUpdate.getGiftFrom());
-                        ps2.setInt(12, itemUpdate.getEquipOnlyId());
-                        for (int k = 0; k < lulz.size(); k++)
-                            ps2.setInt(13 + k, ((Integer) lulz.get(k)).intValue());
-                        ps2.executeUpdate();
-                        ps2.close();
-                    } catch (SQLException ex) {
-                        System.err.println(
-                                "GMLOG : " + itemUpdate.getGMLog() + "1 Table_equip : " + this.table + " " + ex);
-                    }
-                    if (mit.equals(MapleInventoryType.EQUIP) || mit.equals(MapleInventoryType.EQUIPPED)) {
-                        PreparedStatement pse = con.prepareStatement("UPDATE `" + this.table_equip
-                                + "` SET `upgradeslots` = ?, `level` = ?, `str` = ?, `dex` = ?, `int` = ?, `luk` = ?, `hp` = ?, `mp` = ?, `watk` = ?, `matk` = ?, `wdef` = ?, `mdef` = ?, `acc` = ?, `avoid` = ?, `hands` = ?, `speed` = ?, `jump` = ?, `ViciousHammer` = ?, `itemEXP` = ?, `durability` = ?, `enhance` = ?, `potential1` = ?, `potential2` = ?, `potential3` = ?, `hpR` = ?, `mpR` = ?, `itemlevel` = ? WHERE `equipOnlyId` = ?");
-                        IEquip equip = (IEquip) itemUpdate;
-                        pse.setInt(1, equip.getUpgradeSlots());
-                        pse.setInt(2, equip.getLevel());
-                        pse.setInt(3, equip.getStr());
-                        pse.setInt(4, equip.getDex());
-                        pse.setInt(5, equip.getInt());
-                        pse.setInt(6, equip.getLuk());
-                        pse.setInt(7, equip.getHp());
-                        pse.setInt(8, equip.getMp());
-                        pse.setInt(9, equip.getWatk());
-                        pse.setInt(10, equip.getMatk());
-                        pse.setInt(11, equip.getWdef());
-                        pse.setInt(12, equip.getMdef());
-                        pse.setInt(13, equip.getAcc());
-                        pse.setInt(14, equip.getAvoid());
-                        pse.setInt(15, equip.getHands());
-                        pse.setInt(16, equip.getSpeed());
-                        pse.setInt(17, equip.getJump());
-                        pse.setInt(18, equip.getViciousHammer());
-                        pse.setInt(19, equip.getItemEXP());
-                        pse.setInt(20, equip.getDurability());
-                        pse.setByte(21, equip.getEnhance());
-                        pse.setInt(22, equip.getPotential1());
-                        pse.setInt(23, equip.getPotential2());
-                        pse.setInt(24, equip.getPotential3());
-                        pse.setInt(25, equip.getHpR());
-                        pse.setInt(26, equip.getMpR());
-                        pse.setByte(27, equip.getEquipLevel());
-                        pse.setInt(28, equip.getEquipOnlyId());
-                        pse.executeUpdate();
-                        pse.close();
-                    }
-                } catch (RuntimeException | SQLException ex) {
-                    System.err.println("2 table_equip: " + this.table_equip + " " + ex);
-                }
-            } else {
-                StringBuilder queryItemInsert = new StringBuilder("INSERT INTO `");
-                queryItemInsert.append(this.table);
-                queryItemInsert.append("` (");
-                for (String g : this.arg) {
-                    queryItemInsert.append(g);
-                    queryItemInsert.append(", ");
-                }
-                queryItemInsert.append(
-                        "itemid, inventorytype, position, quantity, owner, GM_Log, uniqueid, expiredate, flag, `type`, sender, `equipOnlyId` ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ");
-                for (String g : this.arg)
-                    queryItemInsert.append(", ?");
-                queryItemInsert.append(")");
-                PreparedStatement ps3 = con.prepareStatement(queryItemInsert.toString());
-                IItem itemTmp = (IItem) item.getLeft();
-                MapleInventoryType mit = (MapleInventoryType) item.getRight();
-                try {
-                    int k = 1;
-                    for (k = 0; k < lulz.size(); k++)
-                        ps3.setInt(k + 1, ((Integer) lulz.get(k)).intValue());
-                    ps3.setInt(k + 1, itemTmp.getItemId());
-                    ps3.setInt(k + 2, mit.getType());
-                    ps3.setInt(k + 3, itemTmp.getPosition());
-                    ps3.setInt(k + 4, itemTmp.getQuantity());
-                    ps3.setString(k + 5, itemTmp.getOwner());
-                    ps3.setString(k + 6, itemTmp.getGMLog());
-                    ps3.setInt(k + 7, itemTmp.getUniqueId());
-                    ps3.setLong(k + 8, itemTmp.getExpiration());
-                    ps3.setByte(k + 9, itemTmp.getFlag());
-                    ps3.setByte(k + 10, (byte) this.value);
-                    ps3.setString(k + 11, itemTmp.getGiftFrom());
-                    ps3.setInt(k + 12, itemTmp.getEquipOnlyId());
-                    ps3.executeUpdate();
-                    ps3.close();
-                    ps3 = con.prepareStatement("select @@identity as id");
-                    ResultSet rs2 = ps3.executeQuery();
-                    int newIndex = 0;
-                    if (rs2.next())
-                        newIndex = rs2.getInt(1);
-                    rs2.close();
-                    int onlyID = 0;
-                    if (itemTmp.getEquipOnlyId() == -1) {
-                        onlyID = newIndex;
-                        StringBuilder queryItemUpdateOnlyId = new StringBuilder("Update `");
-                        queryItemUpdateOnlyId.append(this.table);
-                        queryItemUpdateOnlyId.append("` set `equipOnlyId` = ? WHERE `inventoryitemid` = ?");
-                        PreparedStatement ps2 = con.prepareStatement(queryItemUpdateOnlyId.toString());
-                        ps2.setInt(1, onlyID);
-                        ps2.setInt(2, onlyID);
-                        ps2.executeUpdate();
-                        ps2.close();
-                        itemTmp.setEquipOnlyId(onlyID);
-                    } else {
-                        onlyID = itemTmp.getEquipOnlyId();
-                    }
-                    ps3.close();
-                    if (mit.equals(MapleInventoryType.EQUIP) || mit.equals(MapleInventoryType.EQUIPPED)) {
-                        if (onlyID == 0)
-                            throw new RuntimeException("Inserting item failed.");
-                        try {
-                            PreparedStatement pse = con.prepareStatement("INSERT INTO " + this.table_equip
-                                    + " VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                            pse.setInt(1, newIndex);
-                            IEquip equip = (IEquip) itemTmp;
-                            pse.setInt(2, equip.getUpgradeSlots());
-                            pse.setInt(3, equip.getLevel());
-                            pse.setInt(4, equip.getStr());
-                            pse.setInt(5, equip.getDex());
-                            pse.setInt(6, equip.getInt());
-                            pse.setInt(7, equip.getLuk());
-                            pse.setInt(8, equip.getHp());
-                            pse.setInt(9, equip.getMp());
-                            pse.setInt(10, equip.getWatk());
-                            pse.setInt(11, equip.getMatk());
-                            pse.setInt(12, equip.getWdef());
-                            pse.setInt(13, equip.getMdef());
-                            pse.setInt(14, equip.getAcc());
-                            pse.setInt(15, equip.getAvoid());
-                            pse.setInt(16, equip.getHands());
-                            pse.setInt(17, equip.getSpeed());
-                            pse.setInt(18, equip.getJump());
-                            pse.setInt(19, equip.getViciousHammer());
-                            pse.setInt(20, equip.getItemEXP());
-                            pse.setInt(21, equip.getDurability());
-                            pse.setByte(22, equip.getEnhance());
-                            pse.setInt(23, equip.getPotential1());
-                            pse.setInt(24, equip.getPotential2());
-                            pse.setInt(25, equip.getPotential3());
-                            pse.setInt(26, equip.getHpR());
-                            pse.setInt(27, equip.getMpR());
-                            pse.setByte(28, equip.getEquipLevel());
-                            pse.setInt(29, onlyID);
-                            pse.executeUpdate();
-                            pse.close();
-                        } catch (SQLException ex) {
-                            ex.printStackTrace();
-                            System.err.println("INSERT NEW E ERROR : " + itemTmp.getItemId() + " EquipOnlyId : "
-                                    + itemTmp.getEquipOnlyId() + " " + ex);
-                        }
-                    }
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                    System.err.println("INSERT NEW ITEM ERROR : " + itemTmp.getItemId() + " EquipOnlyId : "
-                            + itemTmp.getEquipOnlyId() + " " + ex);
-                }
-            }
-            rs.close();
+        
+        // 确保ID数量与物品数量一致
+        if (insertedIds.size() != items.size()) {
+            throw new SQLException("插入的物品数量与生成的ID数量不匹配");
         }
-        ps.close();
+        
+        // 准备装备插入语句
+        String equipInsertSQL = "INSERT INTO " + this.table_equip +
+                " (inventoryitemid, upgradeslots, level, str, dex, `int`, luk, hp, mp, watk, matk, wdef, mdef, acc, avoid, hands, speed, jump, ViciousHammer, itemEXP, durability, enhance, potential1, potential2, potential3, hpR, mpR, itemlevel, equipOnlyId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+        try (PreparedStatement equipInsertPs = con.prepareStatement(equipInsertSQL)) {
+            for (int i = 0; i < items.size(); i++) {
+                Pair<IItem, MapleInventoryType> item = items.get(i);
+                IItem itemTmp = item.getLeft();
+                MapleInventoryType mit = item.getRight();
+                
+                // 只处理装备类型物品
+                if (mit.equals(MapleInventoryType.EQUIP) || mit.equals(MapleInventoryType.EQUIPPED)) {
+                    int inventoryItemId = insertedIds.get(i);
+                    IEquip equip = (IEquip) itemTmp;
+                    
+                    equipInsertPs.setInt(1, inventoryItemId);
+                    equipInsertPs.setInt(2, equip.getUpgradeSlots());
+                    equipInsertPs.setInt(3, equip.getLevel());
+                    equipInsertPs.setInt(4, equip.getStr());
+                    equipInsertPs.setInt(5, equip.getDex());
+                    equipInsertPs.setInt(6, equip.getInt());
+                    equipInsertPs.setInt(7, equip.getLuk());
+                    equipInsertPs.setInt(8, equip.getHp());
+                    equipInsertPs.setInt(9, equip.getMp());
+                    equipInsertPs.setInt(10, equip.getWatk());
+                    equipInsertPs.setInt(11, equip.getMatk());
+                    equipInsertPs.setInt(12, equip.getWdef());
+                    equipInsertPs.setInt(13, equip.getMdef());
+                    equipInsertPs.setInt(14, equip.getAcc());
+                    equipInsertPs.setInt(15, equip.getAvoid());
+                    equipInsertPs.setInt(16, equip.getHands());
+                    equipInsertPs.setInt(17, equip.getSpeed());
+                    equipInsertPs.setInt(18, equip.getJump());
+                    equipInsertPs.setInt(19, equip.getViciousHammer());
+                    equipInsertPs.setInt(20, equip.getItemEXP());
+                    equipInsertPs.setInt(21, equip.getDurability());
+                    equipInsertPs.setByte(22, equip.getEnhance());
+                    equipInsertPs.setInt(23, equip.getPotential1());
+                    equipInsertPs.setInt(24, equip.getPotential2());
+                    equipInsertPs.setInt(25, equip.getPotential3());
+                    equipInsertPs.setInt(26, equip.getHpR());
+                    equipInsertPs.setInt(27, equip.getMpR());
+                    equipInsertPs.setByte(28, equip.getEquipLevel());
+                    equipInsertPs.setInt(29, equip.getEquipOnlyId());
+                    
+                    equipInsertPs.addBatch();
+                }
+            }
+            
+            // 执行批量插入
+            equipInsertPs.executeBatch();
+        }
     }
 }

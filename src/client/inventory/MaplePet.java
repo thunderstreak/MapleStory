@@ -125,17 +125,18 @@ public class MaplePet implements Serializable {
         if (!this.changed)
             return;
         try {
-            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement(
-                    "UPDATE pets SET name = ?, level = ?, closeness = ?, fullness = ?, seconds = ?, flags = ? WHERE petid = ?");
-            ps.setString(1, this.name);
-            ps.setByte(2, this.level);
-            ps.setShort(3, this.closeness);
-            ps.setByte(4, this.fullness);
-            ps.setInt(5, this.secondsLeft);
-            ps.setShort(6, this.flags);
-            ps.setInt(7, this.uniqueid);
-            ps.executeUpdate();
-            ps.close();
+            // 使用try-with-resources确保资源正确释放
+            try (PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement(
+                    "UPDATE pets SET name = ?, level = ?, closeness = ?, fullness = ?, seconds = ?, flags = ? WHERE petid = ?")) {
+                ps.setString(1, this.name);
+                ps.setByte(2, this.level);
+                ps.setShort(3, this.closeness);
+                ps.setByte(4, this.fullness);
+                ps.setInt(5, this.secondsLeft);
+                ps.setShort(6, this.flags);
+                ps.setInt(7, this.uniqueid);
+                ps.executeUpdate();
+            }
             this.changed = false;
         } catch (SQLException ex) {
             ex.printStackTrace();
