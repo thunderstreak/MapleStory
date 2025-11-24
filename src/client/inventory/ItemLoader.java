@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -307,8 +308,8 @@ public enum ItemLoader {
                 }
             }
             insertQuery.append(")");
-            
-            try (PreparedStatement insertPs = con.prepareStatement(insertQuery.toString())) {
+
+            try (PreparedStatement insertPs = con.prepareStatement(insertQuery.toString(), Statement.RETURN_GENERATED_KEYS)) {
                 for (Pair<IItem, MapleInventoryType> item : items) {
                     IItem itemTmp = item.getLeft();
                     MapleInventoryType mit = item.getRight();
